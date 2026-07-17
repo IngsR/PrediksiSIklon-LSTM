@@ -11,6 +11,7 @@ RANKING_HAVERSINE_PATH    = os.path.join(BASE_DIR, "data", "model_ranking_arvers
 OVERFITTING_PATH          = os.path.join(BASE_DIR, "data", "overfitting_summary.csv")
 TRAINING_SUMMARY_PATH     = os.path.join(BASE_DIR, "data", "training_summary.csv")
 TRAJECTORY_IMG_PATH       = os.path.join(BASE_DIR, "assets", "trajectory_best_model.png")
+PREDICTION_SUMMARY_PATH   = os.path.join(BASE_DIR, "data", "prediction_summary.csv")
 
 COLOR = {
     "bg_primary": "#FFFFFF", "bg_secondary": "#F8F9FA",
@@ -64,6 +65,10 @@ def load_overfitting_summary():
 def load_training_summary():
     return pd.read_csv(TRAINING_SUMMARY_PATH)
 
+@st.cache_data
+def load_prediction_summary():
+    return pd.read_csv(PREDICTION_SUMMARY_PATH)
+
 def inject_custom_css():
     st.markdown("""
     <style>
@@ -82,7 +87,7 @@ def inject_custom_css():
         padding-left: 2rem !important;
         padding-right: 2rem !important;
     }
-    
+
     [data-testid="stMainBlockContainer"] {
         max-width: 100% !important;
         padding-left: 2rem !important;
@@ -258,7 +263,7 @@ def render_sidebar_brand():
                 <span style="font-size: 32px;">🌀</span>
                 <div style="display: flex; flex-direction: column;">
                     <p style="color: #1E3A8A; font-size: 18px; margin: 0; font-weight: 900; line-height: 1.2;">Model LSTM</p>
-                    <p style="color: #11224D; font-size: 15px; margin: 0; font-weight: 700;">Sliding Window 8</p>
+                    <p style="color: #11224D; font-size: 15px; margin: 0; font-weight: 700;">Sliding Window Gabung 8</p>
                 </div>
             </div>
             """,

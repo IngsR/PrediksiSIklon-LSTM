@@ -15,9 +15,10 @@ from datetime import datetime, timedelta
 import utils
 
 from prediction.inference import (
-    run_inference,
+    run_recursive_inference,
     WINDOW_SIZE,
 )
+from prediction.analytics import calculate_analytics
 
 # =====================================================
 # PAGE CONFIG
@@ -79,17 +80,17 @@ left_col, right_col = st.columns([0.9, 1.3])
 with left_col:
     with st.container(border=True):
         st.markdown("#### 📝 Editor Observasi")
-        
+
         # 1. Pilih Baris (1-8)
         row_idx = st.selectbox(
             "Pilih Nomor Titik untuk Diedit:",
             range(1, WINDOW_SIZE + 1),
             index=0
         )
-        
+
         # Ambil data saat ini untuk baris terpilih
         current_row_data = st.session_state.draft_data.iloc[row_idx - 1]
-        
+
         # 2. Form Input untuk Baris Terpilih (Batch Update)
         with st.form(key=f"row_editor_form_{row_idx}"):
             c1, c2 = st.columns(2)
@@ -99,9 +100,9 @@ with left_col:
             with c2:
                 new_lon = st.number_input("Longitude (°)", value=float(current_row_data["LON"]), format="%.1f")
                 new_pres = st.number_input("WMO Pres", value=float(current_row_data["WMO_PRES"]), format="%.1f")
-            
+
             submit_row = st.form_submit_button("Simpan Titik", use_container_width=True)
-            
+
             if submit_row:
                 st.session_state.draft_data.loc[row_idx - 1, "LAT"] = new_lat
                 st.session_state.draft_data.loc[row_idx - 1, "LON"] = new_lon
@@ -111,21 +112,23 @@ with left_col:
 
         st.divider()
 
-        # 3. Tampilkan Tabel (Academic Style untuk Skripsi)
+        # 3. Tampilkan Tabel
         display_df = st.session_state.draft_data.copy()
         display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
-        
         utils.render_custom_table(display_df)
 
-        # 4. Waktu Awal & Tombol Prediksi
+        # 4. Konfigurasi Prediksi
         if "start_datetime" not in st.session_state:
             st.session_state.start_datetime = datetime.combine(datetime.now().date(), datetime.now().time().replace(hour=0, minute=0, second=0))
 
-        with st.expander("Konfigurasi Waktu (Interval 3 Jam)"):
+        with st.expander("Konfigurasi Prediksi"):
             d_col, t_col = st.columns(2)
             start_date = d_col.date_input("Tanggal Awal", st.session_state.start_datetime.date())
             start_time = t_col.time_input("Jam Awal", st.session_state.start_datetime.time())
             st.session_state.start_datetime = datetime.combine(start_date, start_time)
+
+            horizon = st.selectbox("Horizon Prediksi (Jam):", [3, 6, 9])
+            num_steps = horizon // 3
 
         btn_col1, btn_col2 = st.columns([2, 1])
         with btn_col1:
@@ -140,9 +143,9 @@ with left_col:
             st.error("⚠️ Semua koordinat LAT dan LON harus diisi.")
         else:
             try:
-                with st.spinner("⏳ Memproses Prediksi..."):
-                    result = run_inference(df_raw=df, start_time=st.session_state.start_datetime)
-                st.session_state.prediction_result = result
+                with st.spinner("⏳ Memproses Prediksi Rekursif..."):
+                    results = run_recursive_inference(df_raw=df, start_time=st.session_state.start_datetime, steps=num_steps)
+                st.session_state.prediction_result = results
             except Exception as e:
                 st.error(f"⚠️ Terjadi kesalahan: {e}")
 
@@ -153,41 +156,59 @@ with left_col:
 with right_col:
     with st.container(border=True):
         st.markdown("#### 🗺️ Visualisasi Jalur")
-        
+
         map_df = st.session_state.draft_data
         valid_points = map_df[(map_df["LAT"] != 0) & (map_df["LON"] != 0)]
-        
+
         center = [valid_points.iloc[-1]["LAT"], valid_points.iloc[-1]["LON"]] if not valid_points.empty else [-10, 90]
         m = folium.Map(location=center, zoom_start=5, control_scale=True)
-        
+
         Fullscreen().add_to(m)
         MiniMap().add_to(m)
         MeasureControl().add_to(m)
         folium.LatLngPopup().add_to(m)
 
+        # Draw History
         pts = valid_points[["LAT", "LON"]].values.tolist()
         if pts:
             folium.PolyLine(pts, color="blue", weight=4, opacity=0.7).add_to(m)
             for i, p in enumerate(pts):
                 folium.CircleMarker(p, radius=5, color="blue", fill=True, tooltip=f"Titik {i+1}").add_to(m)
 
-        if st.session_state.prediction_result and pts:
-            pred_pt = [st.session_state.prediction_result["pred_lat"], st.session_state.prediction_result["pred_lon"]]
-            AntPath(locations=[pts[-1], pred_pt], color="red", weight=5, dash_array=[10, 20]).add_to(m)
-            folium.Marker(pred_pt, tooltip="Hasil Prediksi", icon=folium.Icon(color="red", icon="star")).add_to(m)
+        # Draw Predictions
+        if st.session_state.prediction_result:
+            results = st.session_state.prediction_result
+            last_pt = pts[-1]
+            for res in results:
+                pred_pt = [res['pred_lat'], res['pred_lon']]
+                AntPath(locations=[last_pt, pred_pt], color="red", weight=5, dash_array=[10, 20]).add_to(m)
+                folium.Marker(pred_pt, tooltip=f"Pred: {res['time'].strftime('%H:%M')}", icon=folium.Icon(color="red", icon="star")).add_to(m)
+                last_pt = pred_pt
 
         map_data = st_folium(m, use_container_width=True, height=600)
 
     # HASIL PREDIKSI (DI BAWAH PETA)
     if st.session_state.prediction_result:
-        res = st.session_state.prediction_result
+        results = st.session_state.prediction_result
         with st.container(border=True):
             st.markdown("#### 📍 Hasil Prediksi")
-            c1, c2 = st.columns(2)
-            c1.metric("Latitude", f"{res['pred_lat']:.1f}°")
-            c2.metric("Longitude", f"{res['pred_lon']:.1f}°")
-            target_time = st.session_state.start_datetime + timedelta(hours=24)
-            st.info(f"Target Waktu: **{target_time.strftime('%d-%m-%Y %H:%M')}**")
+            for i, res in enumerate(results):
+                st.markdown(f"**Step {i+1} ({res['time'].strftime('%d-%m-%Y %H:%M')})**")
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Lat", f"{res['pred_lat']:.1f}°")
+                c2.metric("Lon", f"{res['pred_lon']:.1f}°")
+
+                # Analytics
+                analytics = calculate_analytics(st.session_state.draft_data, res['pred_lat'], res['pred_lon'])
+                c3.metric("Kecepatan", f"{analytics['speed_kmh']} km/h")
+
+                st.caption(f"Status: {analytics['category']} | Arah: {analytics['bearing']}°")
+
+            st.warning(
+                "**Catatan Ilmiah:** Prediksi bersifat *data-driven* dan bersifat probabilistik. "
+                "Peningkatan *horizon* waktu (6-9 jam) secara inheren meningkatkan akumulasi ketidakpastian "
+                "dan penurunan akurasi model. Hasil ini sebagai pendukung informasi ."
+            )
 
     # Update Data dari Klik Peta
     if map_data and map_data.get("last_clicked"):

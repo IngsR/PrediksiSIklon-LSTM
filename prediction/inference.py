@@ -280,3 +280,43 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
         "pred_lat": float(prediction[0, 0]),
         "pred_lon": float(prediction[0, 1]),
     }
+
+# ==========================================
+# RECURSIVE INFERENCE
+# ==========================================
+def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
+    """
+    Melakukan prediksi secara rekursif.
+    Setiap prediksi baru ditambahkan ke window dan window bergeser.
+    """
+    current_df = df_raw.copy()
+    current_time = pd.to_datetime(start_time)
+    
+    predictions = []
+    
+    for i in range(steps):
+        # 1. Prediksi untuk step saat ini
+        result = run_inference(current_df, start_time=current_time)
+        
+        # 2. Simpan hasil
+        prediction_point = {
+            "pred_lat": result["pred_lat"],
+            "pred_lon": result["pred_lon"],
+            "time": current_time + pd.Timedelta(hours=3)
+        }
+        predictions.append(prediction_point)
+        
+        # 3. Update window untuk step berikutnya
+        # Geser data: hapus baris pertama, tambahkan prediksi sebagai baris terakhir
+        new_row = {
+            "LAT": result["pred_lat"],
+            "LON": result["pred_lon"],
+            "WMO_WIND": current_df["WMO_WIND"].iloc[-1], # Mengikuti wind terakhir
+            "WMO_PRES": current_df["WMO_PRES"].iloc[-1]  # Mengikuti pres terakhir
+        }
+        
+        current_df = current_df.iloc[1:].copy()
+        current_df = pd.concat([current_df, pd.DataFrame([new_row])], ignore_index=True)
+        current_time += pd.Timedelta(hours=3)
+        
+    return predictions
