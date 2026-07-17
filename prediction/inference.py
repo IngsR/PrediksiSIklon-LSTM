@@ -114,6 +114,9 @@ def load_resources():
 # INFERENCE
 # ==========================================
 def run_inference(df_raw: pd.DataFrame, start_time=None):
+    print("\n" + "="*50)
+    print("START INFERENCE PROCESS")
+    print("="*50)
 
     if len(df_raw) != WINDOW_SIZE:
         raise ValueError(
@@ -127,6 +130,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
 
     df = df_raw.copy()
 
+    print(f"[1/5] Generating ISO_TIME starting from: {start_time}")
     df["ISO_TIME"] = pd.date_range(
         start=start_time,
         periods=WINDOW_SIZE,
@@ -136,7 +140,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     # ======================================
     # FEATURE ENGINEERING
     # ======================================
-
+    print("[2/5] Running Feature Engineering...")
     prev_lat = df["LAT"].shift(1)
     prev_lon = df["LON"].shift(1)
     prev_time = df["ISO_TIME"].shift(1)
@@ -213,7 +217,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     # ======================================
     # LOAD RESOURCE
     # ======================================
-
+    print("[3/5] Loading Model and Scalers...")
     model, feature_scaler, target_scaler = load_resources()
 
     # Validasi agar nama fitur sama persis
@@ -225,6 +229,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
             f"namun inference menggunakan {FEATURES_TO_SCALE}."
         )
 
+    print("[4/5] Scaling Features...")
     scaled_features = feature_scaler.transform(
         df[FEATURES_TO_SCALE]
     )
@@ -238,10 +243,6 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     # ======================================
     # PREPARE INPUT (X)
     # ======================================
-    # Pastikan urutan kolom sesuai MODEL_FEATURES
-    # LAT dan LON menggunakan nilai asli (tidak di-scale) sesuai PDF
-    # Feature lainnya menggunakan nilai yang sudah di-scale
-    
     final_df = pd.DataFrame(index=df.index)
     final_df["LAT"] = df["LAT"].values
     final_df["LON"] = df["LON"].values
@@ -263,14 +264,17 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     # ======================================
     # PREDIKSI
     # ======================================
+    print("[5/5] Executing Model Prediction...")
     prediction = model.predict(
         X,
         verbose=0,
     )
 
-    # Model ini memprediksi LAT dan LON secara langsung (unscaled)
-    # Meskipun ada target_scaler, berdasarkan analisis PDF, 
-    # output model (y_pred_scaled) sudah merupakan koordinat asli.
+    print("-"*50)
+    print(f"PREDICTION SUCCESS")
+    print(f"Latitude  : {prediction[0, 0]}")
+    print(f"Longitude : {prediction[0, 1]}")
+    print("="*50 + "\n")
     
     return {
         "pred_lat": float(prediction[0, 0]),

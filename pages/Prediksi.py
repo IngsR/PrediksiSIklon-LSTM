@@ -38,29 +38,11 @@ utils.render_sidebar_brand()
 
 st.markdown("### PREDIKSI LINTASAN SIKLON (LSTM)")
 
-st.markdown(
-    """
-<div class="info-card">
-<h4>🧠 Prediksi Posisi Berbasis LSTM</h4>
-
-Masukkan 8 observasi siklon
-(LAT, LON, WMO_WIND, WMO_PRES).
-
-Feature engineering dan prediksi
-hanya dijalankan setelah tombol
-Prediksi LSTM ditekan.
-
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
 # =====================================================
-# DATA DEFAULT
+# SESSION STATE
 # =====================================================
 
 def create_empty_dataframe():
-
     return pd.DataFrame(
         {
             "LAT": [0.0] * WINDOW_SIZE,
@@ -70,475 +52,154 @@ def create_empty_dataframe():
         }
     )
 
-# =====================================================
-# SESSION STATE
-# =====================================================
-
-# Data yang sedang diedit
 if "draft_data" not in st.session_state:
     st.session_state.draft_data = create_empty_dataframe()
 
-# Snapshot saat tombol Prediksi ditekan
-if "prediction_input" not in st.session_state:
-    st.session_state.prediction_input = None
-
-# Hasil prediksi
 if "prediction_result" not in st.session_state:
     st.session_state.prediction_result = None
-
-# Refresh editor jika tombol Bersihkan ditekan
-if "editor_version" not in st.session_state:
-    st.session_state.editor_version = 0
 
 # =====================================================
 # FUNGSI RESET
 # =====================================================
 
 def clear_prediction():
-
     st.session_state.draft_data = create_empty_dataframe()
-
-    st.session_state.prediction_input = None
-
     st.session_state.prediction_result = None
-
-    st.session_state.editor_version += 1
 
 # =====================================================
 # LAYOUT
 # =====================================================
 
-left_col, right_col = st.columns([0.8, 1.4])
+left_col, right_col = st.columns([0.9, 1.3])
 
 # =====================================================
 # INPUT
 # =====================================================
 
 with left_col:
-
     with st.container(border=True):
-
-        st.markdown("#### 📝 Input Observasi (8 Titik)")
-
-        st.caption(
-            "LAT dan LON dapat diisi dari tabel "
-            "atau melalui klik pada peta."
+        st.markdown("#### 📝 Editor Observasi")
+        
+        # 1. Pilih Baris (1-8)
+        row_idx = st.selectbox(
+            "Pilih Nomor Titik untuk Diedit:",
+            range(1, WINDOW_SIZE + 1),
+            index=0
         )
-
-        # -------------------------------------
-
-        date_col, time_col = st.columns(2)
-
-        with date_col:
-
-            start_date = st.date_input(
-                "📅 Tanggal Awal",
-                datetime.now(),
-            )
-
-        with time_col:
-
-            start_time = st.time_input(
-                "⏰ Jam Awal",
-                datetime.now().time().replace(
-                    hour=0,
-                    minute=0,
-                    second=0,
-                ),
-            )
-
-        start_datetime = datetime.combine(
-            start_date,
-            start_time,
-        )
-
-        # -------------------------------------
-
-        edited_df = st.data_editor(
-
-            st.session_state.draft_data,
-
-            key=f"prediction_editor_{st.session_state.editor_version}",
-
-            num_rows="fixed",
-
-            width="stretch",
-
-            height=340,
-
-            column_config={
-
-                "LAT": st.column_config.NumberColumn(
-                    "LAT (°)",
-                    format="%.1f",
-                ),
-
-                "LON": st.column_config.NumberColumn(
-                    "LON (°)",
-                    format="%.1f",
-                ),
-
-                "WMO_WIND": st.column_config.NumberColumn(
-                    "Wind (WMO)",
-                    format="%.1f",
-                ),
-
-                "WMO_PRES": st.column_config.NumberColumn(
-                    "Press (WMO)",
-                    format="%.1f",
-                ),
-
-            },
-        )
-
-        # Selalu simpan hasil edit ke draft
-
-        st.session_state.draft_data = edited_df.copy()
-
-        # -------------------------------------
-
-        col1, col2 = st.columns([2,1])
-
-        with col1:
-
-            predict_clicked = st.button(
-                "🧠 Prediksi LSTM",
-                type="primary",
-                width="stretch",
-            )
-
-        with col2:
-
-            st.button(
-                "🗑️ Bersihkan",
-                width="stretch",
-                on_click=clear_prediction,
-            )
-            # =====================================================
-# PROSES PREDIKSI
-# =====================================================
-
-    if predict_clicked:
-
-        df = st.session_state.draft_data.copy()
-
-        # -----------------------------------------
-        # VALIDASI
-        # -----------------------------------------
-
-        if df.isnull().values.any():
-
-            st.error(
-                "⚠️ Masih terdapat data kosong (NaN)."
-            )
-
-        elif (df["LAT"] == 0).any() or (df["LON"] == 0).any():
-
-            st.error(
-                "⚠️ Semua koordinat LAT dan LON harus diisi."
-            )
-
-        elif (df["WMO_WIND"] == 0).any():
-
-            st.error(
-                "⚠️ Nilai WMO_WIND tidak boleh 0."
-            )
-
-        elif (df["WMO_PRES"] == 0).any():
-
-            st.error(
-                "⚠️ Nilai WMO_PRES tidak boleh 0."
-            )
-
-        else:
-
-            # -------------------------------------
-            # SIMPAN SNAPSHOT
-            # -------------------------------------
-
-            st.session_state.prediction_input = df.copy()
-
-            # -------------------------------------
-            # JALANKAN MODEL
-            # -------------------------------------
-
-            try:
-
-                with st.spinner(
-                    "⏳ Sedang melakukan feature engineering dan prediksi..."
-                ):
-
-                    result = run_inference(
-                        df_raw=st.session_state.prediction_input,
-                        start_time=start_datetime,
-                    )
-
-                st.session_state.prediction_result = result
-
-            except Exception as e:
-
-                st.session_state.prediction_result = None
-
-                st.error(
-                    f"⚠️ Terjadi kesalahan:\n\n{e}"
-                )
-
-# =====================================================
-# HASIL PREDIKSI
-# =====================================================
-
-    if st.session_state.prediction_result is not None:
-
-        result = st.session_state.prediction_result
-
-        pred_lat = result["pred_lat"]
-        pred_lon = result["pred_lon"]
-
-        next_time = (
-            start_datetime
-            + timedelta(hours=24)
-        )
-
-        with st.container(border=True):
-
-            st.markdown(
-                "#### 📍 Hasil Prediksi"
-            )
-
-            st.success(
-                "Prediksi berhasil dijalankan."
-            )
-
+        
+        # Ambil data saat ini untuk baris terpilih
+        current_row_data = st.session_state.draft_data.iloc[row_idx - 1]
+        
+        # 2. Form Input untuk Baris Terpilih (Batch Update)
+        with st.form(key=f"row_editor_form_{row_idx}"):
             c1, c2 = st.columns(2)
-
             with c1:
-
-                st.metric(
-                    "Latitude",
-                    f"{pred_lat:.6f}°",
-                )
-
+                new_lat = st.number_input("Latitude (°)", value=float(current_row_data["LAT"]), format="%.1f")
+                new_wind = st.number_input("WMO Wind", value=float(current_row_data["WMO_WIND"]), format="%.1f")
             with c2:
+                new_lon = st.number_input("Longitude (°)", value=float(current_row_data["LON"]), format="%.1f")
+                new_pres = st.number_input("WMO Pres", value=float(current_row_data["WMO_PRES"]), format="%.1f")
+            
+            submit_row = st.form_submit_button("Simpan Titik", use_container_width=True)
+            
+            if submit_row:
+                st.session_state.draft_data.loc[row_idx - 1, "LAT"] = new_lat
+                st.session_state.draft_data.loc[row_idx - 1, "LON"] = new_lon
+                st.session_state.draft_data.loc[row_idx - 1, "WMO_WIND"] = new_wind
+                st.session_state.draft_data.loc[row_idx - 1, "WMO_PRES"] = new_pres
+                st.rerun()
 
-                st.metric(
-                    "Longitude",
-                    f"{pred_lon:.6f}°",
-                )
+        st.divider()
 
-            st.info(
-                f"""
-Prediksi dilakukan untuk:
+        # 3. Tampilkan Tabel (Academic Style untuk Skripsi)
+        display_df = st.session_state.draft_data.copy()
+        display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
+        
+        utils.render_custom_table(display_df)
 
-**{next_time.strftime('%d-%m-%Y %H:%M')}**
-"""
-            )
-            # =====================================================
-# PETA
+        # 4. Waktu Awal & Tombol Prediksi
+        if "start_datetime" not in st.session_state:
+            st.session_state.start_datetime = datetime.combine(datetime.now().date(), datetime.now().time().replace(hour=0, minute=0, second=0))
+
+        with st.expander("Konfigurasi Waktu (Interval 3 Jam)"):
+            d_col, t_col = st.columns(2)
+            start_date = d_col.date_input("Tanggal Awal", st.session_state.start_datetime.date())
+            start_time = t_col.time_input("Jam Awal", st.session_state.start_datetime.time())
+            st.session_state.start_datetime = datetime.combine(start_date, start_time)
+
+        btn_col1, btn_col2 = st.columns([2, 1])
+        with btn_col1:
+            predict_clicked = st.button("🧠 Prediksi LSTM", type="primary", use_container_width=True)
+        with btn_col2:
+            st.button("🗑️ Reset", on_click=clear_prediction, use_container_width=True)
+
+    # PROSES PREDIKSI
+    if predict_clicked:
+        df = st.session_state.draft_data.copy()
+        if (df["LAT"] == 0).any() or (df["LON"] == 0).any():
+            st.error("⚠️ Semua koordinat LAT dan LON harus diisi.")
+        else:
+            try:
+                with st.spinner("⏳ Memproses Prediksi..."):
+                    result = run_inference(df_raw=df, start_time=st.session_state.start_datetime)
+                st.session_state.prediction_result = result
+            except Exception as e:
+                st.error(f"⚠️ Terjadi kesalahan: {e}")
+
+# =====================================================
+# PETA & HASIL
 # =====================================================
 
 with right_col:
-
     with st.container(border=True):
-
-        st.markdown("#### 🗺️ Peta Observasi")
-
-        st.caption(
-            "Klik peta untuk mengisi koordinat "
-            "LAT dan LON."
-        )
-
-        map_df = st.session_state.draft_data.copy()
-
-        valid_df = map_df[
-            (map_df["LAT"] != 0)
-            &
-            (map_df["LON"] != 0)
-        ]
-
-        if len(valid_df):
-
-            center_lat = valid_df.iloc[-1]["LAT"]
-            center_lon = valid_df.iloc[-1]["LON"]
-
-        else:
-
-            center_lat = -10
-            center_lon = 90
-
-        m = folium.Map(
-
-            location=[
-                center_lat,
-                center_lon,
-            ],
-
-            zoom_start=5,
-
-            tiles="OpenStreetMap",
-
-            control_scale=True,
-
-            prefer_canvas=True,
-
-        )
-
+        st.markdown("#### 🗺️ Visualisasi Jalur")
+        
+        map_df = st.session_state.draft_data
+        valid_points = map_df[(map_df["LAT"] != 0) & (map_df["LON"] != 0)]
+        
+        center = [valid_points.iloc[-1]["LAT"], valid_points.iloc[-1]["LON"]] if not valid_points.empty else [-10, 90]
+        m = folium.Map(location=center, zoom_start=5, control_scale=True)
+        
         Fullscreen().add_to(m)
-
         MiniMap().add_to(m)
-
         MeasureControl().add_to(m)
-
         folium.LatLngPopup().add_to(m)
 
-        # =====================================
-        # GARIS OBSERVASI
-        # =====================================
+        pts = valid_points[["LAT", "LON"]].values.tolist()
+        if pts:
+            folium.PolyLine(pts, color="blue", weight=4, opacity=0.7).add_to(m)
+            for i, p in enumerate(pts):
+                folium.CircleMarker(p, radius=5, color="blue", fill=True, tooltip=f"Titik {i+1}").add_to(m)
 
-        points = valid_df[
-            ["LAT", "LON"]
-        ].values.tolist()
+        if st.session_state.prediction_result and pts:
+            pred_pt = [st.session_state.prediction_result["pred_lat"], st.session_state.prediction_result["pred_lon"]]
+            AntPath(locations=[pts[-1], pred_pt], color="red", weight=5, dash_array=[10, 20]).add_to(m)
+            folium.Marker(pred_pt, tooltip="Hasil Prediksi", icon=folium.Icon(color="red", icon="star")).add_to(m)
 
-        if len(points):
+        map_data = st_folium(m, use_container_width=True, height=600)
 
-            folium.PolyLine(
+    # HASIL PREDIKSI (DI BAWAH PETA)
+    if st.session_state.prediction_result:
+        res = st.session_state.prediction_result
+        with st.container(border=True):
+            st.markdown("#### 📍 Hasil Prediksi")
+            c1, c2 = st.columns(2)
+            c1.metric("Latitude", f"{res['pred_lat']:.1f}°")
+            c2.metric("Longitude", f"{res['pred_lon']:.1f}°")
+            target_time = st.session_state.start_datetime + timedelta(hours=24)
+            st.info(f"Target Waktu: **{target_time.strftime('%d-%m-%Y %H:%M')}**")
 
-                points,
-
-                color="black",
-
-                weight=3,
-
-            ).add_to(m)
-
-            for i, point in enumerate(points):
-
-                folium.CircleMarker(
-
-                    point,
-
-                    radius=4,
-
-                    color="black",
-
-                    fill=True,
-
-                    tooltip=f"Titik {i+1}",
-
-                ).add_to(m)
-
-        # =====================================
-        # HASIL PREDIKSI
-        # =====================================
-
-        if (
-
-            st.session_state.prediction_result
-            is not None
-
-            and
-
-            len(points)
-
-        ):
-
-            pred_lat = st.session_state.prediction_result[
-                "pred_lat"
-            ]
-
-            pred_lon = st.session_state.prediction_result[
-                "pred_lon"
-            ]
-
-            AntPath(
-
-                locations=[
-
-                    points[-1],
-
-                    [
-
-                        pred_lat,
-
-                        pred_lon,
-
-                    ],
-
-                ],
-
-                color="red",
-
-                weight=4,
-
-            ).add_to(m)
-
-            folium.Marker(
-
-                [
-
-                    pred_lat,
-
-                    pred_lon,
-
-                ],
-
-                tooltip="Prediksi",
-
-            ).add_to(m)
-
-        map_data = st_folium(
-
-            m,
-
-            width="stretch",
-
-            height=650,
-
-        )
-
-# =====================================================
-# INPUT DARI PETA
-# =====================================================
-
-    if (
-
-        map_data
-
-        and
-
-        map_data.get("last_clicked")
-
-    ):
-
-        lat = map_data["last_clicked"]["lat"]
-
-        lon = map_data["last_clicked"]["lng"]
-
+    # Update Data dari Klik Peta
+    if map_data and map_data.get("last_clicked"):
+        lat = round(map_data["last_clicked"]["lat"], 1)
+        lon = round(map_data["last_clicked"]["lng"], 1)
         df = st.session_state.draft_data.copy()
-
-        empty = df.index[
-
-            (df["LAT"] == 0)
-
-            &
-
-            (df["LON"] == 0)
-
-        ]
-
-        if len(empty):
-
-            idx = empty[0]
-
-            df.loc[idx, "LAT"] = lat
-
-            df.loc[idx, "LON"] = lon
-
+        empty_indices = df.index[(df["LAT"] == 0) & (df["LON"] == 0)]
+        if len(empty_indices) > 0:
+            df.loc[empty_indices[0], ["LAT", "LON"]] = [lat, lon]
             st.session_state.draft_data = df
-
+            st.rerun()
         else:
-
-            st.toast(
-                "Seluruh titik sudah terisi."
-            )
+            st.toast("Semua titik sudah terisi.")
 
 utils.render_footer()
