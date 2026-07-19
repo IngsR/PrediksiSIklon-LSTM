@@ -47,6 +47,10 @@ with col1:
         """
         <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
             <div style="background-color: #F8FAFC; padding: 15px 20px; border-radius: 10px; border: 1px solid #E2E8F0;">
+                <span style="font-size: 1.2rem; font-weight: bold; color: #0F172A;">🔮 Prediksi Siklon</span>
+                <p style="margin: 5px 0 0 0; color: #475569;">Editor interaktif untuk melakukan input data observasi dan memprediksi lintasan siklon di masa depan menggunakan model LSTM.</p>
+            </div>
+            <div style="background-color: #F8FAFC; padding: 15px 20px; border-radius: 10px; border: 1px solid #E2E8F0;">
                 <span style="font-size: 1.2rem; font-weight: bold; color: #0F172A;">🗺️ Dashboard</span>
                 <p style="margin: 5px 0 0 0; color: #475569;">Visualisasi interaktif prediksi lintasan siklon di atas peta beserta metrik akurasinya (RMSE & MAE).</p>
             </div>
@@ -72,7 +76,7 @@ with col2:
     img_path = os.path.join("assets", "banner_beranda.png")
     if os.path.exists(img_path):
         # PERBAIKAN: Ganti use_container_width dengan width='stretch'
-        st.image(img_path, width='stretch') 
+        st.image(img_path, width='stretch')
     else:
         st.markdown(
             """
