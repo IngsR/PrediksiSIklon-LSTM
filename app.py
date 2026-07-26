@@ -70,7 +70,7 @@ with col1:
         """,
         unsafe_allow_html=True
     )
-    st.info("Pilih **Dashboard** untuk mulai melihat hasil prediksi.", icon="💡")
+    # st.info("Pilih **Dashboard** untuk mulai melihat hasil prediksi.", icon="💡")
 
 with col2:
     img_path = os.path.join("assets", "banner_beranda.png")

@@ -16,14 +16,14 @@ st.markdown("""
 <div class="narrative-box" style="margin-bottom: 25px;">
     <h4>👋 Pengantar Penelitian & Sistem Prediksi</h4>
     <p>
-        Selamat datang di halaman <strong>Evaluasi & Metrik Kinerja Model</strong>. Purwarupa sistem ini merupakan hasil penelitian yang berfokus pada 
-        <strong>prediksi lintasan siklon tropis menggunakan arsitektur Deep Learning <em>Long Short-Term Memory</em> (LSTM)</strong>. 
-        Penelitian ini dirancang khusus untuk meningkatkan sistem peringatan dini (<em>early warning system</em>) dan mitigasi risiko bencana 
-        hidrometeorologi di wilayah <strong>Sumatera Barat</strong>.
+        Selamat datang di halaman <strong>Tentang</strong>. Purwarupa aplikasi ini merupakan implementasi hasil penelitian mengenai
+        <strong>prediksi lintasan siklon tropis menggunakan arsitektur <em>Deep Learning Long Short-Term Memory</em> (LSTM)</strong>.
+        Aplikasi ini menyediakan visualisasi hasil prediksi, data observasi, serta evaluasi kinerja model untuk mendukung analisis
+        terhadap performa prediksi lintasan siklon tropis di <strong>Samudra Hindia</strong>.
     </p>
     <p>
-        Siklon tropis memiliki karakteristik pergerakan temporal dan spasial yang sangat dinamis. Untuk menangkap karakteristik pergerakannya secara akurat, penelitian ini memanfaatkan 
-        data historis lintasan siklon dari dataset internasional <strong>IBTrACS (1980–2025)</strong>. Model dilatih menggunakan variasi parameter untuk 
+        Siklon tropis memiliki karakteristik pergerakan temporal dan spasial yang sangat dinamis. Untuk menangkap karakteristik pergerakannya secara akurat, penelitian ini memanfaatkan
+        data historis lintasan siklon dari dataset internasional <strong>IBTrACS (1980–2025)</strong>. Model dilatih menggunakan variasi parameter untuk
         menemukan konfigurasi terbaik dalam memprediksi koordinat lintasan (Latitude dan Longitude) pada langkah waktu berikutnya.
     </p>
 </div>
@@ -38,10 +38,14 @@ try:
     if not df_hav_rank.empty:
         comp_df = df_hav_rank.copy()
         comp_df["Model"] = comp_df["Scenario"] + "-" + comp_df["Window"].astype(str)
-        
-        # Urutkan berdasarkan Skenario dan Window agar tampilan terstruktur (GAB, NI, SI)
+
+        # Konversi Window ke numerik agar urutan 8 < 16 < 24 < 32 benar
+        comp_df["Window"] = pd.to_numeric(comp_df["Window"])
+        comp_df["Scenario"] = pd.Categorical(comp_df["Scenario"], categories=["GAB", "NI", "SI"], ordered=True)
+
+        # Urutkan berdasarkan kategori Scenario dan nilai numerik Window
         comp_df = comp_df.sort_values(by=["Scenario", "Window"])
-        
+
         st.bar_chart(comp_df.set_index("Model")[["Mean Haversine (km)"]], color="#1E3A8A", use_container_width=True, height=300)
         st.caption("Mean Haversine Distance (km) - Semakin rendah menunjukkan akurasi spasial yang lebih baik pada data uji.")
 except Exception as e:
@@ -61,7 +65,7 @@ try:
     for col in ["Mean Haversine (km)", "Min Haversine (km)", "Max Haversine (km)"]:
         if col in df_hav_disp.columns:
             df_hav_disp[col] = df_hav_disp[col].map(lambda x: f"{x:.3f}" if pd.notna(x) else "-")
-    
+
     if "Scenario" in df_hav_disp.columns and "Window" in df_hav_disp.columns:
         df_hav_disp.insert(1, "Model", df_hav_disp["Scenario"].astype(str) + "-" + df_hav_disp["Window"].astype(str))
 
@@ -107,14 +111,18 @@ try:
     df_inf = utils.load_prediction_summary()
     st.markdown("**⏱️ Kecepatan Inferensi Model (Detik)**")
     df_inf["Model"] = df_inf["Scenario"] + "-" + df_inf["Window"].astype(str)
-    
-    # Urutkan model berdasarkan skenario dan window size agar visualisasi rapi dan berurutan (GAB, NI, SI)
+
+    # Konversi Window ke numerik agar urutan 8 < 16 < 24 < 32 benar
+    df_inf["Window"] = pd.to_numeric(df_inf["Window"])
+    df_inf["Scenario"] = pd.Categorical(df_inf["Scenario"], categories=["GAB", "NI", "SI"], ordered=True)
+
+    # Urutkan berdasarkan kategori Scenario dan nilai numerik Window
     df_inf = df_inf.sort_values(by=["Scenario", "Window"])
-    
+
     st.bar_chart(
-        df_inf.set_index("Model")[["Prediction Time (Second)"]], 
-        color="#1E3A8A", 
-        use_container_width=True, 
+        df_inf.set_index("Model")[["Prediction Time (Second)"]],
+        color="#1E3A8A",
+        use_container_width=True,
         height=320
     )
     st.caption("Waktu inferensi (detik) diukur berdasarkan pemrosesan seluruh data pengujian untuk masing-masing konfigurasi model.")
@@ -130,11 +138,11 @@ try:
     df_train_disp = df_train.copy()
     cols_show = ["Scenario", "Window", "Train Samples", "Validation Samples", "Epoch", "Best Train Loss", "Best Validation Loss", "Training Time (Second)"]
     df_train_disp = df_train_disp[[c for c in cols_show if c in df_train_disp.columns]]
-    
+
     if "Training Time (Second)" in df_train_disp.columns:
         df_train_disp["Waktu Training (s)"] = df_train_disp["Training Time (Second)"].map(lambda x: f"{x:.1f}")
         df_train_disp = df_train_disp.drop(columns=["Training Time (Second)"])
-        
+
     utils.render_custom_table(df_train_disp)
 except Exception as e:
     st.error(e)
