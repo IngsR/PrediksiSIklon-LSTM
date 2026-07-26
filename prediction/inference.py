@@ -2,7 +2,9 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import joblib
+import streamlit as st
 from pathlib import Path
+import time
 
 # ==========================================
 # KONSTANTA & KONFIGURASI
@@ -92,9 +94,14 @@ def angle_diff(series):
 
 
 # ==========================================
-# LOAD MODEL & SCALER
+# LOAD MODEL & SCALER (CACHED)
 # ==========================================
+@st.cache_resource(show_spinner=False)
 def load_resources():
+    """Memuat model dan scaler sekali saja dan menyimpannya di memori."""
+    print("\n[INIT] Loading Heavy Resources (TensorFlow Model & Scalers)...")
+    start_load = time.time()
+    
     model = tf.keras.models.load_model(
         MODEL_DIR / "gab_window8.keras"
     )
@@ -106,18 +113,20 @@ def load_resources():
     target_scaler = joblib.load(
         MODEL_DIR / "target_scaler_gab.pkl"
     )
-
+    
+    end_load = time.time()
+    print(f"[INIT] Resources loaded successfully in {end_load - start_load:.2f} seconds.\n")
     return model, feature_scaler, target_scaler
 
 
 # ==========================================
 # INFERENCE
 # ==========================================
-def run_inference(df_raw: pd.DataFrame, start_time=None):
-    print("\n" + "="*50)
-    print("START INFERENCE PROCESS")
-    print("="*50)
-
+def run_inference(df_raw: pd.DataFrame, start_time=None, resources=None):
+    """
+    Melakukan satu langkah prediksi.
+    resources: tuple (model, feature_scaler, target_scaler) opsional untuk menghindari pemanggilan cache berulang.
+    """
     if len(df_raw) != WINDOW_SIZE:
         raise ValueError(
             f"Data harus berisi tepat {WINDOW_SIZE} baris."
@@ -130,23 +139,19 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
 
     df = df_raw.copy()
 
-    print(f"[1/5] Generating ISO_TIME starting from: {start_time}")
-    df["ISO_TIME"] = pd.date_range(
-        start=start_time,
-        periods=WINDOW_SIZE,
-        freq="3h",
-    )
-
     # ======================================
     # FEATURE ENGINEERING
     # ======================================
-    print("[2/5] Running Feature Engineering...")
     prev_lat = df["LAT"].shift(1)
     prev_lon = df["LON"].shift(1)
-    prev_time = df["ISO_TIME"].shift(1)
+    prev_time = df["ISO_TIME"] if "ISO_TIME" in df.columns else pd.date_range(start=start_time, periods=WINDOW_SIZE, freq="3h")
+    
+    if "ISO_TIME" not in df.columns:
+        df["ISO_TIME"] = prev_time
 
+    prev_time_shift = df["ISO_TIME"].shift(1)
     delta_hour = (
-        (df["ISO_TIME"] - prev_time)
+        (df["ISO_TIME"] - prev_time_shift)
         .dt.total_seconds()
         .div(3600)
     )
@@ -215,10 +220,12 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     df.drop(columns=["bearing"], inplace=True)
 
     # ======================================
-    # LOAD RESOURCE
+    # LOAD RESOURCE (FROM CACHE OR ARGUMENT)
     # ======================================
-    print("[3/5] Loading Model and Scalers...")
-    model, feature_scaler, target_scaler = load_resources()
+    if resources is None:
+        model, feature_scaler, target_scaler = load_resources()
+    else:
+        model, feature_scaler, target_scaler = resources
 
     # Validasi agar nama fitur sama persis
     expected = list(feature_scaler.feature_names_in_)
@@ -229,7 +236,6 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
             f"namun inference menggunakan {FEATURES_TO_SCALE}."
         )
 
-    print("[4/5] Scaling Features...")
     scaled_features = feature_scaler.transform(
         df[FEATURES_TO_SCALE]
     )
@@ -264,17 +270,10 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
     # ======================================
     # PREDIKSI
     # ======================================
-    print("[5/5] Executing Model Prediction...")
     prediction = model.predict(
         X,
         verbose=0,
     )
-
-    print("-"*50)
-    print(f"PREDICTION SUCCESS")
-    print(f"Latitude  : {prediction[0, 0]}")
-    print(f"Longitude : {prediction[0, 1]}")
-    print("="*50 + "\n")
     
     return {
         "pred_lat": float(prediction[0, 0]),
@@ -286,37 +285,73 @@ def run_inference(df_raw: pd.DataFrame, start_time=None):
 # ==========================================
 def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
     """
-    Melakukan prediksi secara rekursif.
+    Melakukan prediksi secara rekursif dengan log terminal yang detail.
     Setiap prediksi baru ditambahkan ke window dan window bergeser.
     """
+    print("\n" + "═"*60)
+    print("🚀 MEMULAI PROSES PREDIKSI REKURSIF (LSTM)")
+    print("═"*60)
+    print(f"• Horizon Prediksi : {steps * 3} Jam ({steps} Langkah)")
+    print(f"• Waktu Awal       : {start_time}")
+    print(f"• Model Terpilih    : GAB_WINDOW_8 (Stacked LSTM)")
+    print("-" * 60)
+
+    overall_start = time.time()
+    
+    # Muat resources sekali di awal rekursi
+    resources = load_resources()
+    
     current_df = df_raw.copy()
     current_time = pd.to_datetime(start_time)
+    
+    # Pastikan data awal memiliki ISO_TIME untuk feature engineering
+    current_df["ISO_TIME"] = pd.date_range(
+        end=current_time,
+        periods=WINDOW_SIZE,
+        freq="3h"
+    )
     
     predictions = []
     
     for i in range(steps):
+        step_start = time.time()
+        step_num = i + 1
+        target_time = current_time + pd.Timedelta(hours=3)
+        
+        print(f"▶ LANGKAH {step_num}/{steps} | Target: {target_time.strftime('%Y-%m-%d %H:%M')}")
+        
         # 1. Prediksi untuk step saat ini
-        result = run_inference(current_df, start_time=current_time)
+        result = run_inference(current_df, start_time=current_time, resources=resources)
         
         # 2. Simpan hasil
         prediction_point = {
             "pred_lat": result["pred_lat"],
             "pred_lon": result["pred_lon"],
-            "time": current_time + pd.Timedelta(hours=3)
+            "time": target_time
         }
         predictions.append(prediction_point)
         
+        step_end = time.time()
+        print(f"  └─ Hasil: LAT {result['pred_lat']:.4f}, LON {result['pred_lon']:.4f} | Durasi: {step_end - step_start:.4f}s")
+        
         # 3. Update window untuk step berikutnya
-        # Geser data: hapus baris pertama, tambahkan prediksi sebagai baris terakhir
         new_row = {
             "LAT": result["pred_lat"],
             "LON": result["pred_lon"],
-            "WMO_WIND": current_df["WMO_WIND"].iloc[-1], # Mengikuti wind terakhir
-            "WMO_PRES": current_df["WMO_PRES"].iloc[-1]  # Mengikuti pres terakhir
+            "WMO_WIND": current_df["WMO_WIND"].iloc[-1],
+            "WMO_PRES": current_df["WMO_PRES"].iloc[-1],
+            "ISO_TIME": target_time
         }
         
         current_df = current_df.iloc[1:].copy()
         current_df = pd.concat([current_df, pd.DataFrame([new_row])], ignore_index=True)
-        current_time += pd.Timedelta(hours=3)
+        current_time = target_time
+        
+    overall_end = time.time()
+    print("-" * 60)
+    print(f"✅ PREDIKSI SELESAI!")
+    print(f"• Total Waktu Eksekusi: {overall_end - overall_start:.4f} detik")
+    print(f"• Rata-rata per Langkah: {(overall_end - overall_start)/steps:.4f} detik")
+    print("═"*60 + "\n")
         
     return predictions

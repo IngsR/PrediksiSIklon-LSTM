@@ -16,6 +16,7 @@ import utils
 
 from prediction.inference import (
     run_recursive_inference,
+    load_resources,
     WINDOW_SIZE,
 )
 from prediction.analytics import calculate_analytics
@@ -32,6 +33,9 @@ st.set_page_config(
 
 utils.inject_custom_css()
 utils.render_sidebar_brand()
+
+# Pre-load resources di latar belakang untuk mempercepat eksekusi pertama
+load_resources()
 
 # =====================================================
 # HEADER

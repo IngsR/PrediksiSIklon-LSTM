@@ -9,7 +9,7 @@ st.set_page_config(page_title="Data Siklon", page_icon="📊", layout="wide")
 utils.inject_custom_css()
 utils.render_sidebar_brand()
 
-st.markdown("### DATA OBSERVASI SIKLON TERPILIH")
+st.markdown("### DATA OBSERVASI SIKLON")
 
 # =====================================================
 ###### 2. LOAD DATA OBSERVASI LENGKAP ######
@@ -91,7 +91,7 @@ else:
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown(f"""
-                **🆔 ID Siklon** : `{final_sid}`  
+                **🆔 ID Siklon** : `{final_sid}`
                 **⏱️ Interval** : `3 Jam`
                 """)
             with col2:
@@ -99,8 +99,8 @@ else:
                 periode_selesai = sid_data["ISO_TIME"].max().strftime("%d/%m/%Y")
                 durasi_jam = (sid_data["ISO_TIME"].max() - sid_data["ISO_TIME"].min()).total_seconds() / 3600
                 st.markdown(f"""
-                **📅 Periode** : `{periode_mulai} – {periode_selesai}`  
-                **⏳ Durasi** : `{int(durasi_jam)} jam`  
+                **📅 Periode** : `{periode_mulai} – {periode_selesai}`
+                **⏳ Durasi** : `{int(durasi_jam)} jam`
                 **📌 Jumlah titik** : `{len(sid_data)}`
                 """)
 
@@ -160,7 +160,7 @@ else:
         <div style="background-color: #F8F9FA; padding: 1.2rem; border-radius: 10px; border-left: 4px solid #1E3A8A; margin-top: 20px;">
             <h5 style="color: #1E3A8A; margin-top: 0;">📋 Sumber Data & Keterangan Kolom</h5>
             <p style="margin-bottom: 0.5rem; line-height: 1.6;">
-                Data di atas adalah data observasi siklon yang digunakan sebagai input model LSTM. 
+                Data di atas adalah data observasi siklon yang digunakan sebagai input model LSTM.
                 Setiap baris merepresentasikan posisi dan kondisi atmosfer siklon pada satu titik waktu (interval 3 jam).
             </p>
             <ul style="margin-bottom: 0; line-height: 2;">
@@ -168,7 +168,7 @@ else:
                 <li><strong>Pressure (hPa)</strong> – Tekanan udara minimum di pusat siklon (WMO).</li>
                 <li><strong>Metode Imputasi</strong> – Teknik pengisian data hilang: <em>Original</em>, <em>Linear</em>, <em>Forward/Backward</em>, atau <em>Median</em>.</li>
                 <li>
-                    <strong>Status</strong> – 
+                    <strong>Status</strong> –
                     <span style="background:#D1FAE5;color:#065F46;border:2px solid #059669;border-radius:6px;padding:2px 8px;font-weight:900;">✅ Asli</span>
                     = data asli observasi; &nbsp;
                     <span style="background:#FEF3C7;color:#92400E;border:2px solid #D97706;border-radius:6px;padding:2px 8px;font-weight:900;"> Perbaikan</span>

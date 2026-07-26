@@ -195,7 +195,7 @@ def inject_custom_css():
     .metric-card {
         background: #FFFFFF; border: 3px solid #6B7280;
         border-radius: 12px; padding: 28px 20px; text-align: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
     .metric-label { color: #374151; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
     .metric-value { color: #1E3A8A; font-size: 70px; font-weight: 900; line-height: 1; }
@@ -204,6 +204,7 @@ def inject_custom_css():
         background: #F9FAFB; border: 3px solid #9CA3AF;
         border-radius: 12px; padding: 24px 28px; margin: 20px 0;
         color: #000000; line-height: 1.8; font-size: 18px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     .narrative-box h4 { color: #1E3A8A !important; margin-top: 0; font-size: 22px !important; font-weight: 900 !important; text-transform: uppercase; }
 
@@ -211,6 +212,7 @@ def inject_custom_css():
         background: #F8F9FA; border-left: 6px solid #1E3A8A;
         padding: 20px 24px; margin: 15px 0; border-radius: 8px;
         color: #111827; font-size: 18px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     .info-card h4 { margin-top: 0; font-weight: 800; }
 
