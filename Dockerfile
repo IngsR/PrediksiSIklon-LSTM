@@ -1,5 +1,5 @@
-# Gunakan image Python resmi yang ringan
-FROM python:3.11-slim
+# Gunakan image Python resmi yang ringan (disesuaikan dengan lingkungan lokal 3.13)
+FROM python:3.13-slim
 
 # Atur variabel lingkungan untuk mencegah Python menulis file .pyc dan buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
