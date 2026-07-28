@@ -1,8 +1,10 @@
 # 🌀 Sistem Prediksi Siklon Tropis (LSTM)
 
-Sistem Prediksi Siklon Tropis adalah aplikasi berbasis web yang dirancang untuk memprediksi lintasan siklon tropis menggunakan model **Long Short-Term Memory (LSTM)**. Aplikasi ini dikembangkan sebagai bagian dari penelitian mitigasi risiko bencana, dengan fokus khusus pada wilayah Sumatera Barat.
+Sistem Prediksi Jalur Siklon Tropis merupakan aplikasi berbasis web yang dikembangkan untuk memvisualisasikan hasil prediksi jalur siklon tropis menggunakan model **Long Short-Term Memory (LSTM)**. Aplikasi ini merupakan implementasi dari penelitian skripsi berjudul **"Prediksi Jalur Siklon Tropis di Samudra Hindia Menggunakan Model Long Short-Term Memory (LSTM) untuk Mitigasi Risiko Bencana di Sumatera Barat."**
 
-Aplikasi ini mengintegrasikan pengolahan data spasial, pemodelan deret waktu (*time-series*), dan visualisasi peta interaktif untuk memberikan estimasi pergerakan siklon yang akurat.
+Penelitian memanfaatkan dataset **International Best Track Archive for Climate Stewardship (IBTrACS)** periode 1980 hingga 2025 dengan tiga skenario dataset, yaitu **North Indian Ocean (NI)**, **South Indian Ocean (SI)**, dan **Gabungan (GAB)**. Selain itu, penelitian mengevaluasi pengaruh variasi **sliding window** berukuran 8, 16, 24, dan 32 *timesteps* terhadap kinerja model LSTM dalam memprediksi koordinat lintasan siklon tropis.
+
+Aplikasi dibangun menggunakan **Streamlit** untuk menyajikan hasil prediksi secara interaktif melalui peta digital, informasi data observasi, serta evaluasi kinerja model menggunakan metrik **MAE**, **RMSE**, **Haversine Distance**, dan **R²**.
 
 ---
 
@@ -92,6 +94,23 @@ Aplikasi biasanya akan berjalan di `http://localhost:8501`.
 
 ---
 
+## 🐳 Docker Deployment
+
+Aplikasi ini telah dilengkapi dengan konfigurasi Docker untuk memudahkan penyebaran di lingkungan produksi atau cloud.
+
+### 1. Build Docker Image
+```bash
+docker build -t prediksi-siklon .
+```
+
+### 2. Jalankan Container
+```bash
+docker run -p 8501:8501 prediksi-siklon
+```
+Aplikasi akan tersedia di `http://localhost:8501`.
+
+---
+
 ## 📂 Alur Kerja Sistem (Arsitektur)
 
 1.  **Input**: Pengguna memasukkan data observasi siklon (Latitude, Longitude, Kecepatan Angin, Tekanan) melalui halaman **Prediksi**.
@@ -111,7 +130,7 @@ Aplikasi biasanya akan berjalan di `http://localhost:8501`.
 
 ## 👨‍💻 Penulis
 
-**Ikhwan Ramadhan**  
+**Ikhwan Ramadhan**
 *Program ini dikembangkan untuk keperluan Kelengkapan Skripsi.*
 
 ---
