@@ -9,5 +9,4 @@ __pycache__
 .vscode
 .idea
 *.log
-data/*.csv
-!data/data_observasi.csv
+
