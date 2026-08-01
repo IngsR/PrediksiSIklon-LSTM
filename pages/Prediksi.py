@@ -244,7 +244,7 @@ with right_col:
                     prev_lat=prev_lat,
                     prev_lon=prev_lon
                 )
-                c3.metric("Kecepatan", f"{analytics['speed_kmh']} km/h")
+                c3.metric("Kecepatan Pergerakan", f"{analytics['speed_kmh']} km/h")
 
                 st.caption(f"Status: {analytics['category']} | Arah: {analytics['bearing']}°")
 

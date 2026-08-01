@@ -70,14 +70,71 @@ def load_prediction_summary():
     return pd.read_csv(PREDICTION_SUMMARY_PATH)
 
 def inject_custom_css():
-    st.markdown("""
+    # Inisialisasi state sidebar jika belum ada
+    if "sidebar_visible" not in st.session_state:
+        st.session_state.sidebar_visible = True
+
+    sidebar_css = ""
+    if not st.session_state.sidebar_visible:
+        sidebar_css = """
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        [data-testid="stSidebarCollapsedControl"] {
+            display: none !important;
+        }
+        [data-testid="stMainBlockContainer"] {
+            padding-top: 100px !important;
+        }
+        """
+
+    css_content = """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    /* CSS untuk menyembunyikan sidebar secara kondisional */
+    {sidebar_css}
+
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
         font-size: 18px !important;
         color: #000000 !important;
         font-weight: 500;
+    }
+    
+    /* Gaya untuk Tombol Tampilkan Sidebar (Floating/High Contrast) */
+    .show-btn-container {
+        position: fixed;
+        top: 85px;
+        left: 20px;
+        z-index: 999999;
+    }
+    
+    .stButton > button[key="show_sidebar_btn"] {
+        background-color: #FACC15 !important; /* Kuning Terang agar mudah dilihat */
+        color: #000000 !important;
+        border: 3px solid #000000 !important;
+        font-weight: 900 !important;
+        padding: 10px 20px !important;
+        border-radius: 12px !important;
+        box-shadow: 4px 4px 0px #000000 !important;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton > button[key="show_sidebar_btn"]:hover {
+        background-color: #EAB308 !important;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px #000000 !important;
+    }
+
+    /* Gaya untuk Tombol Sembunyikan Sidebar */
+    .stButton > button[key="hide_sidebar_btn"] {
+        background-color: #E5E7EB !important;
+        color: #1F2937 !important;
+        border: 2px solid #9CA3AF !important;
+        font-weight: 700 !important;
+        margin-bottom: 15px !important;
+        border-radius: 8px !important;
     }
 
     .main { background-color: #FFFFFF; }
@@ -241,12 +298,32 @@ def inject_custom_css():
         <span style="font-size: 36px; margin-right: 18px;">🌀</span>
         <h1 class="g-title">SISTEM PREDIKSI SIKLON TROPIS UNTUK MITIGASI RISIKO BENCANA DI SUMATERA BARAT</h1>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    
+    st.markdown(css_content.replace("{sidebar_css}", sidebar_css), unsafe_allow_html=True)
 
 def render_sidebar_brand():
+    # Periksa state sidebar
+    if "sidebar_visible" not in st.session_state:
+        st.session_state.sidebar_visible = True
+
+    # Jika sidebar tersembunyi, tampilkan tombol terapung untuk membukanya
+    if not st.session_state.sidebar_visible:
+        st.markdown('<div class="show-btn-container">', unsafe_allow_html=True)
+        if st.button("📂 TAMPILKAN MENU", key="show_sidebar_btn"):
+            st.session_state.sidebar_visible = True
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return # Hentikan rendering isi sidebar jika disembunyikan
+
     with st.sidebar:
+        # Tombol untuk menyembunyikan sidebar
+        if st.button("⬅️ SEMBUNYIKAN MENU", key="hide_sidebar_btn", use_container_width=True):
+            st.session_state.sidebar_visible = False
+            st.rerun()
+
         st.markdown(
-            "<div style='margin: 15px 0 20px 10px; color: #4B5563; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
+            "<div style='margin: 10px 0 20px 10px; color: #4B5563; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
             unsafe_allow_html=True
         )
         st.page_link("app.py", label="Beranda", icon="🏠")

@@ -101,7 +101,7 @@ def load_resources():
     """Memuat model dan scaler sekali saja dan menyimpannya di memori."""
     print("\n[INIT] Loading Heavy Resources (TensorFlow Model & Scalers)...")
     start_load = time.time()
-    
+
     model = tf.keras.models.load_model(
         MODEL_DIR / "gab_window8.keras"
     )
@@ -113,7 +113,7 @@ def load_resources():
     target_scaler = joblib.load(
         MODEL_DIR / "target_scaler_gab.pkl"
     )
-    
+
     end_load = time.time()
     print(f"[INIT] Resources loaded successfully in {end_load - start_load:.2f} seconds.\n")
     return model, feature_scaler, target_scaler
@@ -145,7 +145,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None, resources=None):
     prev_lat = df["LAT"].shift(1)
     prev_lon = df["LON"].shift(1)
     prev_time = df["ISO_TIME"] if "ISO_TIME" in df.columns else pd.date_range(start=start_time, periods=WINDOW_SIZE, freq="3h")
-    
+
     if "ISO_TIME" not in df.columns:
         df["ISO_TIME"] = prev_time
 
@@ -252,7 +252,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None, resources=None):
     final_df = pd.DataFrame(index=df.index)
     final_df["LAT"] = df["LAT"].values
     final_df["LON"] = df["LON"].values
-    
+
     for col in FEATURES_TO_SCALE:
         final_df[col] = scaled_df[col].values
 
@@ -274,7 +274,7 @@ def run_inference(df_raw: pd.DataFrame, start_time=None, resources=None):
         X,
         verbose=0,
     )
-    
+
     return {
         "pred_lat": float(prediction[0, 0]),
         "pred_lon": float(prediction[0, 1]),
@@ -293,17 +293,17 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
     print("="*60)
     print(f"* Horizon Prediksi : {steps * 3} Jam ({steps} Langkah)")
     print(f"* Waktu Awal       : {start_time}")
-    print(f"* Model Terpilih   : GAB_WINDOW_8 (Stacked LSTM)")
+    print(f"* Model Terpilih   : GAB_WINDOW_8 (LSTM 64 Units)")
     print("-" * 60)
 
     overall_start = time.time()
-    
+
     # Muat resources sekali di awal rekursi
     resources = load_resources()
-    
+
     current_df = df_raw.copy()
     start_dt = pd.to_datetime(start_time)
-    
+
     # Data 8 titik observasi historis dimulai dari start_time (Titik 1 = start_time, Titik 8 = start_time + 21 jam)
     current_df["ISO_TIME"] = pd.date_range(
         start=start_dt,
@@ -311,19 +311,19 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
         freq="3h"
     )
     current_time = current_df["ISO_TIME"].iloc[-1]
-    
+
     predictions = []
-    
+
     for i in range(steps):
         step_start = time.time()
         step_num = i + 1
         target_time = current_time + pd.Timedelta(hours=3)
-        
+
         print(f"> LANGKAH {step_num}/{steps} | Target: {target_time.strftime('%Y-%m-%d %H:%M')}")
-        
+
         # 1. Prediksi untuk step saat ini
         result = run_inference(current_df, start_time=current_time, resources=resources)
-        
+
         # 2. Simpan hasil
         prediction_point = {
             "pred_lat": result["pred_lat"],
@@ -331,10 +331,10 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
             "time": target_time
         }
         predictions.append(prediction_point)
-        
+
         step_end = time.time()
         print(f"  -> Hasil: LAT {result['pred_lat']:.4f}, LON {result['pred_lon']:.4f} | Durasi: {step_end - step_start:.4f}s")
-        
+
         # 3. Update window untuk step berikutnya
         new_row = {
             "LAT": result["pred_lat"],
@@ -343,16 +343,16 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
             "WMO_PRES": current_df["WMO_PRES"].iloc[-1],
             "ISO_TIME": target_time
         }
-        
+
         current_df = current_df.iloc[1:].copy()
         current_df = pd.concat([current_df, pd.DataFrame([new_row])], ignore_index=True)
         current_time = target_time
-        
+
     overall_end = time.time()
     print("-" * 60)
     print(f"PREDIKSI SELESAI!")
     print(f"* Total Waktu Eksekusi: {overall_end - overall_start:.4f} detik")
     print(f"* Rata-rata per Langkah: {(overall_end - overall_start)/steps:.4f} detik")
     print("="*60 + "\n")
-        
+
     return predictions

@@ -166,7 +166,7 @@ class _CycloneReportPDF(FPDF):
 
             self.set_font("Helvetica", "", 9)
             self.set_text_color(107, 114, 128)
-            self.cell(0, 5, text="Model Komputasi: Deep Learning Stacked LSTM (Sliding Window Gabung 8)", border=0, ln=1, align="C")
+            self.cell(0, 5, text="Model Komputasi: Deep Learning LSTM 64 Units(Sliding Window Gabung 8)", border=0, ln=1, align="C")
 
             self.set_draw_color(30, 58, 138)
             self.set_line_width(0.8)
@@ -232,7 +232,7 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
             ("Waktu Awal Prediksi", f"{_tanggal_indonesia(start_datetime)} / {start_datetime.strftime('%H:%M WIB')}"),
             ("Horizon Prediksi", f"{horizon_hours} Jam ({num_steps} Langkah ke Depan)"),
             ("Wilayah Analisis", "Sumatera Barat & Samudra Hindia Timur"),
-            ("Status Pemodelan", "Sukses (Metrik Terverifikasi)"),
+            ("Status Pemodelan", "Inferensi Berhasil"),
         ]
 
         box_y = pdf.get_y()
@@ -442,7 +442,7 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
             info_text = (
                 f"- Kategori Terkini: {analytics_step1['category']}\n"
                 f"- Jarak Terdekat ke Pesisir Sumbar: {jarak_terdekat} km (Terdekat dari {kota_terdekat})\n"
-                f"- Arah & Kecepatan (Step 1): {arah_step1} ({analytics_step1['bearing']} deg) | {analytics_step1['speed_kmh']} km/h\n"
+                f"- Arah & Kecepatan Pergerakan (Step 1): {arah_step1} ({analytics_step1['bearing']} deg) | {analytics_step1['speed_kmh']} km/h\n"
                 f"- Ringkasan Dampak: {analytics_step1['description']}"
             )
 
@@ -487,7 +487,7 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
 
         p1 = (
             "1. Pendekatan Komputasi Data-Driven: Hasil prediksi lintasan ini sepenuhnya berbasis kecerdasan buatan "
-            "(Artificial Intelligence) berarsitektur Deep Learning Stacked LSTM. Model mengekstraksi pola temporal "
+            "(Artificial Intelligence) berarsitektur Deep Learning LSTM 64 Units. Model mengekstraksi pola temporal "
             "yang dinamis dari koordinat lintasan historis. Model tidak mensimulasikan hukum fisika termodinamika atmosfer "
             "secara langsung, melainkan mempelajari perilaku pergerakan melalui data latih historis."
         )

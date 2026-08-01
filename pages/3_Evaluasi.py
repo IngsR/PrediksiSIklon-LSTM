@@ -121,6 +121,20 @@ else:
         max_km  = float(sid_data["ERROR_KM"].max())
         min_km  = float(sid_data["ERROR_KM"].min())
 
+        # Deskripsi Metrik
+        st.markdown(f"""
+        <div class="info-card">
+            <h4>📊 Penjelasan Metrik Evaluasi</h4>
+            <p>Berikut adalah parameter yang digunakan untuk mengukur keakuratan model dalam memprediksi koordinat siklon (selisih jarak dalam <b>Kilometer</b>):</p>
+            <ul style="margin-bottom: 0;">
+                <li><b>MAE (Mean Absolute Error):</b> Rata-rata kesalahan absolut. Menunjukkan seberapa besar penyimpangan rata-rata prediksi model dari posisi sebenarnya.</li>
+                <li><b>RMSE (Root Mean Square Error):</b> Akar rata-rata kuadrat kesalahan. Metrik ini memberikan bobot lebih besar pada kesalahan yang signifikan, sehingga semakin kecil nilainya, semakin stabil model tersebut.</li>
+                <li><b>Min Error:</b> Jarak penyimpangan terkecil yang tercatat (titik koordinat dengan prediksi paling akurat).</li>
+                <li><b>Max Error:</b> Jarak penyimpangan terbesar yang tercatat (titik koordinat dengan prediksi paling meleset).</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Kategori Kualitas Prediksi
         if mae_km < 15.0:
             qual_label, qual_color = "ERROR SANGAT RENDAH", "#059669"   # Hijau
