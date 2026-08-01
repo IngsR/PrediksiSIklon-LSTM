@@ -79,3 +79,5 @@ websockets==16.1.1
 wheel==0.47.0
 wrapt==2.3.0
 xyzservices==2026.3.0
+defusedxml==0.7.1
+fpdf2==2.8.7

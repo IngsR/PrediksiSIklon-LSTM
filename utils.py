@@ -249,7 +249,7 @@ def render_sidebar_brand():
             "<div style='margin: 15px 0 20px 10px; color: #4B5563; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
             unsafe_allow_html=True
         )
-        st.page_link("app.py", label="Beranda Utama", icon="🏠")
+        st.page_link("app.py", label="Beranda", icon="🏠")
         st.page_link("pages/1_Dashboard.py", label="Dashboard Prediksi", icon="🗺️")
         st.page_link("pages/Prediksi.py", label="Prediksi Siklon", icon="🔮")
         st.page_link("pages/Data_Siklon.py", label="Data Observasi", icon="📊")

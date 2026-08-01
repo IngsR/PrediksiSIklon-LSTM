@@ -70,7 +70,7 @@ with col_drop:
         default_idx = all_sids.index(st.session_state.selected_sid_eval)
     except ValueError:
         default_idx = 0
-        
+
     selected_sid_dropdown = st.selectbox(
         "Pilih ID Siklon",
         options=all_sids,
@@ -101,8 +101,8 @@ else:
             with ci1:
                 name_val = sid_data["NAME"].iloc[0] if "NAME" in sid_data.columns else "UNNAMED"
                 st.markdown(f"""
-                **🆔 ID Siklon** : `{final_sid}`  
-                **🏷️ Nama** : `{name_val}`  
+                **🆔 ID Siklon** : `{final_sid}`
+                **🏷️ Nama** : `{name_val}`
                 **⏱️ Interval** : `3 Jam`
                 """)
             with ci2:
@@ -110,8 +110,8 @@ else:
                 periode_selesai = sid_data["ISO_TIME"].max().strftime("%d/%m/%Y")
                 durasi_jam = (sid_data["ISO_TIME"].max() - sid_data["ISO_TIME"].min()).total_seconds() / 3600
                 st.markdown(f"""
-                **📅 Periode** : `{periode_mulai} – {periode_selesai}`  
-                **⏳ Durasi** : `{int(durasi_jam)} jam`  
+                **📅 Periode** : `{periode_mulai} – {periode_selesai}`
+                **⏳ Durasi** : `{int(durasi_jam)} jam`
                 **📌 Jumlah titik** : `{len(sid_data)}`
                 """)
 
@@ -123,13 +123,13 @@ else:
 
         # Kategori Kualitas Prediksi
         if mae_km < 15.0:
-            qual_label, qual_color = "SANGAT PRESISI (Excellent)", "#059669"
+            qual_label, qual_color = "ERROR SANGAT RENDAH", "#059669"   # Hijau
         elif mae_km < 30.0:
-            qual_label, qual_color = "PRESISI TINGGI (Good)", "#1E3A8A"
+            qual_label, qual_color = "ERROR RENDAH", "#1E3A8A"          # Biru
         elif mae_km < 60.0:
-            qual_label, qual_color = "CUKUP PRESISI (Fair)", "#D97706"
+            qual_label, qual_color = "ERROR SEDANG", "#D97706"          # Oranye
         else:
-            qual_label, qual_color = "KURANG PRESISI (Poor)", "#DC2626"
+            qual_label, qual_color = "ERROR TINGGI", "#DC2626"          # Merah
 
         mc1, mc2, mc3, mc4 = st.columns(4)
         for col_ui, label, value, color in [
@@ -173,7 +173,7 @@ else:
             st.bar_chart(pd.DataFrame({"Persentase (%)": freq_pct}), color="#059669", use_container_width=True, height=280)
 
         st.markdown("---")
-        
+
         # ---------- 5d. Grafik Dekomposisi LAT vs LON ----------
         st.markdown("##### 📐 Grafik Dekomposisi Deviasi Koordinat (Mutlak Latitude vs Longitude)")
         decomp_data = sid_data[["ISO_TIME", "LAT_ACTUAL", "LON_ACTUAL", "LAT_PRED", "LON_PRED"]].copy()
@@ -205,8 +205,8 @@ else:
         <div class="narrative-box">
             <h4>[ Ringkasan Evaluasi Spasial ]</h4>
             Halaman ini menampilkan tingkat akurasi model LSTM dengan membandingkan posisi aktual (data IBTrACS)
-            dan posisi hasil prediksi pada setiap titik waktu. Statistik MAE dan RMSE memberikan gambaran kesalahan 
-            rata-rata dalam kilometer. Grafik dekomposisi membantu mengidentifikasi apakah model memiliki bias 
+            dan posisi hasil prediksi pada setiap titik waktu. Statistik MAE dan RMSE memberikan gambaran kesalahan
+            rata-rata dalam kilometer. Grafik dekomposisi membantu mengidentifikasi apakah model memiliki bias
             khusus pada sumbu Lintang (Utara-Selatan) atau Bujur (Barat-Timur).
         </div>
         """, unsafe_allow_html=True)

@@ -8,7 +8,7 @@ import pandas as pd
 
 WINDOW_SIZE = 8
 
-DEFAULT_WIND = 25.0
+DEFAULT_WIND = 115.0
 DEFAULT_PRESS = 1005.0
 
 

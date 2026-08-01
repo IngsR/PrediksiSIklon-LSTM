@@ -288,12 +288,12 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
     Melakukan prediksi secara rekursif dengan log terminal yang detail.
     Setiap prediksi baru ditambahkan ke window dan window bergeser.
     """
-    print("\n" + "═"*60)
-    print("🚀 MEMULAI PROSES PREDIKSI REKURSIF (LSTM)")
-    print("═"*60)
-    print(f"• Horizon Prediksi : {steps * 3} Jam ({steps} Langkah)")
-    print(f"• Waktu Awal       : {start_time}")
-    print(f"• Model Terpilih    : GAB_WINDOW_8 (Stacked LSTM)")
+    print("\n" + "="*60)
+    print("MEMULAI PROSES PREDIKSI REKURSIF (LSTM)")
+    print("="*60)
+    print(f"* Horizon Prediksi : {steps * 3} Jam ({steps} Langkah)")
+    print(f"* Waktu Awal       : {start_time}")
+    print(f"* Model Terpilih   : GAB_WINDOW_8 (Stacked LSTM)")
     print("-" * 60)
 
     overall_start = time.time()
@@ -302,14 +302,15 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
     resources = load_resources()
     
     current_df = df_raw.copy()
-    current_time = pd.to_datetime(start_time)
+    start_dt = pd.to_datetime(start_time)
     
-    # Pastikan data awal memiliki ISO_TIME untuk feature engineering
+    # Data 8 titik observasi historis dimulai dari start_time (Titik 1 = start_time, Titik 8 = start_time + 21 jam)
     current_df["ISO_TIME"] = pd.date_range(
-        end=current_time,
+        start=start_dt,
         periods=WINDOW_SIZE,
         freq="3h"
     )
+    current_time = current_df["ISO_TIME"].iloc[-1]
     
     predictions = []
     
@@ -318,7 +319,7 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
         step_num = i + 1
         target_time = current_time + pd.Timedelta(hours=3)
         
-        print(f"▶ LANGKAH {step_num}/{steps} | Target: {target_time.strftime('%Y-%m-%d %H:%M')}")
+        print(f"> LANGKAH {step_num}/{steps} | Target: {target_time.strftime('%Y-%m-%d %H:%M')}")
         
         # 1. Prediksi untuk step saat ini
         result = run_inference(current_df, start_time=current_time, resources=resources)
@@ -332,7 +333,7 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
         predictions.append(prediction_point)
         
         step_end = time.time()
-        print(f"  └─ Hasil: LAT {result['pred_lat']:.4f}, LON {result['pred_lon']:.4f} | Durasi: {step_end - step_start:.4f}s")
+        print(f"  -> Hasil: LAT {result['pred_lat']:.4f}, LON {result['pred_lon']:.4f} | Durasi: {step_end - step_start:.4f}s")
         
         # 3. Update window untuk step berikutnya
         new_row = {
@@ -349,9 +350,9 @@ def run_recursive_inference(df_raw: pd.DataFrame, start_time, steps=1):
         
     overall_end = time.time()
     print("-" * 60)
-    print(f"✅ PREDIKSI SELESAI!")
-    print(f"• Total Waktu Eksekusi: {overall_end - overall_start:.4f} detik")
-    print(f"• Rata-rata per Langkah: {(overall_end - overall_start)/steps:.4f} detik")
-    print("═"*60 + "\n")
+    print(f"PREDIKSI SELESAI!")
+    print(f"* Total Waktu Eksekusi: {overall_end - overall_start:.4f} detik")
+    print(f"* Rata-rata per Langkah: {(overall_end - overall_start)/steps:.4f} detik")
+    print("="*60 + "\n")
         
     return predictions

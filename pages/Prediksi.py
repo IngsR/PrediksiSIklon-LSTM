@@ -20,6 +20,7 @@ from prediction.inference import (
     WINDOW_SIZE,
 )
 from prediction.analytics import calculate_analytics
+from prediction.pdf_report import generate_pdf_report
 
 # =====================================================
 # PAGE CONFIG
@@ -52,7 +53,7 @@ def create_empty_dataframe():
         {
             "LAT": [0.0] * WINDOW_SIZE,
             "LON": [0.0] * WINDOW_SIZE,
-            "WMO_WIND": [25.0] * WINDOW_SIZE,
+            "WMO_WIND": [115.0] * WINDOW_SIZE,
             "WMO_PRES": [1005.0] * WINDOW_SIZE,
         }
     )
@@ -116,29 +117,58 @@ with left_col:
 
         st.divider()
 
-        # 3. Tampilkan Tabel
-        display_df = st.session_state.draft_data.copy()
-        display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
-        utils.render_custom_table(display_df)
-
-        # 4. Konfigurasi Prediksi
+        # 3. Konfigurasi Prediksi
         if "start_datetime" not in st.session_state:
             st.session_state.start_datetime = datetime.combine(datetime.now().date(), datetime.now().time().replace(hour=0, minute=0, second=0))
 
-        with st.expander("Konfigurasi Prediksi"):
+        with st.expander("Konfigurasi Prediksi", expanded=True):
             d_col, t_col = st.columns(2)
-            start_date = d_col.date_input("Tanggal Awal", st.session_state.start_datetime.date())
-            start_time = t_col.time_input("Jam Awal", st.session_state.start_datetime.time())
+            start_date = d_col.date_input("Tanggal Awal (Titik 1)", st.session_state.start_datetime.date())
+            start_time = t_col.time_input("Jam Awal (Titik 1)", st.session_state.start_datetime.time())
             st.session_state.start_datetime = datetime.combine(start_date, start_time)
 
             horizon = st.selectbox("Horizon Prediksi (Jam):", [3, 6, 9])
             num_steps = horizon // 3
 
-        btn_col1, btn_col2 = st.columns([2, 1])
-        with btn_col1:
+        st.divider()
+
+        # 4. Tampilkan Tabel Data Observasi Historis
+        display_df = st.session_state.draft_data.copy()
+        display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
+        waktu_list = [
+            (st.session_state.start_datetime + timedelta(hours=i * 3)).strftime("%d-%m-%Y %H:%M")
+            for i in range(WINDOW_SIZE)
+        ]
+        display_df.insert(1, "Waktu (WIB)", waktu_list)
+        utils.render_custom_table(display_df)
+
+        btn_col_print, btn_col_pred, btn_col_reset = st.columns([1, 1, 1])
+        with btn_col_print:
+            if st.session_state.prediction_result:
+                try:
+                    pdf_buffer = generate_pdf_report(
+                        draft_data=st.session_state.draft_data,
+                        prediction_result=st.session_state.prediction_result,
+                        start_datetime=st.session_state.start_datetime,
+                        horizon_hours=len(st.session_state.prediction_result) * 3,
+                        num_steps=len(st.session_state.prediction_result),
+                    )
+                    st.download_button(
+                        label="📄 Print Laporan",
+                        data=pdf_buffer,
+                        file_name=f"Laporan_Prediksi_Siklon_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True,
+                    )
+                except Exception as e:
+                    st.button("📄 Print Laporan", disabled=True, use_container_width=True)
+                    st.toast(f"Gagal membuat PDF: {e}")
+            else:
+                st.button("📄 Print Laporan", disabled=True, use_container_width=True)
+        with btn_col_pred:
             predict_clicked = st.button("🧠 Prediksi LSTM", type="primary", use_container_width=True)
-        with btn_col2:
-            st.button("🗑️ Reset", on_click=clear_prediction, use_container_width=True)
+        with btn_col_reset:
+            st.button("🗑️ Bersihkan", on_click=clear_prediction, use_container_width=True)
 
     # PROSES PREDIKSI
     if predict_clicked:
@@ -196,6 +226,10 @@ with right_col:
         results = st.session_state.prediction_result
         with st.container(border=True):
             st.markdown("#### 📍 Hasil Prediksi")
+
+            prev_lat = st.session_state.draft_data.iloc[-1]["LAT"]
+            prev_lon = st.session_state.draft_data.iloc[-1]["LON"]
+
             for i, res in enumerate(results):
                 st.markdown(f"**Step {i+1} ({res['time'].strftime('%d-%m-%Y %H:%M')})**")
                 c1, c2, c3 = st.columns(3)
@@ -203,10 +237,19 @@ with right_col:
                 c2.metric("Lon", f"{res['pred_lon']:.1f}°")
 
                 # Analytics
-                analytics = calculate_analytics(st.session_state.draft_data, res['pred_lat'], res['pred_lon'])
+                analytics = calculate_analytics(
+                    st.session_state.draft_data,
+                    res['pred_lat'],
+                    res['pred_lon'],
+                    prev_lat=prev_lat,
+                    prev_lon=prev_lon
+                )
                 c3.metric("Kecepatan", f"{analytics['speed_kmh']} km/h")
 
                 st.caption(f"Status: {analytics['category']} | Arah: {analytics['bearing']}°")
+
+                prev_lat = res['pred_lat']
+                prev_lon = res['pred_lon']
 
             st.warning(
                 "**Catatan Ilmiah:** Prediksi bersifat *data-driven* dan bersifat probabilistik. "
