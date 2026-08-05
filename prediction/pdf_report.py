@@ -1,7 +1,5 @@
 """
 PDF Report Generator — Laporan Prediksi Lintasan Siklon Tropis.
-
-OUTPUT FORMAT: io.BytesIO  (langsung kompatibel dengan st.download_button)
 """
 
 import io
@@ -17,7 +15,7 @@ import matplotlib.patches as mpatches
 
 from datetime import datetime, timedelta
 from fpdf import FPDF
-from prediction.analytics import calculate_analytics
+from prediction.analytics import calculate_analytics, format_lat_indo, format_lon_indo, get_reliability_metrics
 from prediction.inference import haversine
 
 
@@ -27,18 +25,16 @@ from prediction.inference import haversine
 # Titik-titik referensi pesisir Sumatera Barat (Lat, Lon)
 PESISIR_SUMBAR = [
     (-0.95, 100.35),   # Padang
-    (-1.35, 100.55),   # Painan / Pesisir Selatan
+    (-1.35, 100.55),   # Painan
     (-0.30, 99.80),    # Pariaman
     ( 0.30, 99.10),    # Pasaman Barat
-    (-2.10, 100.80),   # Kerinci / batas selatan
 ]
-
 
 def _jarak_ke_pesisir(lat, lon):
     """Hitung jarak terdekat (km) dari titik prediksi ke pesisir Sumatera Barat."""
     jarak_min = float("inf")
     kota_terdekat = ""
-    nama_kota = ["Padang", "Painan", "Pariaman", "Pasaman Barat", "Kerinci"]
+    nama_kota = ["Padang", "Painan", "Pariaman", "Pasaman Barat"]
     for i, (plat, plon) in enumerate(PESISIR_SUMBAR):
         d = haversine(lat, lon, plat, plon)
         if d < jarak_min:
@@ -229,32 +225,36 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
         meta_data = [
             ("ID Laporan", f"REP-CYCLONE-{datetime.now().strftime('%Y%m%d-%H%M%S')}"),
             ("Tanggal Cetak", f"{_tanggal_indonesia()} / {datetime.now().strftime('%H:%M:%S WIB')}"),
-            ("Waktu Awal Prediksi", f"{_tanggal_indonesia(start_datetime)} / {start_datetime.strftime('%H:%M WIB')}"),
-            ("Horizon Prediksi", f"{horizon_hours} Jam ({num_steps} Langkah ke Depan)"),
-            ("Wilayah Analisis", "Sumatera Barat & Samudra Hindia Timur"),
-            ("Status Pemodelan", "Inferensi Berhasil"),
+            ("ID Siklon", "AUTOGEN-CYCLONE"),
+            ("Nama Siklon", "Siklon Tropis (Prediksi Model)"),
+            ("Basin / Wilayah", "Samudra Hindia"),
+            ("Sumber Data", "IBTrACS v4 (1980-2025)"),
+            ("Mulai Prediksi", f"{_tanggal_indonesia(start_datetime)} / {start_datetime.strftime('%H:%M WIB')}"),
+            ("Horizon Prediksi", f"{horizon_hours} Jam ({num_steps} Langkah)"),
+            ("Versi Model", "LSTM 64 Units"),
+            ("Versi Dataset", "IBTrACS v4 (1980-2025)"),
         ]
 
         box_y = pdf.get_y()
         pdf.set_fill_color(249, 250, 251)
         pdf.set_draw_color(209, 213, 221)
         pdf.set_line_width(0.3)
-        pdf.rect(15, box_y, 180, 32, "DF")
+        pdf.rect(15, box_y, 180, 43, "DF")
 
         for i, (label, value) in enumerate(meta_data):
             col = i % 2
             row = i // 2
             x = 18 + col * 90
-            y = box_y + 2 + row * 9
+            y = box_y + 2.5 + row * 8
             pdf.set_xy(x, y)
-            pdf.set_font("Helvetica", "B", 8.5)
+            pdf.set_font("Helvetica", "B", 8)
             pdf.set_text_color(55, 65, 81)
-            pdf.cell(32, 5, text=f"{label}:", border=0)
-            pdf.set_font("Helvetica", "", 8.5)
+            pdf.cell(34, 5, text=f"{label}:", border=0)
+            pdf.set_font("Helvetica", "", 8)
             pdf.set_text_color(17, 24, 39)
-            pdf.cell(55, 5, text=f" {value}", border=0)
+            pdf.cell(53, 5, text=f" {value}", border=0)
 
-        pdf.set_xy(15, box_y + 34)
+        pdf.set_xy(15, box_y + 45.5)
         pdf.ln(2)
 
         # =================================================================
@@ -274,7 +274,7 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
         ))
         pdf.ln(2)
 
-        headers_obs = ["Titik", "Waktu (WIB)", "Latitude (LAT)", "Longitude (LON)", "Wind (Knot)", "Pres (hPa)"]
+        headers_obs = ["Titik", "Waktu (WIB)", "Lintang", "Bujur", "Kec. Angin (Knot)", "Tekanan (hPa)"]
         widths_obs = [12, 34, 34, 34, 33, 33]
 
         pdf.set_font("Helvetica", "B", 8)
@@ -299,8 +299,8 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
 
             pdf.cell(widths_obs[0], 5.0, text=f"{int(idx + 1)}", border=1, ln=0, align="C", fill=True)
             pdf.cell(widths_obs[1], 5.0, text=time_str, border=1, ln=0, align="C", fill=True)
-            pdf.cell(widths_obs[2], 5.0, text=f"{row['LAT']:.1f} deg", border=1, ln=0, align="C", fill=True)
-            pdf.cell(widths_obs[3], 5.0, text=f"{row['LON']:.1f} deg", border=1, ln=0, align="C", fill=True)
+            pdf.cell(widths_obs[2], 5.0, text=format_lat_indo(row['LAT'], precision=1), border=1, ln=0, align="C", fill=True)
+            pdf.cell(widths_obs[3], 5.0, text=format_lon_indo(row['LON'], precision=1), border=1, ln=0, align="C", fill=True)
             pdf.cell(widths_obs[4], 5.0, text=f"{row['WMO_WIND']:.1f}", border=1, ln=0, align="C", fill=True)
             pdf.cell(widths_obs[5], 5.0, text=f"{row['WMO_PRES']:.1f}", border=1, ln=1, align="C", fill=True)
 
@@ -348,22 +348,23 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
         pdf.multi_cell(0, 4.5, text=(
             "Hasil di bawah ini diperoleh melalui mekanisme inferensi rekursif (recursive forecasting). "
             "Prediksi koordinat pada suatu langkah (step) dimasukkan kembali sebagai data masukan historis "
-            "baru secara otomatis untuk meramalkan koordinat di langkah berikutnya."
+            "baru secara otomatis untuk meramalkan koordinat di langkah berikutnya. Keandalan prediksi (confidence) "
+            "menurun pada langkah yang lebih jauh akibat akumulasi kesalahan (error accumulation) yang wajar pada model AI."
         ))
         pdf.ln(2)
 
         if prediction_result:
-            headers_pred = ["Step", "Waktu (WIB)", "LAT", "LON", "Kecepatan", "Arah", "Jarak Pesisir", "Kategori"]
-            widths_pred = [10, 32, 20, 20, 22, 20, 26, 30]
+            headers_pred = ["Step", "Waktu (WIB)", "Lintang", "Bujur", "Kecepatan", "Arah", "Jarak", "Kategori"]
+            widths_pred = [8, 30, 20, 20, 20, 20, 20, 42]
 
-            pdf.set_font("Helvetica", "B", 7.5)
+            pdf.set_font("Helvetica", "B", 7)
             pdf.set_fill_color(30, 58, 138)
             pdf.set_text_color(255, 255, 255)
             for h, w in zip(headers_pred, widths_pred):
                 pdf.cell(w, 7.5, text=h, border=1, ln=0, align="C", fill=True)
             pdf.ln()
 
-            pdf.set_font("Helvetica", "", 7.5)
+            pdf.set_font("Helvetica", "", 7)
             pdf.set_text_color(17, 24, 39)
             prev_lat = draft_data.iloc[-1]["LAT"]
             prev_lon = draft_data.iloc[-1]["LON"]
@@ -391,8 +392,8 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
 
                 pdf.cell(widths_pred[0], 6.5, text=f"{idx + 1}", border=1, ln=0, align="C", fill=True)
                 pdf.cell(widths_pred[1], 6.5, text=time_str, border=1, ln=0, align="C", fill=True)
-                pdf.cell(widths_pred[2], 6.5, text=f"{res['pred_lat']:.2f}", border=1, ln=0, align="C", fill=True)
-                pdf.cell(widths_pred[3], 6.5, text=f"{res['pred_lon']:.2f}", border=1, ln=0, align="C", fill=True)
+                pdf.cell(widths_pred[2], 6.5, text=format_lat_indo(res['pred_lat'], precision=2), border=1, ln=0, align="C", fill=True)
+                pdf.cell(widths_pred[3], 6.5, text=format_lon_indo(res['pred_lon'], precision=2), border=1, ln=0, align="C", fill=True)
                 pdf.cell(widths_pred[4], 6.5, text=speed_str, border=1, ln=0, align="C", fill=True)
                 pdf.cell(widths_pred[5], 6.5, text=arah_text, border=1, ln=0, align="C", fill=True)
                 pdf.cell(widths_pred[6], 6.5, text=jarak_str, border=1, ln=0, align="C", fill=True)
@@ -431,18 +432,24 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
             )
             arah_step1 = _bearing_to_compass(analytics_step1["bearing"])
 
-            last_res = prediction_result[-1]
-            jarak_terdekat, kota_terdekat = _jarak_ke_pesisir(last_res["pred_lat"], last_res["pred_lon"])
+            # Cari kota terdekat dari semua titik prediksi untuk analisis risiko
+            jarak_min_all = float("inf")
+            kota_terdekat_all = ""
+            for res in prediction_result:
+                d, k = _jarak_ke_pesisir(res["pred_lat"], res["pred_lon"])
+                if d < jarak_min_all:
+                    jarak_min_all = d
+                    kota_terdekat_all = k
 
-            # Box info dampak (Kuning muda) — Menggunakan multi_cell agar teks deskripsi tidak overflow
+            # Box info dampak (Kuning muda)
             pdf.set_fill_color(254, 243, 199)
             pdf.set_draw_color(245, 158, 11)
             pdf.set_line_width(0.4)
 
             info_text = (
                 f"- Kategori Terkini: {analytics_step1['category']}\n"
-                f"- Jarak Terdekat ke Pesisir Sumbar: {jarak_terdekat} km (Terdekat dari {kota_terdekat})\n"
-                f"- Arah & Kecepatan Pergerakan (Step 1): {arah_step1} ({analytics_step1['bearing']} deg) | {analytics_step1['speed_kmh']} km/h\n"
+                f"- Jarak Terdekat ke Pesisir Sumbar: {jarak_min_all} km (Terdekat dari {kota_terdekat_all})\n"
+                f"- Arah & Kecepatan Pergerakan (Step 1): {arah_step1} ({analytics_step1['bearing']}°) | {analytics_step1['speed_kmh']} km/h\n"
                 f"- Ringkasan Dampak: {analytics_step1['description']}"
             )
 
@@ -455,18 +462,18 @@ def generate_pdf_report(draft_data, prediction_result, start_datetime, horizon_h
             pdf.set_font("Helvetica", "", 8.5)
             pdf.set_text_color(31, 41, 55)
 
-            if jarak_terdekat < 500:
+            if jarak_min_all < 500:
                 peringatan = (
-                    f"PERINGATAN: Posisi prediksi terakhir berjarak hanya {jarak_terdekat} km dari pesisir "
-                    f"{kota_terdekat}. Dengan kategori {analytics_step1['category']}, masyarakat di wilayah pesisir "
-                    f"disarankan untuk meningkatkan kewaspadaan terhadap potensi gelombang tinggi, angin kencang, "
-                    f"dan hujan lebat yang dapat menyertai sistem cuaca ini."
+                    f"PERINGATAN: Berdasarkan koordinat lintasan prediksi, jarak terdekat berada pada {jarak_min_all} km "
+                    f"dari pesisir {kota_terdekat_all}. Dengan intensitas {analytics_step1['category']}, jika kondisi atmosfer mendukung, "
+                    f"masyarakat di wilayah pesisir diimbau untuk meningkatkan kewaspadaan terhadap potensi peningkatan angin kencang, "
+                    f"hujan lebat, dan gelombang tinggi sesuai karakteristik umum siklon tropis."
                 )
             else:
                 peringatan = (
-                    f"Posisi prediksi terakhir berjarak {jarak_terdekat} km dari pesisir {kota_terdekat}. "
-                    f"Meskipun jarak relatif jauh, tetap diperlukan pemantauan berkala terhadap perkembangan "
-                    f"sistem cuaca ini mengingat siklon tropis dapat berubah arah secara tidak terduga."
+                    f"Posisi prediksi terdekat berjarak {jarak_min_all} km dari pesisir {kota_terdekat_all}. "
+                    f"Meskipun jarak relatif jauh, tetap diimbau untuk memantau perkembangan "
+                    f"sistem cuaca ini secara berkala sesuai karakteristik umum siklon tropis yang dapat berubah arah."
                 )
 
             pdf.multi_cell(0, 4.5, text=peringatan)

@@ -19,11 +19,11 @@ from prediction.inference import (
     load_resources,
     WINDOW_SIZE,
 )
-from prediction.analytics import calculate_analytics
+from prediction.analytics import calculate_analytics, format_lat_indo, format_lon_indo, get_reliability_metrics
 from prediction.pdf_report import generate_pdf_report
 
 # =====================================================
-# PAGE CONFIG
+# SESSION STATE
 # =====================================================
 
 st.set_page_config(
@@ -130,17 +130,29 @@ with left_col:
             horizon = st.selectbox("Horizon Prediksi (Jam):", [3, 6, 9])
             num_steps = horizon // 3
 
-        st.divider()
+            st.divider()
 
-        # 4. Tampilkan Tabel Data Observasi Historis
-        display_df = st.session_state.draft_data.copy()
-        display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
-        waktu_list = [
+            # 4. Tampilkan Tabel Data Observasi Historis
+            display_df = st.session_state.draft_data.copy()
+            display_df.insert(0, "Titik", range(1, WINDOW_SIZE + 1))
+            waktu_list = [
             (st.session_state.start_datetime + timedelta(hours=i * 3)).strftime("%d-%m-%Y %H:%M")
             for i in range(WINDOW_SIZE)
-        ]
-        display_df.insert(1, "Waktu (WIB)", waktu_list)
-        utils.render_custom_table(display_df)
+            ]
+            display_df.insert(1, "Waktu (WIB)", waktu_list)
+
+            # Format Koordinat
+            display_df["LAT"] = display_df["LAT"].apply(lambda x: format_lat_indo(x, precision=1))
+            display_df["LON"] = display_df["LON"].apply(lambda x: format_lon_indo(x, precision=1))
+
+            # Rename Columns
+            display_df = display_df.rename(columns={
+            "LAT": "Lintang",
+            "LON": "Bujur",
+            "WMO_WIND": "Kec. Angin (Knot)",
+            "WMO_PRES": "Tekanan (hPa)"
+            })
+            utils.render_custom_table(display_df)
 
         btn_col_print, btn_col_pred, btn_col_reset = st.columns([1, 1, 1])
         with btn_col_print:
@@ -233,8 +245,10 @@ with right_col:
             for i, res in enumerate(results):
                 st.markdown(f"**Step {i+1} ({res['time'].strftime('%d-%m-%Y %H:%M')})**")
                 c1, c2, c3 = st.columns(3)
-                c1.metric("Lat", f"{res['pred_lat']:.1f}°")
-                c2.metric("Lon", f"{res['pred_lon']:.1f}°")
+
+                # Format Koordinat
+                c1.metric("Lintang", format_lat_indo(res['pred_lat'], precision=1))
+                c2.metric("Bujur", format_lon_indo(res['pred_lon'], precision=1))
 
                 # Analytics
                 analytics = calculate_analytics(
@@ -244,7 +258,8 @@ with right_col:
                     prev_lat=prev_lat,
                     prev_lon=prev_lon
                 )
-                c3.metric("Kecepatan Pergerakan", f"{analytics['speed_kmh']} km/h")
+
+                c3.metric("Kecepatan", f"{analytics['speed_kmh']} km/h")
 
                 st.caption(f"Status: {analytics['category']} | Arah: {analytics['bearing']}°")
 
@@ -252,9 +267,9 @@ with right_col:
                 prev_lon = res['pred_lon']
 
             st.warning(
-                "**Catatan Ilmiah:** Prediksi bersifat *data-driven* dan bersifat probabilistik. "
+                "**Catatan Ilmiah:** Prediksi bersifat *data-driven* dan bersifat probabilistik sesuai karakteristik umum siklon tropis. "
                 "Peningkatan *horizon* waktu (6-9 jam) secara inheren meningkatkan akumulasi ketidakpastian "
-                "dan penurunan akurasi model. Hasil ini sebagai pendukung informasi ."
+                "dan penurunan akurasi model. Hasil ini sebagai pendukung informasi."
             )
 
     # Update Data dari Klik Peta
