@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Tentang Model", page_icon="ℹ️", layout="wide")
 utils.inject_custom_css()
-utils.render_sidebar_brand()
+utils.render_sidebar()
 
 st.markdown("### ℹ️ TENTANG PENELITIAN & EVALUASI MODEL")
 

@@ -7,7 +7,7 @@ import utils
 # =====================================================
 st.set_page_config(page_title="Data Siklon", page_icon="📊", layout="wide")
 utils.inject_custom_css()
-utils.render_sidebar_brand()
+utils.render_sidebar()
 
 st.markdown("### DATA OBSERVASI SIKLON")
 

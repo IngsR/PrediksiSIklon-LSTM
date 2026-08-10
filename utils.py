@@ -70,147 +70,158 @@ def load_prediction_summary():
     return pd.read_csv(PREDICTION_SUMMARY_PATH)
 
 def inject_custom_css():
-    # Inisialisasi state sidebar jika belum ada
-    if "sidebar_visible" not in st.session_state:
-        st.session_state.sidebar_visible = True
-
-    sidebar_css = ""
-    if not st.session_state.sidebar_visible:
-        sidebar_css = """
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        [data-testid="stSidebarCollapsedControl"] {
-            display: none !important;
-        }
-        [data-testid="stMainBlockContainer"] {
-            padding-top: 100px !important;
-        }
-        """
+    """Inject global CSS and fixed header. No sidebar toggle logic — uses native Streamlit sidebar."""
 
     css_content = """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    /* CSS untuk menyembunyikan sidebar secara kondisional */
-    {sidebar_css}
+    /* ========== BASE RESET ========== */
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
-        font-size: 18px !important;
-        color: #000000 !important;
+        font-size: 16px !important;
+        color: #1F2937 !important;
         font-weight: 500;
-    }
-
-    /* Gaya untuk Tombol Toggle Sidebar */
-    .stButton > button[key="sidebar_toggle_btn"] {
-        background-color: #1E3A8A !important;
-        color: #FFFFFF !important;
-        border: 2px solid #111827 !important;
-        font-weight: 800 !important;
-        padding: 12px 18px !important;
-        border-radius: 16px !important;
-        box-shadow: 0 14px 24px rgba(30, 58, 138, 0.16) !important;
-        transition: transform 0.22s ease, background-color 0.22s ease !important;
-        width: 100% !important;
-        max-width: 320px !important;
-    }
-
-    .stButton > button[key="sidebar_toggle_btn"]:hover {
-        background-color: #2563EB !important;
-        transform: translateY(-1px);
     }
 
     .main { background-color: #FFFFFF; }
 
-    section.main > div {
-        max-width: 100% !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-    }
-
-    [data-testid="stMainBlockContainer"] {
-        max-width: 100% !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-        padding-top: 90px !important;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #F3F4F6 !important;
-        border-right: 3px solid #D1D5DB !important;
-    }
-    .sidebar-spacer { flex-grow: 1 !important; min-height: 20px !important; }
-
+    /* ========== HIDE DEFAULT STREAMLIT NAV ========== */
     [data-testid="stSidebarNav"], nav[data-testid="stSidebarNav"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
         overflow: hidden !important;
     }
+    [data-testid="stHeaderActionElements"] { display: none !important; }
 
-    .top-action-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
+    /* ========== GLOBAL HEADER (FIXED) ========== */
+    #global-header {
+        position: fixed;
+        top: 0; left: 0;
         width: 100%;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
+        height: 56px;
+        background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
+        color: white;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        gap: 14px;
     }
-
-    .top-action-bar .brand-label {
-        font-size: 1.05rem !important;
-        font-weight: 900 !important;
-        color: #111827 !important;
-        letter-spacing: 0.02em;
+    .g-header-icon {
+        font-size: 28px;
+        flex-shrink: 0;
+        line-height: 1;
     }
-
-    .stButton > button {
-        min-height: 46px !important;
-        border-radius: 14px !important;
+    .g-title {
+        margin: 0;
+        font-size: 0.95rem !important;
         font-weight: 800 !important;
+        color: #FFFFFF !important;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    .prediksi-table th,
-    .prediksi-table td {
-        font-size: 16px !important;
+    /* ========== MAIN CONTENT AREA ========== */
+    [data-testid="stMainBlockContainer"] {
+        max-width: 100% !important;
+        padding: 72px 2rem 2rem 2rem !important;
+    }
+    section.main > div {
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 
+    /* ========== SIDEBAR ========== */
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FA !important;
+        border-right: 1px solid #E5E7EB !important;
+        top: 56px !important;
+        height: calc(100vh - 56px) !important;
+        z-index: 999998 !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 1rem !important;
+    }
+
+    /* Sidebar nav link items */
+    [data-testid="stSidebar"] [data-testid="stPageLink"],
+    [data-testid="stSidebar"] .stPageLink {
+        border-radius: 8px !important;
+        margin: 2px 8px !important;
+        transition: background-color 0.15s ease !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stPageLink"]:hover {
+        background-color: #E5E7EB !important;
+    }
+    [data-testid="stSidebar"] a {
+        font-size: 15px !important;
+        color: #1F2937 !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+    }
+
+    /* Sidebar collapsed control (hamburger) — position below header */
+    [data-testid="stSidebarCollapsedControl"] {
+        top: 64px !important;
+        left: 8px !important;
+    }
+
+    /* ========== BUTTONS ========== */
+    .stButton > button {
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
     .stButton > button:focus-visible {
         outline: 3px solid rgba(59, 130, 246, 0.5) !important;
     }
 
-    #global-header {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 70px;
-        background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
-        color: white; z-index: 999999;
-        display: flex; align-items: center; padding: 0 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-    }
-    .g-title {
-        margin: 0; font-size: 1.4rem !important; font-weight: 900 !important;
-        color: #FFFFFF !important; text-transform: uppercase;
-    }
-
+    /* ========== DATA TABLES ========== */
     [data-testid="stDataFrame"] table,
     [data-testid="stTable"] table,
     .stDataFrame table,
-    .stTable table {
+    .stTable table,
+    .custom-table {
+        width: 100% !important;
         border-collapse: collapse !important;
-        border: 4px solid #000000 !important;
+    }
+    .custom-table-wrapper,
+    [data-testid="stDataFrame"],
+    [data-testid="stTable"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     [data-testid="stDataFrame"] th,
     [data-testid="stTable"] th,
     .stDataFrame th,
     .stTable th {
-        background-color: #2D3748 !important;
+        background-color: #1E3A8A !important;
         color: #FFFFFF !important;
-        font-weight: 900 !important;
-        font-size: 18px !important;
-        padding: 14px 16px !important;
-        border: 3px solid #000000 !important;
+        font-weight: 800 !important;
+        font-size: 14px !important;
+        padding: 10px 12px !important;
+        border: 1px solid #1E3A8A !important;
         text-align: center !important;
     }
 
@@ -218,219 +229,272 @@ def inject_custom_css():
     [data-testid="stTable"] td,
     .stDataFrame td,
     .stTable td {
-        font-weight: 700 !important;
-        color: #000000 !important;
-        font-size: 17px !important;
-        padding: 12px 16px !important;
-        border: 2px solid #000000 !important;
+        font-weight: 600 !important;
+        color: #1F2937 !important;
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+        border: 1px solid #E5E7EB !important;
         background-color: #FFFFFF !important;
     }
 
     [data-testid="stDataFrame"] tr:nth-child(even) td,
     .stDataFrame tr:nth-child(even) td {
-        background-color: #F1F5F9 !important;
+        background-color: #F8FAFC !important;
     }
 
+    /* ========== CUSTOM TABLE ========== */
     .custom-table-wrapper {
         width: 100%;
         overflow-x: auto !important;
-        margin: 20px 0 !important;
-        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch !important;
+        margin: 16px 0 !important;
+        padding-bottom: 4px;
     }
 
     .custom-table {
         width: 100% !important;
-        min-width: 100% !important;
         border-collapse: collapse !important;
         font-family: 'Inter', sans-serif !important;
-        border: 4px solid #000000 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06) !important;
         background-color: #FFFFFF !important;
-        table-layout: fixed !important;
+        table-layout: auto !important;
     }
 
     .custom-table th,
     .custom-table td {
-        white-space: normal !important;
-        word-break: break-word !important;
-        overflow-wrap: anywhere !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .custom-table th {
         background-color: #1E3A8A !important;
         color: #FFFFFF !important;
-        font-weight: 900 !important;
-        font-size: 18px !important;
-        padding: 14px 16px !important;
-        border: 3px solid #000000 !important;
+        font-weight: 800 !important;
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+        border: 1px solid #1E3A8A !important;
         text-align: center !important;
     }
 
     .custom-table td {
-        font-weight: 800 !important;
-        color: #000000 !important;
-        font-size: 17px !important;
-        padding: 12px 16px !important;
-        border: 2.5px solid #000000 !important;
+        font-weight: 600 !important;
+        color: #0F172A !important;
+        font-size: 13px !important;
+        padding: 8px 10px !important;
+        border: 1px solid #E5E7EB !important;
         background-color: #FFFFFF !important;
         text-align: center !important;
     }
 
     .custom-table tr:nth-child(even) td {
-        background-color: #F1F5F9 !important;
+        background-color: #F8FAFC !important;
+    }
+
+    /* ========== CARDS & PANELS ========== */
+    .page-panel {
+        border-radius: 16px !important;
+        padding: 20px !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+        margin-bottom: 20px !important;
+    }
+
+    .map-panel {
+        min-height: 420px !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
     }
 
     .metric-card {
-        background: #FFFFFF; border: 3px solid #6B7280;
-        border-radius: 12px; padding: 28px 20px; text-align: center;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        background: #FFFFFF;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 24px 16px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        transition: box-shadow 0.2s ease;
     }
-    .metric-label { color: #374151; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .metric-value { color: #1E3A8A; font-size: 70px; font-weight: 900; line-height: 1; }
+    .metric-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    .metric-label {
+        color: #6B7280;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+    }
+    .metric-value {
+        color: #1E3A8A;
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+    }
 
     .narrative-box {
-        background: #F9FAFB; border: 3px solid #9CA3AF;
-        border-radius: 12px; padding: 24px 28px; margin: 20px 0;
-        color: #000000; line-height: 1.8; font-size: 18px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        border-left: 4px solid #1E3A8A;
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin: 16px 0;
+        color: #1F2937;
+        line-height: 1.7;
+        font-size: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
-    .narrative-box h4 { color: #1E3A8A !important; margin-top: 0; font-size: 22px !important; font-weight: 900 !important; text-transform: uppercase; }
+    .narrative-box h4 {
+        color: #1E3A8A !important;
+        margin-top: 0;
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+    }
 
     .info-card {
-        background: #F8F9FA; border-left: 6px solid #1E3A8A;
-        padding: 20px 24px; margin: 15px 0; border-radius: 8px;
-        color: #111827; font-size: 18px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: #F8F9FA;
+        border-left: 4px solid #1E3A8A;
+        padding: 16px 20px;
+        margin: 12px 0;
+        border-radius: 8px;
+        color: #1F2937;
+        font-size: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     .info-card h4 { margin-top: 0; font-weight: 800; }
 
-    div[data-testid="stSidebar"] a {
-        font-size: 19px !important; color: #1F2937 !important;
-        font-weight: 600; text-decoration: none !important;
+    .footer-text { font-size: 0.95rem !important; color: #1F2937 !important; }
+
+    .prediksi-table th,
+    .prediksi-table td {
+        font-size: 14px !important;
     }
 
-    .footer-text { font-size: 1.1rem !important; color: #000000 !important; }
-    [data-testid="stHeaderActionElements"] { display: none !important; }
-
-    @media (max-width: 1200px) {
-        html, body, [class*="css"] {
-            font-size: 16px !important;
-        }
-        .custom-table th, .custom-table td {
-            font-size: 15px !important;
-            padding: 10px 12px !important;
-        }
-        .metric-label { font-size: 16px !important; }
-        .metric-value { font-size: 60px !important; }
-    }
-
+    /* ========== RESPONSIVE: TABLET ========== */
     @media (max-width: 900px) {
         html, body, [class*="css"] {
             font-size: 15px !important;
         }
         #global-header {
-            padding: 14px 16px !important;
-            height: auto !important;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            padding: 0 16px !important;
+            height: 50px !important;
         }
-        .g-title {
-            font-size: 1.05rem !important;
-        }
+        .g-header-icon { font-size: 22px; }
+        .g-title { font-size: 0.82rem !important; }
+
         [data-testid="stMainBlockContainer"] {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-            padding-top: 100px !important;
+            padding: 62px 1rem 1rem 1rem !important;
         }
-        section.main > div {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+        [data-testid="stSidebar"] {
+            top: 50px !important;
+            height: calc(100vh - 50px) !important;
         }
-        .stButton > button {
-            font-size: 0.95rem !important;
+        [data-testid="stSidebarCollapsedControl"] {
+            top: 58px !important;
         }
+        .metric-value { font-size: 40px !important; }
+        .metric-label { font-size: 12px !important; }
         .prediksi-table th,
         .prediksi-table td {
-            font-size: 14px !important;
-        }
-    }
-
-    @media (max-width: 640px) {
-        html, body, [class*="css"] {
             font-size: 13px !important;
         }
-        .g-title {
-            font-size: 0.94rem !important;
+    }
+
+    /* ========== RESPONSIVE: MOBILE ========== */
+    @media (max-width: 640px) {
+        html, body, [class*="css"] {
+            font-size: 14px !important;
         }
+        #global-header {
+            padding: 0 12px !important;
+            height: 46px !important;
+            gap: 10px;
+        }
+        .g-header-icon { font-size: 20px; }
+        .g-title { font-size: 0.72rem !important; }
+
+        [data-testid="stMainBlockContainer"] {
+            padding: 56px 0.75rem 1rem 0.75rem !important;
+        }
+        [data-testid="stSidebar"] {
+            top: 46px !important;
+            height: calc(100vh - 46px) !important;
+        }
+        [data-testid="stSidebarCollapsedControl"] {
+            top: 52px !important;
+        }
+
+        .stButton > button {
+            min-height: 38px !important;
+            font-size: 0.85rem !important;
+        }
+
         .custom-table th, .custom-table td,
         .prediksi-table th, .prediksi-table td {
-            font-size: 12px !important;
-            padding: 6px 8px !important;
+            font-size: 11px !important;
+            padding: 5px 6px !important;
         }
         .custom-table {
-            font-size: 12px !important;
-            min-width: unset !important;
-            table-layout: auto !important;
+            font-size: 11px !important;
         }
-        .metric-label { font-size: 14px !important; }
-        .metric-value { font-size: 44px !important; }
-        .top-action-bar {
-            gap: 12px;
+
+        .metric-value { font-size: 32px !important; }
+        .metric-label { font-size: 11px !important; }
+
+        .narrative-box {
+            padding: 14px 16px !important;
+            font-size: 13px !important;
+        }
+        .narrative-box h4 { font-size: 15px !important; }
+
+        .page-panel {
+            padding: 14px !important;
+            border-radius: 12px !important;
+        }
+        .map-panel {
+            min-height: 300px !important;
         }
     }
 
+    /* ========== PRINT ========== */
     @media print {
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         [data-testid="stSidebar"] { display: none !important; }
         header[data-testid="stHeader"] { display: none !important; }
-        [data-testid="stMainBlockContainer"] { padding-top: 0 !important; max-width: 100% !important; width: 100% !important; }
-        #global-header { position: relative !important; box-shadow: none !important; background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        [data-testid="stDataFrame"] th, [data-testid="stTable"] th, .custom-table th { background-color: #1E3A8A !important; color: #FFFFFF !important; border: 3px solid #000000 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        [data-testid="stDataFrame"] td, [data-testid="stTable"] td, .custom-table td { background-color: #FFFFFF !important; border: 2.5px solid #000000 !important; color: #000000 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        [data-testid="stDataFrame"] tr:nth-child(even) td, [data-testid="stTable"] tr:nth-child(even) td, .custom-table tr:nth-child(even) td { background-color: #F1F5F9 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        [data-testid="stMainBlockContainer"] { padding-top: 0 !important; max-width: 100% !important; }
+        #global-header { position: relative !important; box-shadow: none !important; }
+        .custom-table th { background-color: #1E3A8A !important; color: #FFFFFF !important; }
+        .custom-table td { background-color: #FFFFFF !important; color: #000000 !important; }
     }
     </style>
 
     <div id="global-header">
-        <span style="font-size: 36px; margin-right: 18px;">🌀</span>
-        <h1 class="g-title">SISTEM PREDIKSI SIKLON TROPIS UNTUK MITIGASI RISIKO BENCANA DI SUMATERA BARAT</h1>
+        <span class="g-header-icon">🌀</span>
+        <h1 class="g-title">Sistem Prediksi Siklon Tropis — Mitigasi Risiko Bencana Sumatera Barat</h1>
     </div>
     """
 
-    st.markdown(css_content.replace("{sidebar_css}", sidebar_css), unsafe_allow_html=True)
+    st.markdown(css_content, unsafe_allow_html=True)
 
-def render_sidebar_brand():
-    if "sidebar_visible" not in st.session_state:
-        st.session_state.sidebar_visible = True
 
-    with st.container():
-        cols = st.columns([4, 1], gap="small")
-        with cols[0]:
-            st.markdown(
-                "<div class='top-action-bar'><div class='brand-label'>" \
-                "<strong>Sistem Prediksi Siklon Tropis</strong> — Navigasi Mobile Friendly</div></div>",
-                unsafe_allow_html=True,
-            )
-        with cols[1]:
-            label = "✕ Tutup Menu" if st.session_state.sidebar_visible else "☰ Menu"
-            if st.button(label, key="sidebar_toggle_btn", help="Tampilkan atau sembunyikan menu navigasi", use_container_width=True):
-                st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-                st.rerun()
-
-    if not st.session_state.sidebar_visible:
-        return
+def render_sidebar():
+    """Render sidebar navigation using native Streamlit sidebar. No manual toggle needed."""
 
     with st.sidebar:
+        # Brand / title
         st.markdown(
-            "<div style='margin: 10px 0 20px 10px; color: #1F2937; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
+            "<div style='padding: 4px 4px 12px 4px;'>"
+            "<p style='margin:0; font-size:0.82rem; font-weight:800; color:#1E3A8A; "
+            "text-transform:uppercase; letter-spacing:0.06em;'>Menu Navigasi</p>"
+            "</div>",
             unsafe_allow_html=True
         )
-        st.markdown(
-            "<div style='margin-bottom: 16px; color: #475569; font-size: 0.95rem;'>Gunakan tombol menu di header untuk sembunyikan sidebar dan lihat konten layar penuh.</div>",
-            unsafe_allow_html=True,
-        )
 
+        # Navigation links
         st.page_link("app.py", label="Beranda", icon="🏠")
         st.page_link("pages/1_Dashboard.py", label="Dashboard Prediksi", icon="🗺️")
         st.page_link("pages/Prediksi.py", label="Prediksi Siklon", icon="🔮")
@@ -438,30 +502,40 @@ def render_sidebar_brand():
         st.page_link("pages/3_Evaluasi.py", label="Evaluasi Akurasi", icon="📈")
         st.page_link("pages/4_Tentang.py", label="Tentang Model", icon="ℹ️")
 
-        st.markdown("<div class='sidebar-spacer'></div>", unsafe_allow_html=True)
-        st.markdown("<hr style='border-color: #9CA3AF; margin-bottom: 15px; margin-top: 0;'>", unsafe_allow_html=True)
+        # Spacer + divider
+        st.markdown("<div style='flex-grow:1; min-height:20px;'></div>", unsafe_allow_html=True)
+        st.divider()
 
+        # Model badge
         st.markdown(
             """
-            <div style="background-color: #E0E7FF; padding: 16px; border-radius: 16px; border: 2px solid #BFDBFE; box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                <span style="font-size: 32px;">🌀</span>
-                <div style="display: flex; flex-direction: column;">
-                    <p style="color: #1E3A8A; font-size: 18px; margin: 0; font-weight: 900; line-height: 1.2;">Model LSTM</p>
-                    <p style="color: #11224D; font-size: 15px; margin: 0; font-weight: 700;">Sliding Window Gabung 8</p>
+            <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+                        padding: 14px 16px; border-radius: 12px; border: 1px solid #BFDBFE;
+                        display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px; line-height:1;">🌀</span>
+                <div>
+                    <p style="color: #1E3A8A; font-size: 14px; margin: 0; font-weight: 800; line-height: 1.2;">Model LSTM</p>
+                    <p style="color: #374151; font-size: 12px; margin: 2px 0 0 0; font-weight: 600;">Sliding Window Gabung 8</p>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+
+# Keep backward compatibility alias
+render_sidebar_brand = render_sidebar
+
+
 def render_footer():
     st.markdown(
         """
-        <div style="margin-top: 50px; padding: 30px 15px; border-top: 3px solid #1E3A8A; border-bottom: 3px solid #1E3A8A; background-color: #FFFFFF; text-align: center; font-family: 'Times New Roman', Times, serif; color: #000000;">
-            <div style="max-width: 700px; margin: 0 auto;">
-                <p style="font-weight: bold; font-size: 1.15rem; margin-bottom: 8px;">IKHWAN RAMADHAN – 22101152630411</p>
-                <p style="margin-bottom: 6px; font-size: 1rem;">Program Studi Teknik Informatika – Fakultas Ilmu Komputer</p>
-                <p style="margin-top: 0; font-size: 1rem;">Universitas Putra Indonesia “YPTK” Padang, 2026</p>
+        <div style="margin-top: 40px; padding: 24px 16px; border-top: 2px solid #1E3A8A;
+                    background-color: #F8F9FA; text-align: center; font-family: 'Inter', sans-serif; color: #1F2937;">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <p style="font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; color: #1E3A8A;">IKHWAN RAMADHAN – 22101152630411</p>
+                <p style="margin-bottom: 2px; font-size: 0.85rem; color: #4B5563;">Program Studi Teknik Informatika – Fakultas Ilmu Komputer</p>
+                <p style="margin-top: 0; font-size: 0.85rem; color: #4B5563;">Universitas Putra Indonesia "YPTK" Padang, 2026</p>
             </div>
         </div>
         """,
@@ -472,3 +546,4 @@ def render_custom_table(df, classes="custom-table"):
     html = df.to_html(index=False, classes=classes, escape=False)
     html = f"<div class='custom-table-wrapper'>{html}</div>"
     st.markdown(html, unsafe_allow_html=True)
+

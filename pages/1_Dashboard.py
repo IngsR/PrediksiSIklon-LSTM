@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 utils.inject_custom_css()
-utils.render_sidebar_brand()
+utils.render_sidebar()
 
 st.markdown("### DASHBOARD PREDIKSI SIKLON")
 

@@ -8,7 +8,7 @@ import utils
 # =====================================================
 st.set_page_config(page_title="Evaluasi Akurasi", page_icon="📈", layout="wide")
 utils.inject_custom_css()
-utils.render_sidebar_brand()
+utils.render_sidebar()
 
 st.markdown("### 📈 EVALUASI AKURASI PER KASUS SIKLON")
 
