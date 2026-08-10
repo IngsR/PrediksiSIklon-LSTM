@@ -90,7 +90,17 @@ def inject_custom_css():
 
     .main { background-color: #FFFFFF; }
 
-    /* ========== HIDE DEFAULT STREAMLIT NAV ========== */
+    /* ========== HIDE DEFAULT STREAMLIT NAV & MAKE HEADER TRANSPARENT ========== */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        pointer-events: none !important;
+    }
+    header[data-testid="stHeader"] * {
+        pointer-events: auto !important;
+    }
     [data-testid="stSidebarNav"], nav[data-testid="stSidebarNav"] {
         display: none !important;
         visibility: hidden !important;
@@ -110,7 +120,7 @@ def inject_custom_css():
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
         gap: 14px;
-        margin-top: -30px;
+        margin-top: 0px !important;
         margin-bottom: 24px;
     }
     .g-header-icon {
@@ -131,7 +141,7 @@ def inject_custom_css():
     /* ========== MAIN CONTENT AREA ========== */
     [data-testid="stMainBlockContainer"] {
         max-width: 100% !important;
-        padding: 4rem 2rem 2rem 2rem !important;
+        padding: 4.5rem 2rem 2rem 2rem !important;
     }
     section.main > div {
         max-width: 100% !important;
@@ -145,7 +155,11 @@ def inject_custom_css():
         border-right: 1px solid #E5E7EB !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        padding-top: 60px !important;
+        padding-top: 0px !important;
+    }
+    [data-testid="stSidebarContent"] {
+        padding-top: 2.2rem !important;
+        padding-bottom: 2rem !important;
     }
 
     /* Sidebar nav link items */
@@ -168,12 +182,19 @@ def inject_custom_css():
     /* Sidebar collapsed control (hamburger) — aesthetic styling */
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"] {
-        top: 64px !important;
+        top: 16px !important;
         left: 16px !important;
         z-index: 999999 !important;
         background-color: #1E3A8A !important;
         border-radius: 8px !important;
-        padding: 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        width: auto !important;
+        min-width: 80px !important;
+        height: 38px !important;
+        padding: 0 12px !important;
         box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3) !important;
         transition: all 0.2s ease-in-out !important;
     }
@@ -181,7 +202,6 @@ def inject_custom_css():
     [data-testid="collapsedControl"]::after,
     [data-testid="stSidebarCollapsedControl"]::after {
         content: "Menu";
-        margin-left: 8px;
         font-weight: 600;
         font-family: 'Inter', sans-serif;
         font-size: 14px;
@@ -411,7 +431,7 @@ def inject_custom_css():
         .g-title { font-size: 0.82rem !important; }
 
         [data-testid="stMainBlockContainer"] {
-            padding: 2rem 1rem 1rem 1rem !important;
+            padding: 4.5rem 1rem 1rem 1rem !important;
         }
         .metric-value { font-size: 40px !important; }
         .metric-label { font-size: 12px !important; }
@@ -434,7 +454,7 @@ def inject_custom_css():
         .g-title { font-size: 0.72rem !important; }
 
         [data-testid="stMainBlockContainer"] {
-            padding: 2rem 0.75rem 1rem 0.75rem !important;
+            padding: 4.5rem 0.75rem 1rem 0.75rem !important;
         }
 
         .stButton > button {
