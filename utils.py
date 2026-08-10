@@ -91,7 +91,7 @@ def inject_custom_css():
     css_content = """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    
+
     /* CSS untuk menyembunyikan sidebar secara kondisional */
     {sidebar_css}
 
@@ -101,7 +101,7 @@ def inject_custom_css():
         color: #000000 !important;
         font-weight: 500;
     }
-    
+
     /* Gaya untuk Tombol Tampilkan Sidebar (Floating/High Contrast) */
     .show-btn-container {
         position: fixed;
@@ -109,7 +109,7 @@ def inject_custom_css():
         left: 20px;
         z-index: 999999;
     }
-    
+
     .stButton > button[key="show_sidebar_btn"] {
         background-color: #FACC15 !important; /* Kuning Terang agar mudah dilihat */
         color: #000000 !important;
@@ -120,7 +120,7 @@ def inject_custom_css():
         box-shadow: 4px 4px 0px #000000 !important;
         transition: all 0.2s ease;
     }
-    
+
     .stButton > button[key="show_sidebar_btn"]:hover {
         background-color: #EAB308 !important;
         transform: translate(-2px, -2px);
@@ -163,6 +163,53 @@ def inject_custom_css():
         visibility: hidden !important;
         height: 0 !important;
         overflow: hidden !important;
+    }
+
+    .top-action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .top-action-bar .brand-label {
+        font-size: 1.05rem !important;
+        font-weight: 900 !important;
+        color: #111827 !important;
+        letter-spacing: 0.02em;
+    }
+
+    .sidebar-toggle-button {
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 320px !important;
+        border-radius: 14px !important;
+        border: 2px solid #1E3A8A !important;
+        background-color: #1E3A8A !important;
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        padding: 12px 18px !important;
+        box-shadow: 0 12px 24px rgba(30, 58, 138, 0.16) !important;
+        transition: all 0.22s ease !important;
+    }
+
+    .sidebar-toggle-button:hover {
+        background-color: #2563EB !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .stButton > button {
+        min-height: 46px !important;
+        border-radius: 14px !important;
+        font-weight: 800 !important;
+    }
+
+    .stButton > button:focus-visible {
+        outline: 3px solid rgba(59, 130, 246, 0.5) !important;
     }
 
     #global-header {
@@ -215,14 +262,29 @@ def inject_custom_css():
         background-color: #F1F5F9 !important;
     }
 
+    .custom-table-wrapper {
+        width: 100%;
+        overflow-x: auto !important;
+        margin: 20px 0 !important;
+        padding-bottom: 8px;
+    }
+
     .custom-table {
         width: 100% !important;
+        min-width: 100% !important;
         border-collapse: collapse !important;
-        margin: 20px 0 !important;
         font-family: 'Inter', sans-serif !important;
         border: 4px solid #000000 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
         background-color: #FFFFFF !important;
+        table-layout: fixed !important;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
     }
 
     .custom-table th {
@@ -281,6 +343,66 @@ def inject_custom_css():
     .footer-text { font-size: 1.1rem !important; color: #000000 !important; }
     [data-testid="stHeaderActionElements"] { display: none !important; }
 
+    @media (max-width: 1200px) {
+        html, body, [class*="css"] {
+            font-size: 16px !important;
+        }
+        .custom-table th, .custom-table td {
+            font-size: 15px !important;
+            padding: 10px 12px !important;
+        }
+        .metric-label { font-size: 16px !important; }
+        .metric-value { font-size: 60px !important; }
+    }
+
+    @media (max-width: 900px) {
+        html, body, [class*="css"] {
+            font-size: 15px !important;
+        }
+        #global-header {
+            padding: 14px 16px !important;
+            height: auto !important;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .g-title {
+            font-size: 1.05rem !important;
+        }
+        [data-testid="stMainBlockContainer"] {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 100px !important;
+        }
+        section.main > div {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        .stButton > button {
+            font-size: 0.95rem !important;
+        }
+        .sidebar-toggle-button {
+            max-width: 100% !important;
+        }
+    }
+
+    @media (max-width: 640px) {
+        html, body, [class*="css"] {
+            font-size: 14px !important;
+        }
+        .g-title {
+            font-size: 0.98rem !important;
+        }
+        .custom-table th, .custom-table td {
+            font-size: 14px !important;
+            padding: 8px 10px !important;
+        }
+        .metric-label { font-size: 15px !important; }
+        .metric-value { font-size: 50px !important; }
+        .top-action-bar {
+            gap: 12px;
+        }
+    }
+
     @media print {
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -299,20 +421,30 @@ def inject_custom_css():
         <h1 class="g-title">SISTEM PREDIKSI SIKLON TROPIS UNTUK MITIGASI RISIKO BENCANA DI SUMATERA BARAT</h1>
     </div>
     """
-    
+
     st.markdown(css_content.replace("{sidebar_css}", sidebar_css), unsafe_allow_html=True)
 
 def render_sidebar_brand():
-    # Periksa state sidebar
     if "sidebar_visible" not in st.session_state:
         st.session_state.sidebar_visible = True
 
-    # Jika sidebar tersembunyi, tampilkan tombol terapung untuk membukanya
-    if not st.session_state.sidebar_visible:
-        st.markdown('<div class="show-btn-container">', unsafe_allow_html=True)
-        if st.button("📂 TAMPILKAN MENU", key="show_sidebar_btn"):
-            st.session_state.sidebar_visible = True
-            st.rerun()
+    with st.container():
+        cols = st.columns([4, 1], gap="small")
+        with cols[0]:
+            st.markdown(
+                "<div class='top-action-bar'><div class='brand-label'>" \
+                "<strong>Sistem Prediksi Siklon Tropis</strong> — Navigasi Mobile Friendly</div></div>",
+                unsafe_allow_html=True,
+            )
+        with cols[1]:
+            if st.session_state.sidebar_visible:
+                if st.button("✕ Sembunyikan Menu", key="hide_sidebar_btn", help="Sembunyikan panel navigasi", use_container_width=True):
+                    st.session_state.sidebar_visible = False
+                    st.rerun()
+            else:
+                if st.button("☰ Tampilkan Menu", key="show_sidebar_btn", help="Tampilkan panel navigasi", use_container_width=True):
+                    st.session_state.sidebar_visible = True
+                    st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
         return # Hentikan rendering isi sidebar jika disembunyikan
 
@@ -365,4 +497,5 @@ def render_footer():
 
 def render_custom_table(df, classes="custom-table"):
     html = df.to_html(index=False, classes=classes, escape=False)
+    html = f"<div class='custom-table-wrapper'>{html}</div>"
     st.markdown(html, unsafe_allow_html=True)
