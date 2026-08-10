@@ -70,8 +70,8 @@ def load_prediction_summary():
     return pd.read_csv(PREDICTION_SUMMARY_PATH)
 
 def inject_custom_css():
-    """Inject global CSS and fixed header. No sidebar toggle logic — uses native Streamlit sidebar."""
-
+    """Inject global CSS and fixed header."""
+    
     css_content = """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -99,20 +99,19 @@ def inject_custom_css():
     }
     [data-testid="stHeaderActionElements"] { display: none !important; }
 
-    /* ========== GLOBAL HEADER (FIXED) ========== */
+    /* ========== GLOBAL HEADER (BANNER) ========== */
     #global-header {
-        position: fixed;
-        top: 0; left: 0;
         width: 100%;
-        height: 56px;
         background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
         color: white;
-        z-index: 999999;
         display: flex;
         align-items: center;
-        padding: 0 24px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
         gap: 14px;
+        margin-top: -30px;
+        margin-bottom: 24px;
     }
     .g-header-icon {
         font-size: 28px;
@@ -121,21 +120,18 @@ def inject_custom_css():
     }
     .g-title {
         margin: 0;
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
         font-weight: 800 !important;
         color: #FFFFFF !important;
         text-transform: uppercase;
         letter-spacing: 0.02em;
-        line-height: 1.25;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.3;
     }
 
     /* ========== MAIN CONTENT AREA ========== */
     [data-testid="stMainBlockContainer"] {
         max-width: 100% !important;
-        padding: 72px 2rem 2rem 2rem !important;
+        padding: 4rem 2rem 2rem 2rem !important;
     }
     section.main > div {
         max-width: 100% !important;
@@ -147,12 +143,9 @@ def inject_custom_css():
     [data-testid="stSidebar"] {
         background-color: #F8F9FA !important;
         border-right: 1px solid #E5E7EB !important;
-        top: 56px !important;
-        height: calc(100vh - 56px) !important;
-        z-index: 999998 !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        padding-top: 1rem !important;
+        padding-top: 60px !important;
     }
 
     /* Sidebar nav link items */
@@ -172,10 +165,42 @@ def inject_custom_css():
         text-decoration: none !important;
     }
 
-    /* Sidebar collapsed control (hamburger) — position below header */
+    /* Sidebar collapsed control (hamburger) — aesthetic styling */
+    [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"] {
         top: 64px !important;
-        left: 8px !important;
+        left: 16px !important;
+        z-index: 999999 !important;
+        background-color: #1E3A8A !important;
+        border-radius: 8px !important;
+        padding: 4px !important;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    
+    [data-testid="collapsedControl"]::after,
+    [data-testid="stSidebarCollapsedControl"]::after {
+        content: "Menu";
+        margin-left: 8px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: white;
+    }
+
+    [data-testid="collapsedControl"]:hover,
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: #11224D !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(30, 58, 138, 0.4) !important;
+    }
+    
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: white !important;
+        color: white !important;
+        width: 18px !important;
+        height: 18px !important;
     }
 
     /* ========== BUTTONS ========== */
@@ -380,21 +405,13 @@ def inject_custom_css():
             font-size: 15px !important;
         }
         #global-header {
-            padding: 0 16px !important;
-            height: 50px !important;
+            padding: 12px 16px !important;
         }
         .g-header-icon { font-size: 22px; }
         .g-title { font-size: 0.82rem !important; }
 
         [data-testid="stMainBlockContainer"] {
-            padding: 62px 1rem 1rem 1rem !important;
-        }
-        [data-testid="stSidebar"] {
-            top: 50px !important;
-            height: calc(100vh - 50px) !important;
-        }
-        [data-testid="stSidebarCollapsedControl"] {
-            top: 58px !important;
+            padding: 2rem 1rem 1rem 1rem !important;
         }
         .metric-value { font-size: 40px !important; }
         .metric-label { font-size: 12px !important; }
@@ -410,22 +427,14 @@ def inject_custom_css():
             font-size: 14px !important;
         }
         #global-header {
-            padding: 0 12px !important;
-            height: 46px !important;
+            padding: 12px !important;
             gap: 10px;
         }
         .g-header-icon { font-size: 20px; }
         .g-title { font-size: 0.72rem !important; }
 
         [data-testid="stMainBlockContainer"] {
-            padding: 56px 0.75rem 1rem 0.75rem !important;
-        }
-        [data-testid="stSidebar"] {
-            top: 46px !important;
-            height: calc(100vh - 46px) !important;
-        }
-        [data-testid="stSidebarCollapsedControl"] {
-            top: 52px !important;
+            padding: 2rem 0.75rem 1rem 0.75rem !important;
         }
 
         .stButton > button {
