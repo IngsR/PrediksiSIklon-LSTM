@@ -152,7 +152,7 @@ with left_col:
             "WMO_WIND": "Kec. Angin (Knot)",
             "WMO_PRES": "Tekanan (hPa)"
             })
-            utils.render_custom_table(display_df)
+            utils.render_custom_table(display_df, classes="custom-table prediksi-table")
 
         btn_col_print, btn_col_pred, btn_col_reset = st.columns([1, 1, 1])
         with btn_col_print:

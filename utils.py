@@ -102,39 +102,23 @@ def inject_custom_css():
         font-weight: 500;
     }
 
-    /* Gaya untuk Tombol Tampilkan Sidebar (Floating/High Contrast) */
-    .show-btn-container {
-        position: fixed;
-        top: 85px;
-        left: 20px;
-        z-index: 999999;
+    /* Gaya untuk Tombol Toggle Sidebar */
+    .stButton > button[key="sidebar_toggle_btn"] {
+        background-color: #1E3A8A !important;
+        color: #FFFFFF !important;
+        border: 2px solid #111827 !important;
+        font-weight: 800 !important;
+        padding: 12px 18px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 14px 24px rgba(30, 58, 138, 0.16) !important;
+        transition: transform 0.22s ease, background-color 0.22s ease !important;
+        width: 100% !important;
+        max-width: 320px !important;
     }
 
-    .stButton > button[key="show_sidebar_btn"] {
-        background-color: #FACC15 !important; /* Kuning Terang agar mudah dilihat */
-        color: #000000 !important;
-        border: 3px solid #000000 !important;
-        font-weight: 900 !important;
-        padding: 10px 20px !important;
-        border-radius: 12px !important;
-        box-shadow: 4px 4px 0px #000000 !important;
-        transition: all 0.2s ease;
-    }
-
-    .stButton > button[key="show_sidebar_btn"]:hover {
-        background-color: #EAB308 !important;
-        transform: translate(-2px, -2px);
-        box-shadow: 6px 6px 0px #000000 !important;
-    }
-
-    /* Gaya untuk Tombol Sembunyikan Sidebar */
-    .stButton > button[key="hide_sidebar_btn"] {
-        background-color: #E5E7EB !important;
-        color: #1F2937 !important;
-        border: 2px solid #9CA3AF !important;
-        font-weight: 700 !important;
-        margin-bottom: 15px !important;
-        border-radius: 8px !important;
+    .stButton > button[key="sidebar_toggle_btn"]:hover {
+        background-color: #2563EB !important;
+        transform: translateY(-1px);
     }
 
     .main { background-color: #FFFFFF; }
@@ -182,30 +166,15 @@ def inject_custom_css():
         letter-spacing: 0.02em;
     }
 
-    .sidebar-toggle-button {
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        max-width: 320px !important;
-        border-radius: 14px !important;
-        border: 2px solid #1E3A8A !important;
-        background-color: #1E3A8A !important;
-        color: #FFFFFF !important;
-        font-weight: 800 !important;
-        padding: 12px 18px !important;
-        box-shadow: 0 12px 24px rgba(30, 58, 138, 0.16) !important;
-        transition: all 0.22s ease !important;
-    }
-
-    .sidebar-toggle-button:hover {
-        background-color: #2563EB !important;
-        transform: translateY(-1px) !important;
-    }
-
     .stButton > button {
         min-height: 46px !important;
         border-radius: 14px !important;
         font-weight: 800 !important;
+    }
+
+    .prediksi-table th,
+    .prediksi-table td {
+        font-size: 16px !important;
     }
 
     .stButton > button:focus-visible {
@@ -380,24 +349,31 @@ def inject_custom_css():
         .stButton > button {
             font-size: 0.95rem !important;
         }
-        .sidebar-toggle-button {
-            max-width: 100% !important;
+        .prediksi-table th,
+        .prediksi-table td {
+            font-size: 14px !important;
         }
     }
 
     @media (max-width: 640px) {
         html, body, [class*="css"] {
-            font-size: 14px !important;
+            font-size: 13px !important;
         }
         .g-title {
-            font-size: 0.98rem !important;
+            font-size: 0.94rem !important;
         }
-        .custom-table th, .custom-table td {
-            font-size: 14px !important;
-            padding: 8px 10px !important;
+        .custom-table th, .custom-table td,
+        .prediksi-table th, .prediksi-table td {
+            font-size: 12px !important;
+            padding: 6px 8px !important;
         }
-        .metric-label { font-size: 15px !important; }
-        .metric-value { font-size: 50px !important; }
+        .custom-table {
+            font-size: 12px !important;
+            min-width: unset !important;
+            table-layout: auto !important;
+        }
+        .metric-label { font-size: 14px !important; }
+        .metric-value { font-size: 44px !important; }
         .top-action-bar {
             gap: 12px;
         }
@@ -437,27 +413,24 @@ def render_sidebar_brand():
                 unsafe_allow_html=True,
             )
         with cols[1]:
-            if st.session_state.sidebar_visible:
-                if st.button("✕ Sembunyikan Menu", key="hide_sidebar_btn", help="Sembunyikan panel navigasi", use_container_width=True):
-                    st.session_state.sidebar_visible = False
-                    st.rerun()
-            else:
-                if st.button("☰ Tampilkan Menu", key="show_sidebar_btn", help="Tampilkan panel navigasi", use_container_width=True):
-                    st.session_state.sidebar_visible = True
-                    st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        return # Hentikan rendering isi sidebar jika disembunyikan
+            label = "✕ Tutup Menu" if st.session_state.sidebar_visible else "☰ Menu"
+            if st.button(label, key="sidebar_toggle_btn", help="Tampilkan atau sembunyikan menu navigasi", use_container_width=True):
+                st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+                st.rerun()
+
+    if not st.session_state.sidebar_visible:
+        return
 
     with st.sidebar:
-        # Tombol untuk menyembunyikan sidebar
-        if st.button("⬅️ SEMBUNYIKAN MENU", key="hide_sidebar_btn", use_container_width=True):
-            st.session_state.sidebar_visible = False
-            st.rerun()
-
         st.markdown(
-            "<div style='margin: 10px 0 20px 10px; color: #4B5563; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
+            "<div style='margin: 10px 0 20px 10px; color: #1F2937; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.1em;'>Menu Navigasi</div>",
             unsafe_allow_html=True
         )
+        st.markdown(
+            "<div style='margin-bottom: 16px; color: #475569; font-size: 0.95rem;'>Gunakan tombol menu di header untuk sembunyikan sidebar dan lihat konten layar penuh.</div>",
+            unsafe_allow_html=True,
+        )
+
         st.page_link("app.py", label="Beranda", icon="🏠")
         st.page_link("pages/1_Dashboard.py", label="Dashboard Prediksi", icon="🗺️")
         st.page_link("pages/Prediksi.py", label="Prediksi Siklon", icon="🔮")
