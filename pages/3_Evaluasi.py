@@ -43,7 +43,7 @@ with st.container(border=True):
         default_idx = 0
 
     selected_sid_dropdown = st.selectbox(
-        "🆔 Pilih atau Ketik ID Siklon untuk Evaluasi",
+        "🆔 Pilih ID Siklon untuk Evaluasi",
         options=all_sids,
         index=default_idx,
         key="selectbox_eval",

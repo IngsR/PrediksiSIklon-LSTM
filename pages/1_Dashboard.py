@@ -121,7 +121,7 @@ with col_select:
 selected_sid = st.session_state["selected_sid_dashboard"]
 
 if selected_sid is None:
-    st.info("Silakan pilih atau ketik ID siklon untuk melanjutkan.")
+    st.info("Silakan pilih ID siklon dari daftar untuk melanjutkan.")
     st.stop()
 
 # =====================================================

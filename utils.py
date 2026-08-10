@@ -177,14 +177,14 @@ def inject_custom_css():
         transform: translateX(4px); /* Modern subtle hover slide transition */
     }
     [data-testid="stSidebar"] a {
-        font-size: 17px !important; /* Upgraded font size (all age groups friendly) */
-        color: #1E293B !important; /* Darker slate for exceptional reading contrast */
-        font-weight: 600 !important;
+        font-size: 21px !important; /* Maximum accessibility for all users */
+        color: #1E293B !important; 
+        font-weight: 700 !important;
         text-decoration: none !important;
     }
     [data-testid="stSidebar"] [data-testid="stPageLink"] span,
     [data-testid="stSidebar"] .stPageLink span {
-        font-size: 19px !important; /* Slightly larger emojis/icons */
+        font-size: 23px !important; 
     }
 
     /* Sidebar collapsed control (hamburger) — aesthetic styling */
@@ -441,6 +441,9 @@ def inject_custom_css():
         [data-testid="stMainBlockContainer"] {
             padding: 4.5rem 1rem 1rem 1rem !important;
         }
+        [data-testid="stSidebar"] a {
+            font-size: 18px !important;
+        }
         .metric-value { font-size: 40px !important; }
         .metric-label { font-size: 12px !important; }
         .prediksi-table th,
@@ -464,7 +467,9 @@ def inject_custom_css():
         [data-testid="stMainBlockContainer"] {
             padding: 4.5rem 0.75rem 1rem 0.75rem !important;
         }
-
+        [data-testid="stSidebar"] a {
+            font-size: 17px !important;
+        }
         .stButton > button {
             min-height: 38px !important;
             font-size: 0.85rem !important;
