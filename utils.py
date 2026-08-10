@@ -165,18 +165,26 @@ def inject_custom_css():
     /* Sidebar nav link items */
     [data-testid="stSidebar"] [data-testid="stPageLink"],
     [data-testid="stSidebar"] .stPageLink {
-        border-radius: 8px !important;
-        margin: 2px 8px !important;
-        transition: background-color 0.15s ease !important;
+        border-radius: 10px !important;
+        margin: 6px 12px !important; /* Larger margin for comfortable spacing */
+        padding: 6px 6px !important; /* Larger padding for effortless clicking/tapping */
+        transition: all 0.2s ease !important;
+        border: 1px solid transparent !important;
     }
     [data-testid="stSidebar"] [data-testid="stPageLink"]:hover {
-        background-color: #E5E7EB !important;
+        background-color: #EFF6FF !important; /* Beautiful soft blue highlight */
+        border: 1px solid #BFDBFE !important;
+        transform: translateX(4px); /* Modern subtle hover slide transition */
     }
     [data-testid="stSidebar"] a {
-        font-size: 15px !important;
-        color: #1F2937 !important;
+        font-size: 17px !important; /* Upgraded font size (all age groups friendly) */
+        color: #1E293B !important; /* Darker slate for exceptional reading contrast */
         font-weight: 600 !important;
         text-decoration: none !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stPageLink"] span,
+    [data-testid="stSidebar"] .stPageLink span {
+        font-size: 19px !important; /* Slightly larger emojis/icons */
     }
 
     /* Sidebar collapsed control (hamburger) — aesthetic styling */
@@ -514,11 +522,11 @@ def render_sidebar():
     """Render sidebar navigation using native Streamlit sidebar. No manual toggle needed."""
 
     with st.sidebar:
-        # Brand / title
+        # Brand / title - Premium design with underline
         st.markdown(
-            "<div style='padding: 4px 4px 12px 4px;'>"
-            "<p style='margin:0; font-size:0.82rem; font-weight:800; color:#1E3A8A; "
-            "text-transform:uppercase; letter-spacing:0.06em;'>Menu Navigasi</p>"
+            "<div style='padding: 8px 12px 16px 12px; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px;'>"
+            "<p style='margin:0; font-size:1.05rem; font-weight:800; color:#1E3A8A; "
+            "text-transform:uppercase; letter-spacing:0.06em;'>🧭 Menu Navigasi</p>"
             "</div>",
             unsafe_allow_html=True
         )
@@ -532,19 +540,20 @@ def render_sidebar():
         st.page_link("pages/4_Tentang.py", label="Tentang Model", icon="ℹ️")
 
         # Spacer + divider
-        st.markdown("<div style='flex-grow:1; min-height:20px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='flex-grow:1; min-height:30px;'></div>", unsafe_allow_html=True)
         st.divider()
 
-        # Model badge
+        # Model badge - Premium Dark Gradient (High Contrast & Matches Banner)
         st.markdown(
             """
-            <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-                        padding: 14px 16px; border-radius: 12px; border: 1px solid #BFDBFE;
-                        display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 26px; line-height:1;">🌀</span>
+            <div style="background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
+                        padding: 16px; border-radius: 14px; border: 1px solid #1E3A8A;
+                        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+                        display: flex; align-items: center; gap: 14px; margin: 0 12px;">
+                <span style="font-size: 32px; line-height:1; flex-shrink: 0;">🌀</span>
                 <div>
-                    <p style="color: #1E3A8A; font-size: 14px; margin: 0; font-weight: 800; line-height: 1.2;">Model LSTM</p>
-                    <p style="color: #374151; font-size: 12px; margin: 2px 0 0 0; font-weight: 600;">Sliding Window Gabung 8</p>
+                    <p style="color: #FFFFFF; font-size: 15px; margin: 0; font-weight: 800; line-height: 1.2; letter-spacing: 0.02em;">MODEL LSTM</p>
+                    <p style="color: #93C5FD; font-size: 12.5px; margin: 4px 0 0 0; font-weight: 600; line-height: 1.3;">Sliding Window Gabung 8</p>
                 </div>
             </div>
             """,
