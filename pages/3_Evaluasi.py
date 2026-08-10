@@ -34,50 +34,22 @@ if "selected_sid_eval" not in st.session_state:
     st.session_state.selected_sid_eval = all_sids[0] if all_sids else None
 
 # =====================================================
-###### 4. FITUR PENCARIAN & DROPDOWN – FIX SYNC BUG ######
+###### 4. SELEKSI KASUS SIKLON ######
 # =====================================================
-try:
-    from streamlit_searchbox import st_searchbox
-except ImportError:
-    st.error("Package 'streamlit-searchbox' belum terinstall.")
-    st.stop()
-
-def search_sid_eval(searchterm: str) -> list[str]:
-    if not searchterm:
-        return []
-    term = searchterm.upper()
-    return [sid for sid in all_sids if term in sid.upper()]
-
-col_search, col_drop = st.columns([1, 1], gap="medium")
-
-with col_search:
-    st.markdown("🔍 **Cari ID Siklon**")
-    # Gunakan key dinamis berbasis state untuk memaksa update widget jika state berubah dari widget lain
-    search_value = st_searchbox(
-        search_sid_eval,
-        placeholder="Ketik ID Siklon...",
-        key=f"searchbox_eval_{st.session_state.selected_sid_eval}",
-        clear_on_submit=False,
-        default=st.session_state.selected_sid_eval,
-    )
-    if search_value and search_value != st.session_state.selected_sid_eval:
-        st.session_state.selected_sid_eval = search_value
-        st.rerun()
-
-with col_drop:
-    st.markdown("📂 **Atau Pilih dari Daftar**")
+with st.container(border=True):
     try:
         default_idx = all_sids.index(st.session_state.selected_sid_eval)
     except ValueError:
         default_idx = 0
 
     selected_sid_dropdown = st.selectbox(
-        "Pilih ID Siklon",
+        "🆔 Pilih atau Ketik ID Siklon untuk Evaluasi",
         options=all_sids,
         index=default_idx,
         key="selectbox_eval",
-        label_visibility="collapsed"
+        help="Gunakan fitur pencarian di dalam menu dropdown ini untuk menemukan SID dengan cepat."
     )
+
     if selected_sid_dropdown != st.session_state.selected_sid_eval:
         st.session_state.selected_sid_eval = selected_sid_dropdown
         st.rerun()

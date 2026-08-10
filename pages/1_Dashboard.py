@@ -5,16 +5,6 @@ import numpy as np
 import folium
 from streamlit_folium import st_folium
 
-# Coba import streamlit-searchbox, beri pesan jika belum terinstall
-try:
-    from streamlit_searchbox import st_searchbox
-except ImportError:
-    st.error(
-        "Package 'streamlit-searchbox' belum terinstall. "
-        "Silakan jalankan `pip install streamlit-searchbox` terlebih dahulu."
-    )
-    st.stop()
-
 st.set_page_config(
     page_title="Dashboard Prediksi",
     page_icon="🗺️",
@@ -82,66 +72,46 @@ if st.session_state["selected_sid_dashboard"] not in sid_list_filtered:
     st.session_state["selected_sid_dashboard"] = sid_list_filtered[0] if sid_list_filtered else None
 
 # =====================================================
-# FITUR PENCARIAN & DROPDOWN SELEKSI SID
+# FILTER & SELEKSI SIKLON
 # =====================================================
-col1, col2, col3 = st.columns([1, 2, 2])
+col_info, col_select = st.columns([1, 4], gap="large")
 
-with col1:
+with col_info:
     warna = "#E8F0FE" if len(sid_list_filtered) > 0 else "#FEE2E2"
     teks = "#1E3A8A" if len(sid_list_filtered) > 0 else "#991B1B"
 
+    # Margin-top disesuaikan agar lencana sejajar tengah dengan selectbox
     st.markdown(
         f"""
         <div style="
             background:{warna};
-            padding:8px;
-            border-radius:8px;
+            padding:10px;
+            border-radius:10px;
             text-align:center;
-            font-weight:600;
+            font-weight:700;
             color:{teks};
-            margin-top: 28px;
+            margin-top: 26px;
+            border: 1px solid #BFDBFE;
+            font-size: 0.9rem;
         ">
-            {len(sid_list_filtered)} Siklon
+            🌀 {len(sid_list_filtered)} Siklon
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-with col2:
-    st.markdown("🔍 **Ketik ID Siklon**")
-    # Fungsi callback untuk searchbox – mengembalikan daftar saran SID
-    def search_sid(searchterm: str) -> list[str]:
-        if not searchterm:
-            return []
-        searchterm = searchterm.upper()
-        return [sid for sid in sid_list_filtered if searchterm in sid.upper()]
-
-    searchbox_val = st_searchbox(
-        search_sid,
-        placeholder="Ketik SID...",
-        key=f"sid_searchbox_{st.session_state['selected_sid_dashboard']}",
-        clear_on_submit=False,
-        default=st.session_state["selected_sid_dashboard"],
-    )
-    
-    if searchbox_val and searchbox_val != st.session_state["selected_sid_dashboard"]:
-        if searchbox_val in sid_list_filtered:
-            st.session_state["selected_sid_dashboard"] = searchbox_val
-            st.rerun()
-
-with col3:
-    st.markdown("📂 **Pilih dari Dropdown**")
+with col_select:
     try:
         default_index = sid_list_filtered.index(st.session_state["selected_sid_dashboard"])
     except ValueError:
         default_index = 0
 
     selectbox_val = st.selectbox(
-        "Pilih ID Siklon",
+        "🆔 Pilih ID Siklon (Gunakan pencarian teks di bawah)",
         options=sid_list_filtered,
         index=default_index,
         key="sid_selectbox",
-        label_visibility="collapsed"
+        help="Anda dapat mengetik langsung ID siklon untuk mencari dengan cepat."
     )
 
     if selectbox_val and selectbox_val != st.session_state["selected_sid_dashboard"]:
