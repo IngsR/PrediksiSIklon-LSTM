@@ -50,23 +50,50 @@ let _session: ort.InferenceSession | null = null;
 let _featureScaler: ScalerParams | null = null;
 let _targetScaler: ScalerParams | null = null;
 
+// Function to locate model and scaler files across multiple serverless / production locations
+function findModelFile(filename: string): string {
+  const candidates = [
+    path.join(__dirname, filename),
+    path.join(__dirname, 'models', filename),
+    path.join(__dirname, 'public', 'models', filename),
+    path.join(__dirname, '..', 'models', filename),
+    path.join(__dirname, '..', 'public', 'models', filename),
+    path.join(__dirname, '..', '..', 'public', 'models', filename),
+    path.join(process.cwd(), 'public', 'models', filename),
+    path.join(process.cwd(), 'web', 'public', 'models', filename),
+    path.join(process.cwd(), '.vercel', 'output', 'static', 'models', filename),
+    path.join(process.cwd(), '.vercel', 'output', '_functions', 'public', 'models', filename),
+    path.join(process.cwd(), '.vercel', 'output', 'functions', '_render.func', 'models', filename),
+    path.join(process.cwd(), '.vercel', 'output', 'functions', '_render.func', 'public', 'models', filename),
+    path.join(process.cwd(), 'models', filename),
+    path.resolve(MODELS_DIR, filename),
+  ];
+
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return candidates[candidates.length - 1];
+}
+
 async function loadResources() {
   if (_session && _featureScaler && _targetScaler) {
     return { session: _session, featureScaler: _featureScaler, targetScaler: _targetScaler };
   }
 
-  const onnxPath = path.join(MODELS_DIR, 'model.onnx');
-  const featPath = path.join(MODELS_DIR, 'feature_scaler.json');
-  const tgtPath  = path.join(MODELS_DIR, 'target_scaler.json');
+  const onnxPath = findModelFile('model.onnx');
+  const featPath = findModelFile('feature_scaler.json');
+  const tgtPath  = findModelFile('target_scaler.json');
 
   if (!fs.existsSync(onnxPath)) {
     throw new Error(
       `Model ONNX tidak ditemukan di ${onnxPath}. ` +
-      'Jalankan python web/scripts/convert_model.py terlebih dahulu.'
+      'Pastikan model.onnx tersedia di public/models/.'
     );
   }
 
-  _session = await ort.InferenceSession.create(onnxPath, {
+  // Load ONNX session using absolute path or buffer
+  const modelBuffer = fs.readFileSync(onnxPath);
+  _session = await ort.InferenceSession.create(modelBuffer, {
     executionProviders: ['cpu'],
   });
 
@@ -75,6 +102,7 @@ async function loadResources() {
 
   return { session: _session, featureScaler: _featureScaler, targetScaler: _targetScaler };
 }
+
 
 // =========================================
 // FEATURE ENGINEERING

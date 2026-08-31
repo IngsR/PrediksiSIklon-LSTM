@@ -47,116 +47,123 @@ import Layout from '../layouts/Layout.astro';
         </button>
       </div>
     </div>
-
-    <div class="split-layout" style="align-items:start;">
+        <div class="split-layout" style="align-items:start;">
       
-      <!-- ===== KIRI: EDITOR OBSERVASI ===== -->
-      <div>
-        <div class="page-panel">
+      <!-- ===== KIRI: KONFIGURASI & EDITOR OBSERVASI ===== -->
+      <div class="left-command-col">
+        
+        <!-- CARD 1: KONFIGURASI HORIZON & WAKTU AWAL (DITAMPILKAN LEBIH DULU) -->
+        <div class="page-panel horizon-panel">
           <div class="page-section-header">
-            <h2 class="section-title">📝 Editor Data Observasi (8 Titik)</h2>
-            <p class="section-subtitle">Pilih titik untuk diedit atau klik koordinat langsung di peta.</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+              <h2 class="section-title">⚙️ Konfigurasi Horizon & Waktu Awal</h2>
+              <span class="badge badge-success">Langkah 1</span>
+            </div>
+            <p class="section-subtitle">Tentukan target proyeksi waktu peramalan dan waktu awal siklus observasi (WIB).</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" for="horizon-select">Horizon Peramalan (Jam ke Depan):</label>
+            <select id="horizon-select" class="form-select horizon-select-styled">
+              <option value="1">⚡ 3 Jam (1 Langkah - Akurasi Tertinggi ~92%)</option>
+              <option value="2">⏳ 6 Jam (2 Langkah - Sedang ~78%)</option>
+              <option value="3" selected>🌀 9 Jam (3 Langkah - Multi-Step Rekursif ~61%)</option>
+            </select>
+          </div>
+
+          <div class="grid-2" style="gap:10px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="inp-date">Tanggal Awal (Titik 1)</label>
+              <input type="date" id="inp-date" class="form-input" />
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="inp-time">Jam Awal (WIB)</label>
+              <input type="time" id="inp-time" class="form-input" value="00:00" />
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: EDITOR DATA OBSERVASI (8 TITIK) -->
+        <div class="page-panel obs-panel">
+          <div class="page-section-header">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+              <h2 class="section-title">📝 Editor Data Observasi (8 Titik)</h2>
+              <span class="badge badge-warning">Langkah 2</span>
+            </div>
+            <p class="section-subtitle">Input 8 koordinat berurutan (interval 3 jam) atau ketuk langsung di peta.</p>
           </div>
 
           <!-- Point Selector -->
-          <div class="form-group">
+          <div class="form-group" style="margin-bottom:10px;">
             <label class="form-label" for="point-select">Pilih Nomor Titik untuk Diedit:</label>
             <select id="point-select" class="form-select"></select>
           </div>
 
           <!-- Point Editor Form -->
-          <div id="point-editor" class="grid-2" style="gap:10px; margin-bottom:12px;">
+          <div id="point-editor" class="grid-2" style="gap:10px; margin-bottom:10px;">
             <div>
-              <div class="form-group">
+              <div class="form-group" style="margin-bottom:8px;">
                 <label class="form-label" for="inp-lat">Latitude (°)</label>
-                <input type="number" id="inp-lat" class="form-input" step="0.1" value="0" />
+                <input type="number" id="inp-lat" class="form-input" step="0.01" value="0" />
               </div>
-              <div class="form-group">
+              <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="inp-wind">WMO Wind (knot)</label>
                 <input type="number" id="inp-wind" class="form-input" step="1" value="115" />
               </div>
             </div>
             <div>
-              <div class="form-group">
+              <div class="form-group" style="margin-bottom:8px;">
                 <label class="form-label" for="inp-lon">Longitude (°)</label>
-                <input type="number" id="inp-lon" class="form-input" step="0.1" value="0" />
+                <input type="number" id="inp-lon" class="form-input" step="0.01" value="0" />
               </div>
-              <div class="form-group">
+              <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="inp-pres">WMO Pressure (hPa)</label>
                 <input type="number" id="inp-pres" class="form-input" step="1" value="1005" />
               </div>
             </div>
           </div>
+
           <button type="button" class="btn btn-secondary btn-full" onclick="savePoint()" style="margin-bottom:12px;">
-            💾 Simpan Titik Ini
+            💾 Simpan Titik Ini ke Tabel
           </button>
 
-          <div class="divider"></div>
-
-          <!-- Config Accordion -->
-          <details open style="margin-bottom:12px;">
-            <summary style="font-weight:800; font-size:0.86rem; color:#1E3A8A; cursor:pointer; padding:4px 0; user-select:none;">
-              ⚙️ Konfigurasi Horizon & Waktu Awal
-            </summary>
-            <div style="margin-top:10px;">
-              <div class="grid-2" style="gap:10px;">
-                <div class="form-group">
-                  <label class="form-label" for="inp-date">Tanggal Awal (Titik 1)</label>
-                  <input type="date" id="inp-date" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="inp-time">Jam Awal (Titik 1)</label>
-                  <input type="time" id="inp-time" class="form-input" value="00:00" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="horizon-select">Horizon Peramalan (Jam ke Depan):</label>
-                <select id="horizon-select" class="form-select">
-                  <option value="1">3 Jam (1 Langkah - Akurasi Tertinggi)</option>
-                  <option value="2">6 Jam (2 Langkah - Sedang)</option>
-                  <option value="3" selected>9 Jam (3 Langkah - Multi-Step Rekursif)</option>
-                </select>
-              </div>
-            </div>
-          </details>
-
-          <div class="divider"></div>
+          <div class="divider" style="margin:12px 0;"></div>
 
           <!-- Observation Table -->
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span style="font-weight:800; font-size:0.84rem; color:#1E3A8A;">📋 Tabel 8 Titik Observasi</span>
-            <span style="font-size:0.72rem; color:#64748B;">Interval 3 Jam</span>
+            <span style="font-size:0.72rem; color:#64748B; font-weight:600;">Klik baris untuk edit</span>
           </div>
           <div class="custom-table-wrapper" id="obs-table-wrapper"></div>
-        </div>
-
-        <div class="page-notice">
-          💡 <strong>Tip:</strong> Klik sembarang titik di peta satelit untuk mengisi otomatis koordinat kosong berikutnya.
+          
+          <div class="page-notice" style="margin-top:10px; margin-bottom:0;">
+            💡 <strong>Tip Interaktif:</strong> Anda dapat mengetuk / mengklik sembarang lokasi di peta untuk langsung mengisi koordinat titik aktif.
+          </div>
         </div>
 
         <!-- Action Buttons (Responsive Layout) -->
-        <div class="pred-actions-grid" style="margin-top:10px; margin-bottom:14px;">
+        <div class="pred-actions-grid" style="margin-top:12px; margin-bottom:16px;">
           <button type="button" class="btn btn-primary btn-predict-main" id="btn-predict" onclick="runPrediction()">
-            🧠 Prediksi LSTM
+            🧠 Jalankan Prediksi LSTM
           </button>
           <div class="pred-sub-actions">
             <button type="button" class="btn btn-secondary" id="btn-print" disabled onclick="printReport()" style="flex:1;">
               📄 Print PDF
             </button>
             <button type="button" class="btn btn-danger" onclick="resetAll()" style="flex:1;">
-              🗑️ Reset
+              🗑️ Reset Data
             </button>
           </div>
         </div>
       </div>
 
       <!-- ===== KANAN: WAR ROOM PETA & MATRIKS ANCAMAN ===== -->
-      <div>
+      <div class="right-display-col">
         <!-- War Room Map Container -->
-        <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px; position:relative;">
+        <div class="page-panel map-panel-card" style="padding:0; overflow:hidden; margin-bottom:14px; position:relative;">
           <div class="map-toolbar">
             <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
-              <span>🗺️ Geospatial Map</span>
+              <span>🗺️ Geospatial War Room Map</span>
             </span>
             <!-- Map Layer Switcher -->
             <div class="map-layer-selector">
@@ -166,7 +173,10 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           
-          <div id="pred-map" class="map-container" style="height:clamp(320px, 50vh, 540px);"></div>
+          <div id="pred-map" class="map-container" style="height:clamp(320px, 48vh, 520px);"></div>
+          
+          <!-- Interactive Map Toast Notification -->
+          <div id="map-toast" class="map-toast" style="display:none;"></div>
         </div>
 
         <!-- Threat Level Matrix & Advisory (Real-Time Disaster Mitigation) -->
@@ -233,6 +243,7 @@ import Layout from '../layouts/Layout.astro';
 import { generateAndDownloadPdfReport } from '../lib/pdfReport';
 
 const WINDOW_SIZE = 8;
+
 
 // Landmark Pesisir Sumatera Barat
 const PESISIR_SUMBAR = [
@@ -305,6 +316,7 @@ const observations = Array.from({length: WINDOW_SIZE}, () => ({
 let predResults: Array<{pred_lat:number; pred_lon:number; time:string}> = [];
 let mapInstance: any = null;
 let currentTileLayer: any = null;
+let toastTimeout: any = null;
 
 // Tile Layer URLs
 const TILES: Record<string, { url: string; attr: string }> = {
@@ -351,13 +363,30 @@ function getReliability(step:number) {
   return {text:'Rendah (61%)',color:'#DC2626',km:'±75 km uncertainty cone'};
 }
 
+function showMapToast(msg: string) {
+  const toast = document.getElementById('map-toast');
+  if (!toast) return;
+  toast.innerHTML = msg;
+  toast.style.display = 'block';
+  toast.classList.add('toast-show');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('toast-show');
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 2400);
+}
+
 // ── Point selector ────────────────────────────────
 function initPointSelect() {
   const sel = document.getElementById('point-select') as HTMLSelectElement;
   sel.innerHTML = Array.from({length:WINDOW_SIZE},(_,i)=>`<option value="${i}">Titik ${i+1} (Waktu T+${i*3}j)</option>`).join('');
-  sel.addEventListener('change', () => loadPoint(parseInt(sel.value)));
+  sel.addEventListener('change', () => {
+    loadPoint(parseInt(sel.value));
+    renderObsTable();
+  });
   loadPoint(0);
 }
+
 function loadPoint(idx:number) {
   const p = observations[idx];
   (document.getElementById('inp-lat') as HTMLInputElement).value = p.LAT.toString();
@@ -365,14 +394,28 @@ function loadPoint(idx:number) {
   (document.getElementById('inp-wind') as HTMLInputElement).value = p.WMO_WIND.toString();
   (document.getElementById('inp-pres') as HTMLInputElement).value = p.WMO_PRES.toString();
 }
+
+(window as any).selectPointFromTable = function(idx: number) {
+  const sel = document.getElementById('point-select') as HTMLSelectElement;
+  if (sel) {
+    sel.value = idx.toString();
+    loadPoint(idx);
+    renderObsTable();
+    showMapToast(`✏️ Mengedit Titik ${idx + 1}`);
+  }
+};
+
 (window as any).savePoint = function() {
   const idx = parseInt((document.getElementById('point-select') as HTMLSelectElement).value);
-  observations[idx].LAT = parseFloat((document.getElementById('inp-lat') as HTMLInputElement).value)||0;
-  observations[idx].LON = parseFloat((document.getElementById('inp-lon') as HTMLInputElement).value)||0;
+  const lat = parseFloat((document.getElementById('inp-lat') as HTMLInputElement).value)||0;
+  const lon = parseFloat((document.getElementById('inp-lon') as HTMLInputElement).value)||0;
+  observations[idx].LAT = lat;
+  observations[idx].LON = lon;
   observations[idx].WMO_WIND = parseFloat((document.getElementById('inp-wind') as HTMLInputElement).value)||115;
   observations[idx].WMO_PRES = parseFloat((document.getElementById('inp-pres') as HTMLInputElement).value)||1005;
   renderObsTable();
   renderMap();
+  showMapToast(`💾 Titik ${idx + 1} berhasil disimpan: ${formatLat(lat)}, ${formatLon(lon)}`);
 };
 
 // ── Load Preset ───────────────────────────────────
@@ -390,7 +433,9 @@ function loadPoint(idx:number) {
   renderObsTable();
   renderMap();
 
-  // Auto scroll slightly and pulse predict button
+  showMapToast(`🚀 Memuat ${p.name}`);
+
+  // Pulse predict button
   const predBtn = document.getElementById('btn-predict');
   predBtn?.classList.add('pulse-anim');
   setTimeout(() => predBtn?.classList.remove('pulse-anim'), 1500);
@@ -402,24 +447,30 @@ function getStartDateTime():Date {
   const t=(document.getElementById('inp-time') as HTMLInputElement).value||'00:00';
   return d ? new Date(`${d}T${t}:00`) : new Date();
 }
+
 function renderObsTable() {
   const start = getStartDateTime();
+  const currentSelected = parseInt((document.getElementById('point-select') as HTMLSelectElement)?.value || '0');
+  
   const rows = observations.map((p,i) => {
     const ts = new Date(start.getTime() + i*3*3600*1000);
-    const timeStr = ts.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const timeStr = ts.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     const latStr = p.LAT===0?'<span style="color:#9CA3AF;">0.0°</span>':`<strong>${formatLat(p.LAT)}</strong>`;
     const lonStr = p.LON===0?'<span style="color:#9CA3AF;">0.0°</span>':`<strong>${formatLon(p.LON)}</strong>`;
-    return `<tr>
-      <td><strong>${i+1}</strong></td>
+    const isActive = i === currentSelected;
+    
+    return `<tr class="${isActive ? 'active-obs-row' : ''}" onclick="selectPointFromTable(${i})" style="cursor:pointer;" title="Klik untuk edit titik ini">
+      <td><span class="table-point-badge ${isActive ? 'tpb-active' : ''}">${i+1}</span></td>
       <td>${timeStr}</td>
       <td>${latStr}</td>
       <td>${lonStr}</td>
-      <td>${p.WMO_WIND.toFixed(1)}</td>
-      <td>${p.WMO_PRES.toFixed(1)}</td>
+      <td>${p.WMO_WIND.toFixed(0)}</td>
+      <td>${p.WMO_PRES.toFixed(0)}</td>
     </tr>`;
   }).join('');
+
   document.getElementById('obs-table-wrapper')!.innerHTML = `
-    <table class="custom-table" style="font-size:11.5px;">
+    <table class="custom-table" style="font-size:12px;">
       <thead><tr><th>#</th><th>Waktu (WIB)</th><th>Lintang</th><th>Bujur</th><th>Angin (kt)</th><th>Tekanan (hPa)</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -462,6 +513,7 @@ async function renderMap() {
       center: [-1.5, 99.5], 
       zoom: 6, 
       zoomControl: true,
+      tap: false, // Fix Leaflet mobile tap gesture conflict
       preferCanvas: true // Hardware acceleration for fast mobile runtime
     });
     
@@ -474,18 +526,40 @@ async function renderMap() {
       if (mapInstance) mapInstance.invalidateSize();
     }, { passive: true });
 
-    // Click on map → fill empty point
+    // Interactive Map Click / Mobile Tap Handler (Directly Syncs to Form & Table)
     mapInstance.on('click', (e:any) => {
-      const lat = Math.round(e.latlng.lat*100)/100;
-      const lon = Math.round(e.latlng.lng*100)/100;
-      const empty = observations.findIndex(p => p.LAT===0 && p.LON===0);
-      if (empty>=0) {
-        observations[empty].LAT = lat;
-        observations[empty].LON = lon;
-        (document.getElementById('point-select') as HTMLSelectElement).value = empty.toString();
-        loadPoint(empty);
-        renderObsTable();
-        renderMap();
+      const lat = Math.round(e.latlng.lat * 100) / 100;
+      const lon = Math.round(e.latlng.lng * 100) / 100;
+      
+      const pointSel = document.getElementById('point-select') as HTMLSelectElement;
+      let targetIdx = parseInt(pointSel?.value || '0');
+      
+      // If the currently selected point is already filled, but there are empty points in sequence, choose first empty point
+      const firstEmpty = observations.findIndex(p => p.LAT === 0 && p.LON === 0);
+      if (firstEmpty >= 0 && observations[targetIdx].LAT !== 0 && observations[targetIdx].LON !== 0) {
+        targetIdx = firstEmpty;
+        if (pointSel) pointSel.value = targetIdx.toString();
+      }
+
+      // Update observation point coordinates
+      observations[targetIdx].LAT = lat;
+      observations[targetIdx].LON = lon;
+      
+      loadPoint(targetIdx);
+      renderObsTable();
+      renderMap();
+
+      showMapToast(`📍 Koordinat Titik ${targetIdx + 1} diperbarui: <strong>${formatLat(lat)}, ${formatLon(lon)}</strong>`);
+
+      // If user is doing sequential entry, auto-select next unfilled point for smooth UX
+      if (targetIdx < WINDOW_SIZE - 1 && observations[targetIdx + 1].LAT === 0) {
+        setTimeout(() => {
+          if (pointSel) {
+            pointSel.value = (targetIdx + 1).toString();
+            loadPoint(targetIdx + 1);
+            renderObsTable();
+          }
+        }, 300);
       }
     });
   }
@@ -507,15 +581,35 @@ async function renderMap() {
   });
 
   const valid = observations.filter(p => p.LAT!==0 || p.LON!==0);
+  const currentSelected = parseInt((document.getElementById('point-select') as HTMLSelectElement)?.value || '0');
+
   if (valid.length > 0) {
     const pts = valid.map(p => [p.LAT, p.LON] as [number,number]);
     
     // Draw Historical Trajectory (Cyan/Blue on Satellite)
     addLayer(L.polyline(pts, { color: '#38BDF8', weight: 3.5, opacity: 0.9 }));
     
-    pts.forEach((pt,i) => {
-      addLayer(L.circleMarker(pt, { radius: 5, color: '#0284C7', fillColor: '#38BDF8', fillOpacity: 1, weight: 2 })
-        .bindTooltip(`Titik ${i+1}: ${formatLat(valid[i].LAT)}, ${formatLon(valid[i].LON)}<br>Kec. Angin: ${valid[i].WMO_WIND} kt`));
+    observations.forEach((p, i) => {
+      if (p.LAT === 0 && p.LON === 0) return;
+      const isSelected = i === currentSelected;
+      const markerColor = isSelected ? '#F59E0B' : '#0284C7';
+      const fillColor = isSelected ? '#FDE68A' : '#38BDF8';
+      const radius = isSelected ? 8 : 6;
+      
+      const m = L.circleMarker([p.LAT, p.LON], { 
+        radius, 
+        color: markerColor, 
+        fillColor, 
+        fillOpacity: 1, 
+        weight: isSelected ? 3 : 2 
+      }).bindTooltip(`Titik ${i+1}: ${formatLat(p.LAT)}, ${formatLon(p.LON)}<br>Kec. Angin: ${p.WMO_WIND} kt (Klik untuk edit)`);
+      
+      m.on('click', (ev: any) => {
+        L.DomEvent.stopPropagation(ev);
+        (window as any).selectPointFromTable(i);
+      });
+
+      addLayer(m);
     });
 
     // 3. Draw Predictions + Cone of Uncertainty
@@ -586,6 +680,7 @@ async function renderMap() {
     renderResults();
     renderMap();
     document.getElementById('btn-print')!.removeAttribute('disabled');
+    showMapToast('✅ Hasil prediksi LSTM berhasil dihitung!');
   } catch(e:any) {
     alert(`⚠️ Terjadi kesalahan inferensi: ${e.message}`);
   } finally {
@@ -704,8 +799,10 @@ function renderResults() {
   document.getElementById('threat-matrix-panel')!.style.display='none';
   document.getElementById('btn-print')!.setAttribute('disabled','');
   loadPoint(0);
+  (document.getElementById('point-select') as HTMLSelectElement).value = '0';
   renderObsTable();
   renderMap();
+  showMapToast('🗑️ Data observasi telah di-reset');
 };
 
 // ── Print Laporan (PDF Apple-to-Apple) ──────────────
@@ -738,9 +835,10 @@ const today = new Date().toISOString().split('T')[0];
 (document.getElementById('inp-date') as HTMLInputElement).value = today;
 document.getElementById('inp-date')!.addEventListener('change', renderObsTable);
 document.getElementById('inp-time')!.addEventListener('change', renderObsTable);
-document.getElementById('point-select')!.addEventListener('change', () =>
-  loadPoint(parseInt((document.getElementById('point-select') as HTMLSelectElement).value))
-);
+document.getElementById('point-select')!.addEventListener('change', () => {
+  loadPoint(parseInt((document.getElementById('point-select') as HTMLSelectElement).value));
+  renderObsTable();
+});
 
 initPointSelect();
 renderObsTable();
@@ -759,19 +857,25 @@ if (presetParam && PRESETS[presetParam]) {
 
 <style>
   /* ============================================
-     WAR ROOM STYLING
+     WAR ROOM STYLING & RESPONSIVE GRID
      ============================================ */
+  .left-command-col,
+  .right-display-col {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .war-room-header {
     background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
     border-radius: 14px;
-    padding: 18px 20px;
+    padding: 16px 18px;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
   }
   .war-room-badge {
@@ -800,7 +904,7 @@ if (presetParam && PRESETS[presetParam]) {
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
   }
   .war-room-title {
-    font-size: clamp(1.15rem, 3.2vw, 1.4rem);
+    font-size: clamp(1.1rem, 3.2vw, 1.35rem);
     font-weight: 900;
     margin: 0 0 4px;
     color: #FFFFFF;
@@ -836,13 +940,26 @@ if (presetParam && PRESETS[presetParam]) {
     font-weight: 700;
   }
 
+  /* Horizon Panel Specific */
+  .horizon-panel {
+    border-left: 4px solid #1E3A8A;
+    background: #FFFFFF;
+  }
+  .horizon-select-styled {
+    font-weight: 700;
+    color: #1E3A8A;
+    background-color: #F8FAFC;
+    border-color: #93C5FD;
+  }
+
   /* Preset Bar */
   .preset-bar-card {
     background: #F8FAFC;
     border: 1.5px solid #CBD5E1;
     border-radius: 12px;
     padding: 10px 14px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
+    max-width: 100%;
   }
   .preset-bar-title {
     font-size: 0.8rem;
@@ -855,13 +972,13 @@ if (presetParam && PRESETS[presetParam]) {
   }
   .preset-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 6px;
   }
   .btn-preset {
-    padding: 7px 10px;
+    padding: 8px 10px;
     border-radius: 8px;
-    font-size: 0.76rem;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     border: 1.5px solid transparent;
@@ -871,7 +988,7 @@ if (presetParam && PRESETS[presetParam]) {
     transition: all 0.15s ease;
     background: white;
     text-align: left;
-    min-height: 38px;
+    min-height: 42px;
   }
   .btn-preset:hover {
     transform: translateY(-1px);
@@ -884,6 +1001,58 @@ if (presetParam && PRESETS[presetParam]) {
   .preset-neutral { border-color: #E2E8F0; color: #334155; }
   .preset-neutral:hover { border-color: #94A3B8; }
 
+  /* Active Table Row Highlight */
+  .active-obs-row td {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important;
+    font-weight: 800 !important;
+    color: #1E3A8A !important;
+  }
+  .table-point-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #E2E8F0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .tpb-active {
+    background: #1E3A8A;
+    color: #FFFFFF;
+  }
+
+  /* Map Toast Notification */
+  .map-toast {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15, 23, 42, 0.92);
+    color: #FFFFFF;
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    z-index: 500;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.25);
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    max-width: 90%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .toast-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* Action Buttons */
   .pred-actions-grid {
     display: flex;
@@ -893,9 +1062,10 @@ if (presetParam && PRESETS[presetParam]) {
   .btn-predict-main {
     width: 100%;
     font-size: 0.95rem;
-    padding: 11px 16px;
+    padding: 12px 16px;
     background: #1E3A8A;
     box-shadow: 0 4px 12px rgba(30,58,138,0.25);
+    min-height: 44px;
   }
   .btn-predict-main:hover {
     background: #163172;
@@ -940,6 +1110,7 @@ if (presetParam && PRESETS[presetParam]) {
     padding: 14px 16px;
     margin-bottom: 14px;
     box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);
+    max-width: 100%;
   }
   .threat-header {
     display: flex;
@@ -996,6 +1167,7 @@ if (presetParam && PRESETS[presetParam]) {
     padding: 10px 12px;
     margin-bottom: 8px;
     background: #FAFAFA;
+    max-width: 100%;
   }
   .result-step-header {
     display: flex;
@@ -1060,6 +1232,8 @@ if (presetParam && PRESETS[presetParam]) {
     .tm-label { margin: 0; font-size: 0.7rem; }
     .tm-val { margin: 0; font-size: 0.95rem; }
     .tm-sub { margin: 0; font-size: 0.7rem; }
+    .map-panel-card { border-radius: 10px; }
   }
 </style>
+
 

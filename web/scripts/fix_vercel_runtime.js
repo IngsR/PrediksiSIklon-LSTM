@@ -35,3 +35,29 @@ if (configs.length === 0) {
     }
   }
 }
+
+// Copy public/models into serverless function bundles to ensure zero missing file errors in Vercel
+const srcModelsDir = path.resolve('public/models');
+if (fs.existsSync(srcModelsDir)) {
+  const functionDirs = [
+    path.resolve('.vercel/output/functions/_render.func/models'),
+    path.resolve('.vercel/output/functions/_render.func/public/models'),
+    path.resolve('.vercel/output/functions/_render.func/.vercel/output/_functions/public/models'),
+    path.resolve('.vercel/output/_functions/public/models'),
+  ];
+
+  for (const targetDir of functionDirs) {
+    try {
+      fs.mkdirSync(targetDir, { recursive: true });
+      for (const file of fs.readdirSync(srcModelsDir)) {
+        const srcFile = path.join(srcModelsDir, file);
+        const dstFile = path.join(targetDir, file);
+        fs.copyFileSync(srcFile, dstFile);
+      }
+      console.log(`[Post-Build] Copied models to ${path.relative(process.cwd(), targetDir)}`);
+    } catch (err) {
+      // Non-fatal if folder doesn't exist yet
+    }
+  }
+}
+

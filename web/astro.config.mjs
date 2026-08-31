@@ -5,9 +5,16 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'hybrid',
   adapter: vercel({
+    includeFiles: [
+      './public/models/model.onnx',
+      './public/models/feature_scaler.json',
+      './public/models/target_scaler.json'
+    ],
     webAnalytics: { enabled: false },
   }),
   server: {
     port: 4321,
   },
 });
+
+
