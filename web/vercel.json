@@ -3,5 +3,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".vercel/output",
   "installCommand": "npm install",
-  "devCommand": "npm run dev"
+  "devCommand": "npm run dev",
+  "functions": {
+    "api/**": {
+      "runtime": "nodejs20.x"
+    },
+    "_render": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
