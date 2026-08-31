@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/fix_vercel_runtime.js",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -18,5 +18,8 @@
   "devDependencies": {
     "@types/papaparse": "^5.3.14",
     "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

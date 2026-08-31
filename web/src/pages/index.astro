@@ -1,141 +1,689 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Beranda">
+<Layout title="Pusat Komando Mitigasi Bencana">
   <div class="fade-in">
-    <!-- Hero Card -->
-    <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); padding: 36px; border-radius: 16px; border-left: 6px solid #1E3A8A; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08); margin-bottom: 28px;">
-      <h2 style="color: #1E3A8A; font-weight: 900; margin: 0 0 12px; font-size: 1.7rem;">Selamat Datang di Sistem Prediksi Siklon Tropis</h2>
-      <p style="color: #374151; font-size: 1.05rem; line-height: 1.75; margin: 0;">
-        Aplikasi ini dirancang untuk memprediksi lintasan siklon tropis menggunakan model Long Short-Term Memory (LSTM). Sistem ini memfokuskan mitigasi risiko bencana khususnya di wilayah Sumatera Barat.
-      </p>
+
+    <!-- ===== 1. LIVE OPERATIONS STATUS BAR ===== -->
+    <div class="ops-status-bar">
+      <div class="ops-left">
+        <span class="live-dot"></span>
+        <span class="ops-title">OPERATIONS COMMAND CENTER</span>
+        <span class="ops-badge">WILAYAH SAMUDRA HINDIA & PESISIR SUMBAR</span>
+      </div>
+      <div class="ops-right">
+        <span class="time-item">🕒 <strong id="live-clock-wib">--:--:-- WIB</strong></span>
+        <span class="time-divider">|</span>
+        <span class="time-item">🌐 <strong id="live-clock-utc">--:--:-- UTC</strong></span>
+        <span class="alert-pill">STATUS: MONITORING AKTIF</span>
+      </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="home-grid">
-      <!-- Left: Feature List -->
-      <div>
-        <h3 style="font-size: 1rem; font-weight: 800; color: #1E3A8A; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.04em;">Silakan gunakan menu navigasi untuk mengakses fitur berikut:</h3>
-        <div class="feature-list">
-          <a href="/prediksi" class="feature-card">
-            <div class="feature-card-inner">
-              <span class="feature-icon">🔮</span>
-              <div>
-                <p class="feature-title">Prediksi Siklon</p>
-                <p class="feature-desc">Editor interaktif untuk melakukan input data observasi dan memprediksi lintasan siklon di masa depan menggunakan model LSTM.</p>
-              </div>
-            </div>
+    <!-- ===== 2. HERO COMMAND CENTER BANNER ===== -->
+    <div class="hero-command-card">
+      <div class="hero-command-content">
+        <div class="hero-badge-tag">🌀 Deep Learning Spatial-Temporal Modeling</div>
+        <h1 class="hero-command-title">Sistem Prediksi Siklon Tropis & Pusat Mitigasi Bencana</h1>
+        <p class="hero-command-desc">
+          Platform operasional peramalan lintasan siklon tropis berbasis arsitektur <strong>Long Short-Term Memory (LSTM)</strong> 64 Units. 
+          Dirancang untuk mendeteksi pergerakan siklon di Samudra Hindia secara rekursif, memproyeksikan kerucut ketidakpastian (<em>Cone of Uncertainty</em>), dan memperkuat kesiapsiagaan peringatan dini bencana pesisir Sumatera Barat.
+        </p>
+        <div class="hero-actions">
+          <a href="/prediksi" class="btn btn-primary btn-hero-glow">
+            <span>🔮 Masuk ke War Room Prediksi</span>
           </a>
-          <a href="/dashboard" class="feature-card">
-            <div class="feature-card-inner">
-              <span class="feature-icon">🗺️</span>
-              <div>
-                <p class="feature-title">Dashboard</p>
-                <p class="feature-desc">Visualisasi interaktif prediksi lintasan siklon di atas peta beserta metrik akurasinya (RMSE & MAE).</p>
-              </div>
-            </div>
+          <a href="/dashboard" class="btn btn-hero-secondary">
+            <span>🗺️ Buka Dashboard Spasial</span>
           </a>
-          <a href="/data-siklon" class="feature-card">
-            <div class="feature-card-inner">
-              <span class="feature-icon">📊</span>
-              <div>
-                <p class="feature-title">Data Siklon</p>
-                <p class="feature-desc">Rincian data observasi mentah dari IBTrACS yang digunakan sebagai input model.</p>
-              </div>
-            </div>
-          </a>
-          <a href="/evaluasi" class="feature-card">
-            <div class="feature-card-inner">
-              <span class="feature-icon">📈</span>
-              <div>
-                <p class="feature-title">Evaluasi</p>
-                <p class="feature-desc">Perbandingan detail koordinat aktual vs prediksi beserta grafik deviasi jarak pergerakan.</p>
-              </div>
-            </div>
-          </a>
-          <a href="/tentang" class="feature-card">
-            <div class="feature-card-inner">
-              <span class="feature-icon">ℹ️</span>
-              <div>
-                <p class="feature-title">Tentang</p>
-                <p class="feature-desc">Informasi lebih lanjut mengenai hasil penelitian, peringkat model eksperimen, dan evaluasi overfitting.</p>
-              </div>
-            </div>
+          <a href="/evaluasi" class="btn btn-hero-outline">
+            <span>📈 Evaluasi Akurasi Model</span>
           </a>
         </div>
       </div>
-
-      <!-- Right: Banner Image -->
-      <div class="banner-wrap">
-        <img src="/assets/banner_beranda.png" alt="Visualisasi Siklon Tropis" class="banner-img"
-          onerror="this.style.display='none'; document.getElementById('banner-placeholder').style.display='flex';" />
-        <div id="banner-placeholder" class="banner-placeholder" style="display:none;">
+      <div class="hero-command-image">
+        <img src="/assets/banner_beranda.png" alt="Siklon Tropis" class="hero-img" 
+          onerror="this.style.display='none'; document.getElementById('hero-img-fallback').style.display='flex';" />
+        <div id="hero-img-fallback" class="hero-fallback" style="display:none;">
           <div style="text-align:center;">
-            <div style="font-size:80px; margin-bottom:16px;">🌪️</div>
-            <h3 style="color:white; margin:0; font-weight:800;">SIKLON TROPIS</h3>
-            <p style="color:#DBEAFE; margin-top:8px; font-size:0.85rem;">Sistem Prediksi LSTM</p>
+            <div style="font-size:70px; margin-bottom:10px;">🌪️</div>
+            <p style="color:white; font-weight:800; margin:0; font-size:16px;">AI CYCLONE TRACKING</p>
+            <p style="color:#93C5FD; font-size:12px; margin:4px 0 0;">Sumatera Barat Coastline Focus</p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- ===== 3. KEY TELEMETRY & SYSTEM METRICS ===== -->
+    <div class="grid-4" style="margin-bottom: 24px;">
+      <div class="telemetry-card">
+        <div class="telemetry-header">
+          <span class="telemetry-icon">🧠</span>
+          <span class="telemetry-tag">AI Engine</span>
+        </div>
+        <div class="telemetry-value">LSTM GAB-8</div>
+        <div class="telemetry-sub">ONNX Serverless Engine • Ukuran <strong>93.6 KB</strong> (&lt;15ms inferensi)</div>
+      </div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-header">
+          <span class="telemetry-icon">📍</span>
+          <span class="telemetry-tag">Area Fokus</span>
+        </div>
+        <div class="telemetry-value">Sumbar Coast</div>
+        <div class="telemetry-sub">Monitoring Padang, Painan, Pariaman, & Pasaman Barat</div>
+      </div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-header">
+          <span class="telemetry-icon">⏱️</span>
+          <span class="telemetry-tag">Siklus & Horizon</span>
+        </div>
+        <div class="telemetry-value">3 – 9 Jam</div>
+        <div class="telemetry-sub">Inferensi rekursif beresolusi temporal interval 3 jam</div>
+      </div>
+
+      <div class="telemetry-card">
+        <div class="telemetry-header">
+          <span class="telemetry-icon">🛡️</span>
+          <span class="telemetry-tag">Peringatan Dini</span>
+        </div>
+        <div class="telemetry-value">Radius 500 km</div>
+        <div class="telemetry-sub">Kalkulator jarak terdekat ke garis pantai & analisis ancaman</div>
+      </div>
+    </div>
+
+    <!-- ===== 4. 1-CLICK QUICK SIMULATION PRESETS ===== -->
+    <div class="page-panel" style="margin-bottom: 24px; border: 1.5px solid #BFDBFE; background: linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <div>
+          <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:#1E3A8A; display:flex; align-items:center; gap:8px;">
+            <span>🚀 1-Click Skenario Demo Cepat (Untuk HR & Penguji Teknis)</span>
+          </h3>
+          <p style="margin:4px 0 0; font-size:0.83rem; color:#475569;">
+            Pilih salah satu skenario berikut untuk langsung menjalankan simulasi prediksi tanpa perlu memasukkan 8 titik koordinat manual:
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="gap:12px;">
+        <a href="/prediksi?preset=padang_near" class="scenario-btn">
+          <div class="scenario-btn-top">
+            <span class="scenario-badge badge-danger">⚠️ Risiko Tinggi</span>
+            <span class="scenario-dist">Jarak ~380 km</span>
+          </div>
+          <div class="scenario-name">Skenario A: Siklon Mendekati Padang</div>
+          <div class="scenario-desc">Pusat badai bergerak ke arah timur laut mendekati pesisir Kota Padang & Painan dengan kecepatan 18.5 km/h.</div>
+        </a>
+
+        <a href="/prediksi?preset=cempaka" class="scenario-btn">
+          <div class="scenario-btn-top">
+            <span class="scenario-badge badge-warning">🌀 Kasus Nyata</span>
+            <span class="scenario-dist">IBTrACS v4</span>
+          </div>
+          <div class="scenario-name">Skenario B: Siklon Tropis Cempaka</div>
+          <div class="scenario-desc">Data historis siklon tropis Samudra Hindia Selatan Jawa-Sumatera dengan intensitas angin 45 knot (Badai Tropis).</div>
+        </a>
+
+        <a href="/prediksi?preset=extreme" class="scenario-btn">
+          <div class="scenario-btn-top">
+            <span class="scenario-badge badge-danger">🌪️ Kategori Ekstrem</span>
+            <span class="scenario-dist">115 Knot</span>
+          </div>
+          <div class="scenario-name">Skenario C: Super Cyclone (Kat. 4)</div>
+          <div class="scenario-desc">Simulasi pergerakan badai berkekuatan ekstrem (115 knot / 950 hPa) dengan potensi gelombang pasang masif.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== 5. AI PIPELINE ARCHITECTURE (HOW IT WORKS) ===== -->
+    <div class="page-panel" style="margin-bottom: 24px;">
+      <div class="page-section-header">
+        <h2 class="section-title">⚙️ Arsitektur Pipeline Sistem AI & Mitigasi Bencana</h2>
+        <p class="section-subtitle">Alur komputasi data spasial-temporal dari observasi mentah hingga rilis dokumen peringatan dini resmi.</p>
+      </div>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">01</div>
+          <div class="step-icon">📡</div>
+          <div class="step-title">Observasi Spasial</div>
+          <div class="step-desc">Input 8 titik sliding window (Latitude, Longitude, Wind Speed WMO, Central Pressure).</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step">
+          <div class="step-num">02</div>
+          <div class="step-icon">📐</div>
+          <div class="step-title">Feature Engineering</div>
+          <div class="step-desc">Ekstraksi 8 parameter: Haversine distance, speed, bearing rate, acceleration, & cyclical month.</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step">
+          <div class="step-num">03</div>
+          <div class="step-icon">🧠</div>
+          <div class="step-title">Inference LSTM</div>
+          <div class="step-desc">Eksekusi model ONNX Runtime serverless secara rekursif (1 s/d 3 step) dengan latensi ultra-cepat.</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step">
+          <div class="step-num">04</div>
+          <div class="step-icon">🗺️</div>
+          <div class="step-title">Cone of Uncertainty</div>
+          <div class="step-desc">Proyeksi kerucut ketidakpastian spasial (±20km s/d ±75km) & deteksi radius bahaya pesisir.</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step">
+          <div class="step-num">05</div>
+          <div class="step-icon">📄</div>
+          <div class="step-title">Laporan Peringatan</div>
+          <div class="step-desc">Pembuatan laporan resmi standar BMKG/BPBD dengan visualisasi peta dan tanda tangan digital.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 6. CORE APPLICATION MODULES ===== -->
+    <div style="margin-bottom: 20px;">
+      <h3 style="font-size: 1.05rem; font-weight: 800; color: #1E3A8A; margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.04em;">
+        🧭 Modul Operasional & Menu Aplikasi
+      </h3>
+      <div class="feature-matrix">
+        <a href="/prediksi" class="matrix-card">
+          <div class="matrix-header">
+            <span class="matrix-icon">🔮</span>
+            <span class="matrix-status status-active">MODUL UTAMA</span>
+          </div>
+          <div class="matrix-title">War Room Prediksi Siklon</div>
+          <div class="matrix-desc">Editor interaktif 8 titik, visualisasi Leaflet satelit, kerucut ketidakpastian spasial, analisis ancaman pesisir, dan cetak laporan PDF resmi.</div>
+          <div class="matrix-footer">Buka Simulator ➔</div>
+        </a>
+
+        <a href="/dashboard" class="matrix-card">
+          <div class="matrix-header">
+            <span class="matrix-icon">🗺️</span>
+            <span class="matrix-status">EXPLORER</span>
+          </div>
+          <div class="matrix-title">Dashboard Prediksi Spasial</div>
+          <div class="matrix-desc">Filter radius dari Sumatera Barat (500–4000 km), visualisasi perbandingan lintasan aktual vs prediksi, dan penghitungan metrik RMSE & MAE per kasus.</div>
+          <div class="matrix-footer">Buka Dashboard ➔</div>
+        </a>
+
+        <a href="/data-siklon" class="matrix-card">
+          <div class="matrix-header">
+            <span class="matrix-icon">📊</span>
+            <span class="matrix-status">DATASET</span>
+          </div>
+          <div class="matrix-title">Data Observasi IBTrACS</div>
+          <div class="matrix-desc">Pencarian cerdas rekaman observasi siklon historis (1980–2025), audit status imputasi data (Asli vs Perbaikan), dan parameter fisis siklon.</div>
+          <div class="matrix-footer">Eksplorasi Data ➔</div>
+        </a>
+
+        <a href="/evaluasi" class="matrix-card">
+          <div class="matrix-header">
+            <span class="matrix-icon">📈</span>
+            <span class="matrix-status">METRICS</span>
+          </div>
+          <div class="matrix-title">Evaluasi Akurasi Spasial</div>
+          <div class="matrix-desc">Analisis statistik deviasi spasial, grafik dekomposisi Latitude vs Longitude, distribusi frekuensi error, dan ekspor dataset CSV.</div>
+          <div class="matrix-footer">Lihat Evaluasi ➔</div>
+        </a>
+
+        <a href="/tentang" class="matrix-card">
+          <div class="matrix-header">
+            <span class="matrix-icon">ℹ️</span>
+            <span class="matrix-status">RESEARCH</span>
+          </div>
+          <div class="matrix-title">Tentang Model & Riset</div>
+          <div class="matrix-desc">Dokumentasi hasil eksperimen multi-skenario (GAB, NI, SI), grafik komparasi Mean Haversine seluruh model, dan analisis efisiensi komputasi.</div>
+          <div class="matrix-footer">Baca Riset ➔</div>
+        </a>
+      </div>
+    </div>
+
   </div>
 </Layout>
 
-<style>
-  .home-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 28px;
-    align-items: start;
-  }
-  .feature-list { display: flex; flex-direction: column; gap: 12px; }
-  .feature-card {
-    background: #F8FAFC;
-    padding: 14px 18px;
-    border-radius: 10px;
-    border: 1px solid #E2E8F0;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.2s ease;
-    display: block;
-  }
-  .feature-card:hover {
-    background: #EFF6FF;
-    border-color: #BFDBFE;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(30,58,138,0.08);
-  }
-  .feature-card-inner { display: flex; align-items: flex-start; gap: 12px; }
-  .feature-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
-  .feature-title { font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0 0 3px; }
-  .feature-desc { font-size: 0.83rem; color: #475569; margin: 0; line-height: 1.5; }
+<script>
+  // Live Clock (WIB & UTC)
+  function updateClocks() {
+    const now = new Date();
+    
+    // WIB (UTC+7)
+    const wibOptions: Intl.DateTimeFormatOptions = {
+      timeZone: 'Asia/Jakarta',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    };
+    const wibTime = new Intl.DateTimeFormat('id-ID', wibOptions).format(now);
+    const wibEl = document.getElementById('live-clock-wib');
+    if (wibEl) wibEl.textContent = `${wibTime} WIB`;
 
-  .banner-wrap {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(30,58,138,0.2);
-    min-height: 350px;
+    // UTC
+    const utcHours = now.getUTCHours().toString().padStart(2, '0');
+    const utcMinutes = now.getUTCMinutes().toString().padStart(2, '0');
+    const utcSeconds = now.getUTCSeconds().toString().padStart(2, '0');
+    const utcEl = document.getElementById('live-clock-utc');
+    if (utcEl) utcEl.textContent = `${utcHours}:${utcMinutes}:${utcSeconds} UTC`;
   }
-  .banner-img {
+
+  updateClocks();
+  setInterval(updateClocks, 1000);
+</script>
+
+<style>
+  /* ============================================
+     1. OPS STATUS BAR
+     ============================================ */
+  .ops-status-bar {
+    background: #0F172A;
+    color: #F8FAFC;
+    border-radius: 12px;
+    padding: 10px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    border-left: 4px solid #10B981;
+  }
+  .ops-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .live-dot {
+    width: 9px;
+    height: 9px;
+    background: #10B981;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulse-green 1.8s infinite;
+  }
+  @keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  .ops-title {
+    color: #FFFFFF;
+    letter-spacing: 0.05em;
+  }
+  .ops-badge {
+    background: #1E293B;
+    color: #94A3B8;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .ops-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: #CBD5E1;
+  }
+  .time-divider { color: #475569; }
+  .alert-pill {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================
+     2. HERO COMMAND CARD
+     ============================================ */
+  .hero-command-card {
+    background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #172554 100%);
+    border-radius: 18px;
+    padding: 36px 36px;
+    color: white;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 28px;
+    align-items: center;
+    box-shadow: 0 12px 28px -4px rgba(30, 58, 138, 0.35);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-command-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
+    pointer-events: none;
+  }
+  .hero-badge-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #93C5FD;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .hero-command-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #FFFFFF;
+    margin: 0 0 14px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .hero-command-desc {
+    color: #DBEAFE;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0 0 22px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-hero-glow {
+    background: #2563EB !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
+  }
+  .btn-hero-glow:hover {
+    background: #1D4ED8 !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.7);
+  }
+  .btn-hero-secondary {
+    background: rgba(255,255,255,0.12);
+    color: #FFFFFF;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  .btn-hero-secondary:hover {
+    background: rgba(255,255,255,0.22);
+    transform: translateY(-1px);
+  }
+  .btn-hero-outline {
+    background: transparent;
+    color: #93C5FD;
+    border: 1.5px solid rgba(147, 197, 253, 0.4);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  .btn-hero-outline:hover {
+    background: rgba(147, 197, 253, 0.15);
+    color: white;
+  }
+  .hero-command-image {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    height: 100%;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    background: #0B1329;
+  }
+  .hero-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    min-height: 350px;
   }
-  .banner-placeholder {
-    background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
-    min-height: 350px;
+  .hero-fallback {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 30px;
+    padding: 20px;
+  }
+
+  /* ============================================
+     3. TELEMETRY CARDS
+     ============================================ */
+  .telemetry-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    transition: all 0.2s ease;
+  }
+  .telemetry-card:hover {
+    border-color: #93C5FD;
+    box-shadow: 0 6px 18px rgba(30,58,138,0.08);
+    transform: translateY(-2px);
+  }
+  .telemetry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .telemetry-icon { font-size: 1.3rem; }
+  .telemetry-tag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .telemetry-value {
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: #1E3A8A;
+    line-height: 1.15;
+    margin-bottom: 5px;
+  }
+  .telemetry-sub {
+    font-size: 0.78rem;
+    color: #64748B;
+    line-height: 1.45;
+  }
+
+  /* ============================================
+     4. SCENARIO PRESETS
+     ============================================ */
+  .scenario-btn {
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .scenario-btn:hover {
+    border-color: #2563EB;
+    background: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+  }
+  .scenario-btn-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .scenario-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+  .scenario-dist {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748B;
+  }
+  .scenario-name {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #0F172A;
+  }
+  .scenario-desc {
+    font-size: 0.78rem;
+    color: #475569;
+    line-height: 1.45;
+  }
+
+  /* ============================================
+     5. PIPELINE ARCHITECTURE
+     ============================================ */
+  .pipeline-grid {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .pipeline-step {
+    flex: 1;
+    min-width: 140px;
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .pipeline-step:hover {
+    background: #EFF6FF;
+    border-color: #93C5FD;
+    transform: translateY(-2px);
+  }
+  .step-num {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #94A3B8;
+  }
+  .step-icon { font-size: 1.6rem; margin: 4px 0 6px; }
+  .step-title { font-size: 0.84rem; font-weight: 800; color: #1E3A8A; margin-bottom: 4px; }
+  .step-desc { font-size: 0.73rem; color: #64748B; line-height: 1.4; }
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94A3B8;
+    font-size: 1.2rem;
+    font-weight: 900;
+    padding: 0 2px;
+  }
+
+  /* ============================================
+     6. FEATURE MATRIX
+     ============================================ */
+  .feature-matrix {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .matrix-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 18px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+  }
+  .matrix-card:hover {
+    border-color: #1E3A8A;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.09);
+  }
+  .matrix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .matrix-icon { font-size: 1.5rem; }
+  .matrix-status {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #F1F5F9;
+    color: #475569;
+    letter-spacing: 0.05em;
+  }
+  .matrix-status.status-active {
+    background: #DBEAFE;
+    color: #1E3A8A;
+  }
+  .matrix-title {
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 6px;
+  }
+  .matrix-desc {
+    font-size: 0.81rem;
+    color: #475569;
+    line-height: 1.5;
+    flex-grow: 1;
+    margin-bottom: 12px;
+  }
+  .matrix-footer {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #2563EB;
+    display: flex;
+    align-items: center;
   }
 
   @media (max-width: 900px) {
-    .home-grid { grid-template-columns: 1fr; }
-    .banner-wrap { min-height: 250px; }
-    .banner-img { min-height: 250px; }
-    .banner-placeholder { min-height: 250px; }
+    .hero-command-card { grid-template-columns: 1fr; padding: 24px; }
+    .hero-command-image { min-height: 200px; }
+    .pipeline-grid { flex-wrap: wrap; }
+    .pipeline-arrow { display: none; }
+    .pipeline-step { min-width: calc(50% - 10px); }
+  }
+  @media (max-width: 640px) {
+    .ops-status-bar { flex-direction: column; align-items: flex-start; }
+    .hero-command-title { font-size: 1.4rem; }
+    .pipeline-step { min-width: 100%; }
   }
 </style>

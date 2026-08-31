@@ -1,30 +1,71 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Prediksi Siklon">
+<Layout title="War Room Prediksi Siklon">
   <div class="fade-in">
-    <div class="page-section-header" style="margin-bottom:16px;">
-      <h2 class="section-title" style="font-size:1.15rem;">🔮 Prediksi Lintasan Siklon (LSTM)</h2>
-      <p class="section-subtitle">Input titik observasi secara interaktif dan jalankan prediksi lintasan siklon untuk horizon 3–9 jam.</p>
+    
+    <!-- Header Command Center -->
+    <div class="war-room-header">
+      <div>
+        <div class="war-room-badge">
+          <span class="live-pulse"></span>
+          <span>SPATIAL-TEMPORAL AI SIMULATION WAR ROOM</span>
+        </div>
+        <h2 class="war-room-title">🔮 Simulasi & Prediksi Lintasan Siklon (LSTM)</h2>
+        <p class="war-room-subtitle">
+          Pusat komputasi peramalan trajektori siklon di Samudra Hindia dengan pemodelan kerucut ketidakpastian (<em>Cone of Uncertainty</em>) dan matriks mitigasi risiko pesisir Sumatera Barat.
+        </p>
+      </div>
+      <div class="war-room-stats">
+        <div class="stat-pill"><span class="stat-lbl">Model</span><strong>LSTM 64 (GAB-8)</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Interval</span><strong>3 Jam / Step</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Engine</span><strong>ONNX Serverless</strong></div>
+      </div>
+    </div>
+
+    <!-- 1-Click Quick Preset Scenarios Bar -->
+    <div class="preset-bar-card">
+      <div class="preset-bar-title">
+        <span>🚀 1-Click Skenario Demo Instan (Coba Cepat Tanpa Input Manual):</span>
+      </div>
+      <div class="preset-buttons">
+        <button type="button" class="btn-preset preset-danger" onclick="loadPreset('padang_near')">
+          <span class="p-icon">⚠️</span>
+          <span><strong>Skenario A:</strong> Siklon Mendekati Padang (&lt;400 km)</span>
+        </button>
+        <button type="button" class="btn-preset preset-warning" onclick="loadPreset('cempaka')">
+          <span class="p-icon">🌀</span>
+          <span><strong>Skenario B:</strong> Siklon Tropis Cempaka (Historis)</span>
+        </button>
+        <button type="button" class="btn-preset preset-danger" onclick="loadPreset('extreme')">
+          <span class="p-icon">🌪️</span>
+          <span><strong>Skenario C:</strong> Super Cyclone (Kat. 4 - 115 Knot)</span>
+        </button>
+        <button type="button" class="btn-preset preset-neutral" onclick="loadPreset('moving_away')">
+          <span class="p-icon">🌊</span>
+          <span><strong>Skenario D:</strong> Siklon Menjauhi Pesisir</span>
+        </button>
+      </div>
     </div>
 
     <div class="split-layout" style="align-items:start;">
-      <!-- ===== KIRI: EDITOR ===== -->
+      
+      <!-- ===== KIRI: EDITOR OBSERVASI ===== -->
       <div>
         <div class="page-panel">
           <div class="page-section-header">
-            <h2 class="section-title">📝 Editor Observasi</h2>
-            <p class="section-subtitle">Masukkan titik observasi historis, atur waktu awal, lalu jalankan prediksi LSTM.</p>
+            <h2 class="section-title">📝 Editor Data Observasi (8 Titik)</h2>
+            <p class="section-subtitle">Pilih titik untuk disunting atau klik langsung koordinat di atas peta interaktif.</p>
           </div>
 
           <!-- Point Selector -->
           <div class="form-group">
-            <label class="form-label" for="point-select">Pilih Nomor Titik untuk Diedit</label>
+            <label class="form-label" for="point-select">Pilih Nomor Titik untuk Diedit:</label>
             <select id="point-select" class="form-select"></select>
           </div>
 
           <!-- Point Editor Form -->
-          <div id="point-editor" class="grid-2" style="gap:10px; margin-bottom:14px;">
+          <div id="point-editor" class="grid-2" style="gap:10px; margin-bottom:12px;">
             <div>
               <div class="form-group">
                 <label class="form-label" for="inp-lat">Latitude (°)</label>
@@ -46,13 +87,17 @@ import Layout from '../layouts/Layout.astro';
               </div>
             </div>
           </div>
-          <button class="btn btn-secondary btn-full" onclick="savePoint()" style="margin-bottom:12px;">✅ Simpan Titik</button>
+          <button type="button" class="btn btn-secondary btn-full" onclick="savePoint()" style="margin-bottom:12px;">
+            💾 Simpan Titik Ini
+          </button>
 
           <div class="divider"></div>
 
-          <!-- Config -->
+          <!-- Config Accordion -->
           <details open style="margin-bottom:12px;">
-            <summary style="font-weight:700; font-size:0.88rem; color:#1E3A8A; cursor:pointer; padding:6px 0;">⚙️ Konfigurasi Prediksi</summary>
+            <summary style="font-weight:800; font-size:0.88rem; color:#1E3A8A; cursor:pointer; padding:6px 0; user-select:none;">
+              ⚙️ Konfigurasi Horizon & Waktu Awal
+            </summary>
             <div style="margin-top:10px;">
               <div class="grid-2" style="gap:10px;">
                 <div class="form-group">
@@ -65,11 +110,11 @@ import Layout from '../layouts/Layout.astro';
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="horizon-select">Horizon Prediksi</label>
+                <label class="form-label" for="horizon-select">Horizon Peramalan (Jam ke Depan):</label>
                 <select id="horizon-select" class="form-select">
-                  <option value="1">3 Jam (1 Langkah)</option>
-                  <option value="2">6 Jam (2 Langkah)</option>
-                  <option value="3">9 Jam (3 Langkah)</option>
+                  <option value="1">3 Jam (1 Langkah - Akurasi Tertinggi)</option>
+                  <option value="2">6 Jam (2 Langkah - Sedang)</option>
+                  <option value="3" selected>9 Jam (3 Langkah - Multi-Step Rekursif)</option>
                 </select>
               </div>
             </div>
@@ -78,48 +123,104 @@ import Layout from '../layouts/Layout.astro';
           <div class="divider"></div>
 
           <!-- Observation Table -->
-          <div style="font-weight:700; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📋 Data Observasi (8 Titik)</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-weight:800; font-size:0.85rem; color:#1E3A8A;">📋 Tabel 8 Titik Observasi</span>
+            <span style="font-size:0.75rem; color:#6B7280;">Interval 3 Jam</span>
+          </div>
           <div class="custom-table-wrapper" id="obs-table-wrapper"></div>
         </div>
 
-        <!-- Notice -->
-        <div class="page-notice">Klik titik pada peta untuk mengisi koordinat ke titik kosong berikutnya. Pastikan semua titik LAT dan LON terisi sebelum menekan Prediksi.</div>
+        <div class="page-notice">
+          💡 <strong>Tip Navigasi:</strong> Anda dapat mengklik sembarang titik di peta satelit sebelah kanan untuk mengisi otomatis koordinat kosong berikutnya.
+        </div>
 
-        <!-- Buttons -->
+        <!-- Action Buttons -->
         <div class="grid-3" style="gap:8px; margin-top:8px;">
-          <button class="btn btn-secondary" id="btn-print" disabled onclick="printReport()">📄 Print Laporan</button>
-          <button class="btn btn-primary" id="btn-predict" onclick="runPrediction()">🧠 Prediksi LSTM</button>
-          <button class="btn btn-danger" onclick="resetAll()">🗑️ Bersihkan</button>
+          <button type="button" class="btn btn-secondary" id="btn-print" disabled onclick="printReport()">
+            📄 Print Laporan PDF
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-predict" onclick="runPrediction()">
+            🧠 Prediksi LSTM
+          </button>
+          <button type="button" class="btn btn-danger" onclick="resetAll()">
+            🗑️ Bersihkan
+          </button>
         </div>
       </div>
 
-      <!-- ===== KANAN: PETA & HASIL ===== -->
+      <!-- ===== KANAN: WAR ROOM PETA & MATRIKS ANCAMAN ===== -->
       <div>
-        <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px;">
-          <div style="padding:12px 16px; border-bottom:1px solid #E5E7EB;">
-            <span style="font-weight:700; font-size:0.9rem; color:#1E3A8A;">🗺️ Visualisasi Jalur</span>
+        <!-- War Room Map Container -->
+        <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px; position:relative;">
+          <div class="map-toolbar">
+            <span style="font-weight:800; font-size:0.88rem; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
+              <span>🗺️ Geospatial War Room Map</span>
+            </span>
+            <!-- Map Layer Switcher -->
+            <div class="map-layer-selector">
+              <label class="layer-opt"><input type="radio" name="map-layer" value="osm" onchange="switchMapLayer('osm')"> Standar</label>
+              <label class="layer-opt"><input type="radio" name="map-layer" value="satellite" checked onchange="switchMapLayer('satellite')"> 🛰️ Satelit</label>
+              <label class="layer-opt"><input type="radio" name="map-layer" value="dark" onchange="switchMapLayer('dark')"> 🌙 Gelap</label>
+            </div>
           </div>
-          <div id="pred-map" class="map-container" style="height:550px;"></div>
+          
+          <div id="pred-map" class="map-container" style="height:560px;"></div>
         </div>
 
-        <!-- Results -->
-        <div id="results-panel" class="page-panel" style="display:none;">
+        <!-- Threat Level Matrix & Advisory (Real-Time Disaster Mitigation) -->
+        <div id="threat-matrix-panel" class="threat-panel" style="display:none;">
+          <div class="threat-header">
+            <div>
+              <span class="threat-tag">MATRIKS TINGKAT ANCAMAN & PERINGATAN DINI</span>
+              <h3 class="threat-title" id="threat-level-title">LEVEL SIAGA: WASPADA</h3>
+            </div>
+            <div class="threat-badge-icon" id="threat-icon">⚠️</div>
+          </div>
+
+          <div class="threat-metrics-grid">
+            <div class="threat-metric-box">
+              <span class="tm-label">Jarak Terdekat ke Pantai</span>
+              <span class="tm-val" id="threat-dist">-- km</span>
+              <span class="tm-sub" id="threat-closest-city">Pantai Padang</span>
+            </div>
+            <div class="threat-metric-box">
+              <span class="tm-label">Kategori Intensitas</span>
+              <span class="tm-val" id="threat-category">Depresi Tropis</span>
+              <span class="tm-sub" id="threat-wind">-- knot</span>
+            </div>
+            <div class="threat-metric-box">
+              <span class="tm-label">Arah & Kecepatan</span>
+              <span class="tm-val" id="threat-speed">-- km/h</span>
+              <span class="tm-sub" id="threat-bearing">Arah --°</span>
+            </div>
+          </div>
+
+          <div class="threat-advisory" id="threat-advisory-text">
+            Memuat analisis dampak pesisir...
+          </div>
+        </div>
+
+        <!-- Prediction Step Results -->
+        <div id="results-panel" class="page-panel" style="display:none; margin-top:14px;">
           <div class="page-section-header">
-            <h2 class="section-title">📍 Hasil Prediksi</h2>
-            <p class="section-subtitle">Ringkasan hasil prediksi per langkah waktu.</p>
+            <h2 class="section-title">📍 Rincian Koordinat Proyeksi Per Langkah (Horizon 3–9 Jam)</h2>
+            <p class="section-subtitle">Hasil inferensi rekursif model LSTM beserta kerucut ketidakpastian spasial.</p>
           </div>
           <div id="results-content"></div>
+          
           <div class="page-notice" style="background:#FEF2F2; border-color:#FCA5A5; color:#991B1B; margin-top:12px;">
-            <strong>⚠️ Catatan Ilmiah:</strong> Prediksi bersifat <em>data-driven</em> dan probabilistik. Peningkatan horizon waktu (6–9 jam) meningkatkan akumulasi ketidakpastian. Hasil ini sebagai pendukung informasi.
+            <strong>⚠️ Catatan Ilmiah Peringatan Dini:</strong> Prediksi ini bersifat <em>data-driven</em>. Peningkatan horizon waktu (6–9 jam) secara inheren meningkatkan akumulasi ketidakpastian (kerucut merah transparan membesar). Rekomendasikan verifikasi silang berkala dengan buletin resmi BMKG.
           </div>
         </div>
 
         <!-- Spinner -->
-        <div id="pred-spinner" style="display:none; text-align:center; padding:24px;">
-          <div class="spinner" style="width:32px;height:32px;margin:0 auto 12px;"></div>
-          <p style="color:#1E3A8A; font-weight:700; margin:0;">⏳ Memproses Prediksi Rekursif...</p>
+        <div id="pred-spinner" style="display:none; text-align:center; padding:28px;">
+          <div class="spinner" style="width:36px;height:36px;margin:0 auto 12px;"></div>
+          <p style="color:#1E3A8A; font-weight:800; margin:0; font-size:1rem;">⏳ Menjalankan Inferensi Rekursif Model LSTM (ONNX)...</p>
+          <p style="color:#64748B; font-size:0.83rem; margin:4px 0 0;">Mengekstrak 8 fitur geometri & menghitung kerucut ketidakpastian spasial</p>
         </div>
       </div>
+
     </div>
   </div>
 </Layout>
@@ -131,12 +232,93 @@ import { generateAndDownloadPdfReport } from '../lib/pdfReport';
 
 const WINDOW_SIZE = 8;
 
+// Landmark Pesisir Sumatera Barat
+const PESISIR_SUMBAR = [
+  { lat: -0.95, lon: 100.35, name: 'Kota Padang' },
+  { lat: -1.35, lon: 100.55, name: 'Painan (Pesisir Selatan)' },
+  { lat: -0.30, lon: 99.80,  name: 'Kota Pariaman' },
+  { lat: 0.30,  lon: 99.10,  name: 'Pasaman Barat' },
+];
+
+// Presets untuk Demo Cepat (1-Click)
+const PRESETS: Record<string, { name: string; obs: Array<{LAT:number; LON:number; WMO_WIND:number; WMO_PRES:number}> }> = {
+  padang_near: {
+    name: 'Siklon Mendekat Padang (<400 km)',
+    obs: [
+      { LAT: -5.5, LON: 96.0, WMO_WIND: 75,  WMO_PRES: 985 },
+      { LAT: -4.8, LON: 96.6, WMO_WIND: 80,  WMO_PRES: 980 },
+      { LAT: -4.1, LON: 97.2, WMO_WIND: 85,  WMO_PRES: 975 },
+      { LAT: -3.4, LON: 97.9, WMO_WIND: 90,  WMO_PRES: 970 },
+      { LAT: -2.8, LON: 98.5, WMO_WIND: 95,  WMO_PRES: 965 },
+      { LAT: -2.2, LON: 99.1, WMO_WIND: 100, WMO_PRES: 960 },
+      { LAT: -1.6, LON: 99.6, WMO_WIND: 105, WMO_PRES: 955 },
+      { LAT: -1.1, LON: 100.0, WMO_WIND: 110, WMO_PRES: 950 },
+    ]
+  },
+  cempaka: {
+    name: 'Siklon Tropis Cempaka (Historis)',
+    obs: [
+      { LAT: -8.5, LON: 110.0, WMO_WIND: 35, WMO_PRES: 1000 },
+      { LAT: -8.6, LON: 110.4, WMO_WIND: 40, WMO_PRES: 998 },
+      { LAT: -8.7, LON: 110.8, WMO_WIND: 45, WMO_PRES: 996 },
+      { LAT: -8.8, LON: 111.1, WMO_WIND: 45, WMO_PRES: 996 },
+      { LAT: -8.9, LON: 111.3, WMO_WIND: 45, WMO_PRES: 996 },
+      { LAT: -9.0, LON: 111.4, WMO_WIND: 40, WMO_PRES: 998 },
+      { LAT: -9.2, LON: 111.3, WMO_WIND: 35, WMO_PRES: 1000 },
+      { LAT: -9.4, LON: 111.1, WMO_WIND: 30, WMO_PRES: 1002 },
+    ]
+  },
+  extreme: {
+    name: 'Super Cyclone (Kat. 4 - 115 Knot)',
+    obs: [
+      { LAT: -12.0, LON: 92.0, WMO_WIND: 85,  WMO_PRES: 970 },
+      { LAT: -11.2, LON: 92.8, WMO_WIND: 90,  WMO_PRES: 965 },
+      { LAT: -10.3, LON: 93.5, WMO_WIND: 95,  WMO_PRES: 960 },
+      { LAT: -9.5,  LON: 94.2, WMO_WIND: 100, WMO_PRES: 955 },
+      { LAT: -8.6,  LON: 95.0, WMO_WIND: 105, WMO_PRES: 950 },
+      { LAT: -7.7,  LON: 95.8, WMO_WIND: 110, WMO_PRES: 945 },
+      { LAT: -6.8,  LON: 96.5, WMO_WIND: 115, WMO_PRES: 940 },
+      { LAT: -5.9,  LON: 97.2, WMO_WIND: 115, WMO_PRES: 940 },
+    ]
+  },
+  moving_away: {
+    name: 'Siklon Bergerak Menjauhi Pesisir',
+    obs: [
+      { LAT: -2.0, LON: 98.0, WMO_WIND: 65, WMO_PRES: 990 },
+      { LAT: -3.1, LON: 97.0, WMO_WIND: 70, WMO_PRES: 985 },
+      { LAT: -4.2, LON: 96.0, WMO_WIND: 75, WMO_PRES: 980 },
+      { LAT: -5.4, LON: 95.0, WMO_WIND: 80, WMO_PRES: 975 },
+      { LAT: -6.5, LON: 94.0, WMO_WIND: 85, WMO_PRES: 970 },
+      { LAT: -7.6, LON: 93.0, WMO_WIND: 90, WMO_PRES: 965 },
+      { LAT: -8.8, LON: 92.0, WMO_WIND: 95, WMO_PRES: 960 },
+      { LAT: -10.0, LON: 91.0, WMO_WIND: 100, WMO_PRES: 955 },
+    ]
+  }
+};
+
 // State
 const observations = Array.from({length: WINDOW_SIZE}, () => ({
   LAT: 0, LON: 0, WMO_WIND: 115, WMO_PRES: 1005
 }));
 let predResults: Array<{pred_lat:number; pred_lon:number; time:string}> = [];
 let mapInstance: any = null;
+let currentTileLayer: any = null;
+
+// Tile Layer URLs
+const TILES: Record<string, { url: string; attr: string }> = {
+  osm: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attr: '© OpenStreetMap contributors'
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attr: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  },
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attr: '© OpenStreetMap © CARTO'
+  }
+};
 
 // ── Helpers ───────────────────────────────────────
 function haversine(lat1:number,lon1:number,lat2:number,lon2:number):number {
@@ -148,27 +330,29 @@ function bearing(lat1:number,lon1:number,lat2:number,lon2:number):number {
   const dLon=(lon2-lon1)*Math.PI/180,φ1=lat1*Math.PI/180,φ2=lat2*Math.PI/180;
   return ((Math.atan2(Math.sin(dLon)*Math.cos(φ2),Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(dLon))*180/Math.PI)+360)%360;
 }
-function formatLat(v:number):string { return `${Math.abs(v).toFixed(1)}° ${v<0?'LS':'LU'}`; }
-function formatLon(v:number):string { return `${Math.abs(v).toFixed(1)}° ${v<0?'BB':'BT'}`; }
+function formatLat(v:number):string { return `${Math.abs(v).toFixed(2)}° ${v<0?'LS':'LU'}`; }
+function formatLon(v:number):string { return `${Math.abs(v).toFixed(2)}° ${v<0?'BB':'BT'}`; }
+
 function getCategory(wind:number):string {
-  if(wind>=137) return 'Siklon Kategori 5';
-  if(wind>=113) return 'Siklon Kategori 4';
-  if(wind>=96)  return 'Siklon Kategori 3';
-  if(wind>=83)  return 'Siklon Kategori 2';
-  if(wind>=64)  return 'Siklon Kategori 1';
-  if(wind>=34)  return 'Badai Tropis';
-  return 'Depresi Tropis';
+  if(wind>=137) return 'Siklon Tropis Kategori 5 (Super Cyclone)';
+  if(wind>=113) return 'Siklon Tropis Kategori 4 (Sangat Kuat)';
+  if(wind>=96)  return 'Siklon Tropis Kategori 3 (Kuat)';
+  if(wind>=83)  return 'Siklon Tropis Kategori 2 (Sedang)';
+  if(wind>=64)  return 'Siklon Tropis Kategori 1 (Minimal)';
+  if(wind>=34)  return 'Badai Tropis (Tropical Storm)';
+  return 'Depresi Tropis (Tropical Depression)';
 }
+
 function getReliability(step:number) {
-  if(step===1) return {text:'Tinggi (92%)',color:'#059669',km:'±15-25 km'};
-  if(step===2) return {text:'Sedang (78%)',color:'#D97706',km:'±35-55 km'};
-  return {text:'Rendah (61%)',color:'#DC2626',km:'±60-90 km'};
+  if(step===1) return {text:'Tinggi (92%)',color:'#059669',km:'±20 km uncertainty cone'};
+  if(step===2) return {text:'Sedang (78%)',color:'#D97706',km:'±45 km uncertainty cone'};
+  return {text:'Rendah (61%)',color:'#DC2626',km:'±75 km uncertainty cone'};
 }
 
 // ── Point selector ────────────────────────────────
 function initPointSelect() {
   const sel = document.getElementById('point-select') as HTMLSelectElement;
-  sel.innerHTML = Array.from({length:WINDOW_SIZE},(_,i)=>`<option value="${i}">Titik ${i+1}</option>`).join('');
+  sel.innerHTML = Array.from({length:WINDOW_SIZE},(_,i)=>`<option value="${i}">Titik ${i+1} (Waktu T+${i*3}j)</option>`).join('');
   sel.addEventListener('change', () => loadPoint(parseInt(sel.value)));
   loadPoint(0);
 }
@@ -189,6 +373,27 @@ function loadPoint(idx:number) {
   renderMap();
 };
 
+// ── Load Preset ───────────────────────────────────
+(window as any).loadPreset = function(presetKey: string) {
+  const p = PRESETS[presetKey];
+  if (!p) return;
+  p.obs.forEach((pt, i) => {
+    observations[i].LAT = pt.LAT;
+    observations[i].LON = pt.LON;
+    observations[i].WMO_WIND = pt.WMO_WIND;
+    observations[i].WMO_PRES = pt.WMO_PRES;
+  });
+  loadPoint(0);
+  (document.getElementById('point-select') as HTMLSelectElement).value = '0';
+  renderObsTable();
+  renderMap();
+
+  // Auto scroll slightly and pulse predict button
+  const predBtn = document.getElementById('btn-predict');
+  predBtn?.classList.add('pulse-anim');
+  setTimeout(() => predBtn?.classList.remove('pulse-anim'), 1500);
+};
+
 // ── Observation Table ─────────────────────────────
 function getStartDateTime():Date {
   const d=(document.getElementById('inp-date') as HTMLInputElement).value;
@@ -200,18 +405,25 @@ function renderObsTable() {
   const rows = observations.map((p,i) => {
     const ts = new Date(start.getTime() + i*3*3600*1000);
     const timeStr = ts.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    const latStr = p.LAT===0?'–':formatLat(p.LAT);
-    const lonStr = p.LON===0?'–':formatLon(p.LON);
-    return `<tr><td>${i+1}</td><td>${timeStr}</td><td>${latStr}</td><td>${lonStr}</td><td>${p.WMO_WIND.toFixed(1)}</td><td>${p.WMO_PRES.toFixed(1)}</td></tr>`;
+    const latStr = p.LAT===0?'<span style="color:#9CA3AF;">0.0°</span>':`<strong>${formatLat(p.LAT)}</strong>`;
+    const lonStr = p.LON===0?'<span style="color:#9CA3AF;">0.0°</span>':`<strong>${formatLon(p.LON)}</strong>`;
+    return `<tr>
+      <td><strong>${i+1}</strong></td>
+      <td>${timeStr}</td>
+      <td>${latStr}</td>
+      <td>${lonStr}</td>
+      <td>${p.WMO_WIND.toFixed(1)}</td>
+      <td>${p.WMO_PRES.toFixed(1)}</td>
+    </tr>`;
   }).join('');
   document.getElementById('obs-table-wrapper')!.innerHTML = `
-    <table class="custom-table" style="font-size:12px;">
-      <thead><tr><th>#</th><th>Waktu (WIB)</th><th>Lintang</th><th>Bujur</th><th>Angin (knot)</th><th>Tekanan (hPa)</th></tr></thead>
+    <table class="custom-table" style="font-size:11.5px;">
+      <thead><tr><th>#</th><th>Waktu (WIB)</th><th>Lintang</th><th>Bujur</th><th>Angin (kt)</th><th>Tekanan (hPa)</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
 
-// ── Map ───────────────────────────────────────────
+// ── Map & Tile Switching ──────────────────────────
 async function loadLeaflet() {
   if ((window as any).L) return (window as any).L;
   await new Promise<void>(resolve => {
@@ -222,6 +434,14 @@ async function loadLeaflet() {
   });
   return (window as any).L;
 }
+
+(window as any).switchMapLayer = function(layerKey: string) {
+  if (!mapInstance) return;
+  const L = (window as any).L;
+  if (currentTileLayer) mapInstance.removeLayer(currentTileLayer);
+  const conf = TILES[layerKey] || TILES.satellite;
+  currentTileLayer = L.tileLayer(conf.url, { attribution: conf.attr, maxZoom: 18 }).addTo(mapInstance);
+};
 
 let mapLayers: any[] = [];
 function clearMapLayers() {
@@ -236,15 +456,16 @@ function addLayer(l:any) {
 async function renderMap() {
   const L = await loadLeaflet();
   if (!mapInstance) {
-    mapInstance = L.map('pred-map', {center:[-10,90], zoom:4});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution:'© OpenStreetMap'
-    }).addTo(mapInstance);
+    mapInstance = L.map('pred-map', { center: [-1.5, 99.5], zoom: 6, zoomControl: true });
+    
+    // Default Satellite Layer
+    const conf = TILES.satellite;
+    currentTileLayer = L.tileLayer(conf.url, { attribution: conf.attr, maxZoom: 18 }).addTo(mapInstance);
 
     // Click on map → fill empty point
     mapInstance.on('click', (e:any) => {
-      const lat = Math.round(e.latlng.lat*10)/10;
-      const lon = Math.round(e.latlng.lng*10)/10;
+      const lat = Math.round(e.latlng.lat*100)/100;
+      const lon = Math.round(e.latlng.lng*100)/100;
       const empty = observations.findIndex(p => p.LAT===0 && p.LON===0);
       if (empty>=0) {
         observations[empty].LAT = lat;
@@ -258,33 +479,71 @@ async function renderMap() {
   }
 
   clearMapLayers();
+
+  // 1. Draw Coastline Warning Buffers (500 km & 1000 km dari Padang)
+  const padangPt: [number,number] = [-0.95, 100.35];
+  addLayer(L.circle(padangPt, { radius: 500000, color: '#DC2626', weight: 1.2, fillOpacity: 0.05, dashArray: '6, 6' }).bindTooltip('Zona Bahaya Utama (500 km)'));
+  addLayer(L.circle(padangPt, { radius: 1000000, color: '#D97706', weight: 1, fillOpacity: 0.03, dashArray: '4, 4' }).bindTooltip('Zona Siaga (1000 km)'));
+
+  // 2. Draw Sumbar Coastal Landmarks
+  PESISIR_SUMBAR.forEach(p => {
+    const icon = L.divIcon({
+      html: `<div style="background:#059669;color:white;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:800;border:1px solid white;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);">📍 ${p.name}</div>`,
+      className: '', iconSize: [90, 20], iconAnchor: [45, 10]
+    });
+    addLayer(L.marker([p.lat, p.lon], { icon }).bindTooltip(`Pesisir ${p.name}`));
+  });
+
   const valid = observations.filter(p => p.LAT!==0 || p.LON!==0);
   if (valid.length > 0) {
     const pts = valid.map(p => [p.LAT, p.LON] as [number,number]);
-    addLayer(L.polyline(pts, {color:'#2563EB', weight:3.5, opacity:0.8}));
+    
+    // Draw Historical Trajectory (Cyan/Blue on Satellite)
+    addLayer(L.polyline(pts, { color: '#38BDF8', weight: 3.5, opacity: 0.9 }));
+    
     pts.forEach((pt,i) => {
-      addLayer(L.circleMarker(pt, {radius:5,color:'#2563EB',fillColor:'white',fillOpacity:1,weight:2})
-        .bindTooltip(`Titik ${i+1}: ${formatLat(valid[i].LAT)}, ${formatLon(valid[i].LON)}`));
+      addLayer(L.circleMarker(pt, { radius: 5, color: '#0284C7', fillColor: '#38BDF8', fillOpacity: 1, weight: 2 })
+        .bindTooltip(`Titik ${i+1}: ${formatLat(valid[i].LAT)}, ${formatLon(valid[i].LON)}<br>Kec. Angin: ${valid[i].WMO_WIND} kt`));
     });
+
+    // 3. Draw Predictions + Cone of Uncertainty
     if (predResults.length > 0) {
       let prevPt = pts[pts.length-1];
+      const uncertaintyRadii = [20000, 45000, 75000]; // Radius meter per step
+
       predResults.forEach((r,i) => {
         const pt:[number,number] = [r.pred_lat, r.pred_lon];
-        // Animated dashed line
-        addLayer(L.polyline([prevPt, pt], {color:'#DC2626', weight:3, dashArray:'10 6', opacity:0.9}));
+        
+        // Cone of Uncertainty Circle
+        const radiusM = uncertaintyRadii[i] || 75000;
+        addLayer(L.circle(pt, { radius: radiusM, color: '#DC2626', fillColor: '#EF4444', fillOpacity: 0.2, weight: 1.5, dashArray: '4,4' })
+          .bindTooltip(`Kerucut Ketidakpastian Step ${i+1}: ±${radiusM/1000} km`));
+
+        // Animated Trajectory Line
+        addLayer(L.polyline([prevPt, pt], { color: '#EF4444', weight: 3.5, dashArray: '8 6', opacity: 1 }));
+
+        // Pulsing Cyclone Eye Icon
         const icon = L.divIcon({
-          html:`<div style="background:#DC2626;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${i+1}</div>`,
-          className:'', iconSize:[24,24], iconAnchor:[12,12]
+          html: `<div class="cyclone-marker-pulse"><span>P${i+1}</span></div>`,
+          className: '', iconSize: [28, 28], iconAnchor: [14, 14]
         });
-        addLayer(L.marker(pt, {icon}).bindTooltip(
-          `Pred ${i+1}: ${formatLat(r.pred_lat)}, ${formatLon(r.pred_lon)}<br>${new Date(r.time).toLocaleString('id-ID')}`
+
+        addLayer(L.marker(pt, { icon }).bindTooltip(
+          `<strong>Proyeksi Prediksi Step ${i+1}</strong><br>` +
+          `Waktu: ${new Date(r.time).toLocaleString('id-ID')}<br>` +
+          `Koordinat: ${formatLat(r.pred_lat)}, ${formatLon(r.pred_lon)}`
         ));
         prevPt = pt;
       });
     }
-    const allPts = [...pts, ...predResults.map(r => [r.pred_lat,r.pred_lon] as [number,number])];
+
+    const allPts = [
+      ...pts, 
+      ...predResults.map(r => [r.pred_lat,r.pred_lon] as [number,number]),
+      ...PESISIR_SUMBAR.map(p => [p.lat, p.lon] as [number,number])
+    ];
     const lats = allPts.map(p=>p[0]), lons = allPts.map(p=>p[1]);
-    mapInstance.fitBounds([[Math.min(...lats)-1,Math.min(...lons)-1],[Math.max(...lats)+1,Math.max(...lons)+1]]);
+    mapInstance.fitBounds([[Math.min(...lats)-0.8, Math.min(...lons)-0.8],[Math.max(...lats)+0.8, Math.max(...lons)+0.8]]);
   }
 }
 
@@ -292,7 +551,7 @@ async function renderMap() {
 (window as any).runPrediction = async function() {
   const invalid = observations.filter(p => p.LAT===0 && p.LON===0);
   if (invalid.length > 0) {
-    alert('⚠️ Semua titik LAT dan LON harus diisi (tidak boleh 0,0).');
+    alert('⚠️ Semua 8 titik observasi harus terisi sebelum menjalankan inferensi model LSTM.');
     return;
   }
   const steps = parseInt((document.getElementById('horizon-select') as HTMLSelectElement).value);
@@ -300,6 +559,7 @@ async function renderMap() {
 
   document.getElementById('pred-spinner')!.style.display='block';
   document.getElementById('results-panel')!.style.display='none';
+  document.getElementById('threat-matrix-panel')!.style.display='none';
   document.getElementById('btn-predict')!.setAttribute('disabled','');
 
   try {
@@ -309,13 +569,13 @@ async function renderMap() {
       body: JSON.stringify({ observations, startTime, steps })
     });
     const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error||'Gagal prediksi');
+    if (!res.ok || data.error) throw new Error(data.error||'Gagal menjalankan inferensi');
     predResults = data.predictions;
     renderResults();
     renderMap();
     document.getElementById('btn-print')!.removeAttribute('disabled');
   } catch(e:any) {
-    alert(`⚠️ Terjadi kesalahan: ${e.message}`);
+    alert(`⚠️ Terjadi kesalahan inferensi: ${e.message}`);
   } finally {
     document.getElementById('pred-spinner')!.style.display='none';
     document.getElementById('btn-predict')!.removeAttribute('disabled');
@@ -324,40 +584,100 @@ async function renderMap() {
 
 function renderResults() {
   const panel = document.getElementById('results-panel')!;
+  const threatPanel = document.getElementById('threat-matrix-panel')!;
   panel.style.display='block';
+  threatPanel.style.display='block';
+
   const lastObs = observations[observations.length-1];
   let prevLat = lastObs.LAT, prevLon = lastObs.LON;
 
+  // Analisis Jarak Terdekat ke Pantai Sumbar
+  let minDistance = Infinity;
+  let closestCity = 'Kota Padang';
+  predResults.forEach(r => {
+    PESISIR_SUMBAR.forEach(city => {
+      const d = haversine(r.pred_lat, r.pred_lon, city.lat, city.lon);
+      if (d < minDistance) {
+        minDistance = d;
+        closestCity = city.name;
+      }
+    });
+  });
+
+  const step1 = predResults[0];
+  const dist1 = haversine(lastObs.LAT, lastObs.LON, step1.pred_lat, step1.pred_lon);
+  const speed1 = (dist1 / 3).toFixed(1);
+  const brng1 = bearing(lastObs.LAT, lastObs.LON, step1.pred_lat, step1.pred_lon).toFixed(1);
+  const catText = getCategory(lastObs.WMO_WIND);
+
+  // Update Threat Matrix Box
+  const threatTitle = document.getElementById('threat-level-title')!;
+  const threatIcon = document.getElementById('threat-icon')!;
+  const threatDist = document.getElementById('threat-dist')!;
+  const threatClosestCity = document.getElementById('threat-closest-city')!;
+  const threatCat = document.getElementById('threat-category')!;
+  const threatWind = document.getElementById('threat-wind')!;
+  const threatSpeed = document.getElementById('threat-speed')!;
+  const threatBearing = document.getElementById('threat-bearing')!;
+  const threatAdv = document.getElementById('threat-advisory-text')!;
+
+  threatDist.textContent = `${minDistance.toFixed(1)} km`;
+  threatClosestCity.textContent = `Terdekat dari ${closestCity}`;
+  threatCat.textContent = catText.split('(')[0];
+  threatWind.textContent = `${lastObs.WMO_WIND} Knot (${(lastObs.WMO_WIND * 1.852).toFixed(0)} km/h)`;
+  threatSpeed.textContent = `${speed1} km/h`;
+  threatBearing.textContent = `Arah ${brng1}° (Azimuth)`;
+
+  if (minDistance < 350) {
+    threatTitle.textContent = 'LEVEL SIAGA 1: AWAS & RISIKO KRITIS';
+    threatTitle.style.color = '#DC2626';
+    threatIcon.textContent = '🚨';
+    threatAdv.innerHTML = `<strong>REKOMENDASI DARURAT BPBD / SAR:</strong> Siklon berada dalam radius kritis (&lt;350 km) dari ${closestCity}. Dihimbau larangan berlayar bagi nelayan, evakuasi dini aktivitas di bibir pantai, dan pengamanan logistik terhadap ancaman gelombang pasang ekstrem.`;
+  } else if (minDistance < 650) {
+    threatTitle.textContent = 'LEVEL SIAGA 2: WASPADA TINGGI';
+    threatTitle.style.color = '#D97706';
+    threatIcon.textContent = '⚠️';
+    threatAdv.innerHTML = `<strong>HIMBAUAN KESIAPSIAGAAN:</strong> Siklon terdeteksi dalam jarak ${minDistance.toFixed(1)} km dari ${closestCity}. Peningkatan kecepatan angin dan gelombang sedang diimbau untuk dipantau secara ketat setiap siklus 3 jam.`;
+  } else {
+    threatTitle.textContent = 'LEVEL MONITORING: DALAM PENGAWASAN';
+    threatTitle.style.color = '#059669';
+    threatIcon.textContent = '🛡️';
+    threatAdv.innerHTML = `<strong>STATUS AMAN RELATIF:</strong> Lintasan siklon berjarak ${minDistance.toFixed(1)} km dari pesisir ${closestCity}. Tetap pantau evolusi trajektori sistem tekanan rendah ini.`;
+  }
+
+  // Rincian Step
   const html = predResults.map((r,i) => {
     const step = i+1;
     const dist = haversine(prevLat, prevLon, r.pred_lat, r.pred_lon);
     const speed = (dist/3).toFixed(1);
     const brng = bearing(prevLat, prevLon, r.pred_lat, r.pred_lon).toFixed(1);
-    const cat = getCategory(lastObs.WMO_WIND);
     const rel = getReliability(step);
     prevLat = r.pred_lat; prevLon = r.pred_lon;
     const ts = new Date(r.time).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    
     return `
-      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:10px;background:#FAFAFA;">
-        <div style="font-weight:800;font-size:0.88rem;color:#1E3A8A;margin-bottom:8px;">Step ${step} — ${ts}</div>
+      <div class="result-step-card">
+        <div class="result-step-header">
+          <span class="result-step-num">LANGKAH ${step} (+${step*3} Jam)</span>
+          <span class="result-step-time">🕒 Target: ${ts} WIB</span>
+        </div>
         <div class="grid-3" style="gap:8px;">
-          <div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:10px;text-align:center;">
-            <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Lintang</div>
-            <div style="font-size:1.1rem;font-weight:900;color:#1E3A8A;">${formatLat(r.pred_lat)}</div>
+          <div class="res-box">
+            <div class="res-box-lbl">Lintang Proyeksi</div>
+            <div class="res-box-val">${formatLat(r.pred_lat)}</div>
           </div>
-          <div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:10px;text-align:center;">
-            <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Bujur</div>
-            <div style="font-size:1.1rem;font-weight:900;color:#1E3A8A;">${formatLon(r.pred_lon)}</div>
+          <div class="res-box">
+            <div class="res-box-lbl">Bujur Proyeksi</div>
+            <div class="res-box-val">${formatLon(r.pred_lon)}</div>
           </div>
-          <div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:10px;text-align:center;">
-            <div style="font-size:10px;font-weight:700;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Kecepatan</div>
-            <div style="font-size:1.1rem;font-weight:900;color:#1E3A8A;">${speed} km/h</div>
+          <div class="res-box">
+            <div class="res-box-lbl">Kecepatan Gerak</div>
+            <div class="res-box-val">${speed} km/h</div>
           </div>
         </div>
-        <div style="margin-top:8px;font-size:0.8rem;color:#4B5563;display:flex;flex-wrap:wrap;gap:8px;">
-          <span>📦 <b>${cat}</b></span>
-          <span>🧭 Arah: <b>${brng}°</b></span>
-          <span>🎯 Reliabilitas: <b style="color:${rel.color};">${rel.text}</b> (${rel.km})</span>
+        <div class="result-step-meta">
+          <span>🧭 Arah: <strong>${brng}°</strong></span>
+          <span>🎯 Keandalan: <strong style="color:${rel.color};">${rel.text}</strong> (${rel.km})</span>
         </div>
       </div>`;
   }).join('');
@@ -369,6 +689,7 @@ function renderResults() {
   observations.forEach(p => { p.LAT=0; p.LON=0; p.WMO_WIND=115; p.WMO_PRES=1005; });
   predResults = [];
   document.getElementById('results-panel')!.style.display='none';
+  document.getElementById('threat-matrix-panel')!.style.display='none';
   document.getElementById('btn-print')!.setAttribute('disabled','');
   loadPoint(0);
   renderObsTable();
@@ -400,7 +721,7 @@ function renderResults() {
   }
 };
 
-// ── Init ──────────────────────────────────────────
+// ── Init on Load ──────────────────────────────────
 const today = new Date().toISOString().split('T')[0];
 (document.getElementById('inp-date') as HTMLInputElement).value = today;
 document.getElementById('inp-date')!.addEventListener('change', renderObsTable);
@@ -412,4 +733,279 @@ document.getElementById('point-select')!.addEventListener('change', () =>
 initPointSelect();
 renderObsTable();
 renderMap().catch(console.error);
+
+// Check if preset query parameter exists in URL
+const urlParams = new URLSearchParams(window.location.search);
+const presetParam = urlParams.get('preset');
+if (presetParam && PRESETS[presetParam]) {
+  (window as any).loadPreset(presetParam);
+} else {
+  // Default load Skenario A for instant impressive demonstration
+  (window as any).loadPreset('padang_near');
+}
 </script>
+
+<style>
+  /* ============================================
+     WAR ROOM STYLING
+     ============================================ */
+  .war-room-header {
+    background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+    border-radius: 16px;
+    padding: 22px 26px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+  }
+  .war-room-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #93C5FD;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .live-pulse {
+    width: 8px; height: 8px;
+    background: #EF4444;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    animation: pulse-red 1.5s infinite;
+  }
+  @keyframes pulse-red {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+  .war-room-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin: 0 0 6px;
+    color: #FFFFFF;
+  }
+  .war-room-subtitle {
+    font-size: 0.86rem;
+    color: #DBEAFE;
+    margin: 0;
+    max-width: 680px;
+    line-height: 1.5;
+  }
+  .war-room-stats {
+    display: flex;
+    gap: 8px;
+  }
+  .stat-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.78rem;
+  }
+  .stat-lbl {
+    display: block;
+    font-size: 0.65rem;
+    color: #93C5FD;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* Preset Bar */
+  .preset-bar-card {
+    background: #F8FAFC;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+  }
+  .preset-bar-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #1E3A8A;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .preset-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-preset {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    background: white;
+  }
+  .btn-preset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .preset-danger { border-color: #FCA5A5; color: #991B1B; background: #FEF2F2; }
+  .preset-danger:hover { background: #FEE2E2; border-color: #EF4444; }
+  .preset-warning { border-color: #FDE68A; color: #92400E; background: #FFFBEB; }
+  .preset-warning:hover { background: #FEF3C7; border-color: #F59E0B; }
+  .preset-neutral { border-color: #E2E8F0; color: #334155; }
+  .preset-neutral:hover { border-color: #94A3B8; }
+
+  /* Map Toolbar */
+  .map-toolbar {
+    padding: 10px 16px;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FAFAFA;
+  }
+  .map-layer-selector {
+    display: flex;
+    gap: 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+  }
+  .layer-opt {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Threat Panel */
+  .threat-panel {
+    background: #FFFFFF;
+    border: 2px solid #F59E0B;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);
+  }
+  .threat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #FEF3C7;
+    padding-bottom: 10px;
+  }
+  .threat-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #D97706;
+    letter-spacing: 0.06em;
+  }
+  .threat-title {
+    margin: 2px 0 0;
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #D97706;
+  }
+  .threat-badge-icon { font-size: 1.8rem; }
+  .threat-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .threat-metric-box {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .tm-label { display: block; font-size: 0.68rem; font-weight: 700; color: #92400E; text-transform: uppercase; }
+  .tm-val { display: block; font-size: 1.1rem; font-weight: 900; color: #B45309; margin: 2px 0; }
+  .tm-sub { font-size: 0.72rem; color: #783504; font-weight: 600; }
+  .threat-advisory {
+    background: #FEF3C7;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #783504;
+    line-height: 1.5;
+  }
+
+  /* Result Step Cards */
+  .result-step-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: #FAFAFA;
+  }
+  .result-step-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+  .result-step-num { font-weight: 900; color: #1E3A8A; }
+  .result-step-time { color: #64748B; font-weight: 600; }
+  .res-box {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+  }
+  .res-box-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; }
+  .res-box-val { font-size: 1.05rem; font-weight: 900; color: #1E3A8A; }
+  .result-step-meta {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: #475569;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Cyclone Pulse Animation */
+  .cyclone-marker-pulse {
+    width: 28px;
+    height: 28px;
+    background: #DC2626;
+    border: 2px solid white;
+    border-radius: 50%;
+    color: white;
+    font-size: 10px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    animation: cyclone-pulse 1.4s infinite;
+  }
+  @keyframes cyclone-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.8); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+  }
+  .pulse-anim { animation: btn-bounce 0.6s 2; }
+  @keyframes btn-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @media (max-width: 900px) {
+    .threat-metrics-grid { grid-template-columns: 1fr; }
+    .war-room-header { padding: 18px; }
+  }
+</style>

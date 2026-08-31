@@ -6,6 +6,7 @@ export default defineConfig({
   output: 'hybrid',
   adapter: vercel({
     webAnalytics: { enabled: false },
+    runtime: 'nodejs20.x',
   }),
   server: {
     port: 4321,
