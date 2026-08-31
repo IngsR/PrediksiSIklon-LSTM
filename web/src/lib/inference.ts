@@ -255,8 +255,12 @@ export async function runRecursiveInference(
   let currentTime = new Date(lastObsTime);
 
   for (let i = 0; i < steps; i++) {
-    const windowStart = new Date(startDt);
-    const result = await runInference(window, windowStart);
+    // Window start time is the timestamp of the first point in the current sliding window
+    const firstPointTime = window[0].ISO_TIME ? new Date(window[0].ISO_TIME) : new Date(startDt.getTime() + i * 3 * 3600000);
+    const result = await runInference(window, firstPointTime);
+
+
+
 
     const targetTime = new Date(currentTime);
     targetTime.setHours(targetTime.getHours() + 3);

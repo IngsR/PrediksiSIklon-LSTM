@@ -477,15 +477,18 @@ function renderObsTable() {
 }
 
 // ── Map & Tile Switching ──────────────────────────
+let leafletScriptPromise: Promise<any> | null = null;
 async function loadLeaflet() {
   if ((window as any).L) return (window as any).L;
-  await new Promise<void>(resolve => {
-    const s=document.createElement('script');
-    s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    s.onload=()=>resolve();
-    document.head.appendChild(s);
-  });
-  return (window as any).L;
+  if (!leafletScriptPromise) {
+    leafletScriptPromise = new Promise<any>((resolve) => {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      s.onload = () => resolve((window as any).L);
+      document.head.appendChild(s);
+    });
+  }
+  return leafletScriptPromise;
 }
 
 (window as any).switchMapLayer = function(layerKey: string) {
@@ -499,49 +502,61 @@ async function loadLeaflet() {
 let mapLayers: any[] = [];
 function clearMapLayers() {
   if (!mapInstance) return;
-  mapLayers.forEach(l => mapInstance.removeLayer(l));
+  mapLayers.forEach(l => {
+    try { mapInstance.removeLayer(l); } catch(e) {}
+  });
   mapLayers = [];
 }
 function addLayer(l:any) {
   if (mapInstance) { l.addTo(mapInstance); mapLayers.push(l); }
 }
 
-async function renderMap() {
+let mapInitPromise: Promise<any> | null = null;
+async function ensureMapReady(): Promise<any> {
   const L = await loadLeaflet();
-  if (!mapInstance) {
+  if (mapInstance) return { L, map: mapInstance };
+  if (mapInitPromise) return mapInitPromise;
+
+  mapInitPromise = (async () => {
+    const mapEl = document.getElementById('pred-map');
+    if (!mapEl) return null;
+
+    // Prevent duplicate initialization on same container
+    if ((mapEl as any)._leaflet_id) {
+      return { L, map: mapInstance };
+    }
+
     mapInstance = L.map('pred-map', { 
       center: [-1.5, 99.5], 
       zoom: 6, 
       zoomControl: true,
-      tap: false, // Fix Leaflet mobile tap gesture conflict
-      preferCanvas: true // Hardware acceleration for fast mobile runtime
+      tap: false,
+      preferCanvas: true
     });
     
     // Default Satellite Layer
     const conf = TILES.satellite;
     currentTileLayer = L.tileLayer(conf.url, { attribution: conf.attr, maxZoom: 18 }).addTo(mapInstance);
 
-    // Resize listener to prevent broken/gray tiles
+    // Resize listener to prevent broken tiles
     window.addEventListener('resize', () => {
       if (mapInstance) mapInstance.invalidateSize();
     }, { passive: true });
 
-    // Interactive Map Click / Mobile Tap Handler (Directly Syncs to Form & Table)
-    mapInstance.on('click', (e:any) => {
+    // Interactive Map Click / Mobile Tap Handler
+    mapInstance.on('click', (e: any) => {
       const lat = Math.round(e.latlng.lat * 100) / 100;
       const lon = Math.round(e.latlng.lng * 100) / 100;
       
       const pointSel = document.getElementById('point-select') as HTMLSelectElement;
       let targetIdx = parseInt(pointSel?.value || '0');
       
-      // If the currently selected point is already filled, but there are empty points in sequence, choose first empty point
       const firstEmpty = observations.findIndex(p => p.LAT === 0 && p.LON === 0);
       if (firstEmpty >= 0 && observations[targetIdx].LAT !== 0 && observations[targetIdx].LON !== 0) {
         targetIdx = firstEmpty;
         if (pointSel) pointSel.value = targetIdx.toString();
       }
 
-      // Update observation point coordinates
       observations[targetIdx].LAT = lat;
       observations[targetIdx].LON = lon;
       
@@ -549,9 +564,8 @@ async function renderMap() {
       renderObsTable();
       renderMap();
 
-      showMapToast(`📍 Koordinat Titik ${targetIdx + 1} diperbarui: <strong>${formatLat(lat)}, ${formatLon(lon)}</strong>`);
+      showMapToast(`📍 Titik ${targetIdx + 1} diperbarui: <strong>${formatLat(lat)}, ${formatLon(lon)}</strong>`);
 
-      // If user is doing sequential entry, auto-select next unfilled point for smooth UX
       if (targetIdx < WINDOW_SIZE - 1 && observations[targetIdx + 1].LAT === 0) {
         setTimeout(() => {
           if (pointSel) {
@@ -562,7 +576,21 @@ async function renderMap() {
         }, 300);
       }
     });
-  }
+
+    setTimeout(() => {
+      if (mapInstance) mapInstance.invalidateSize();
+    }, 200);
+
+    return { L, map: mapInstance };
+  })();
+
+  return mapInitPromise;
+}
+
+async function renderMap() {
+  const ready = await ensureMapReady();
+  if (!ready || !mapInstance) return;
+  const L = ready.L;
 
   clearMapLayers();
 
@@ -580,29 +608,29 @@ async function renderMap() {
     addLayer(L.marker([p.lat, p.lon], { icon }).bindTooltip(`Pesisir ${p.name}`));
   });
 
-  const valid = observations.filter(p => p.LAT!==0 || p.LON!==0);
+  const valid = observations.filter(p => p.LAT !== 0 || p.LON !== 0);
   const currentSelected = parseInt((document.getElementById('point-select') as HTMLSelectElement)?.value || '0');
 
   if (valid.length > 0) {
     const pts = valid.map(p => [p.LAT, p.LON] as [number,number]);
     
-    // Draw Historical Trajectory (Cyan/Blue on Satellite)
-    addLayer(L.polyline(pts, { color: '#38BDF8', weight: 3.5, opacity: 0.9 }));
+    // Draw Historical Trajectory (Cyan/Blue Line)
+    addLayer(L.polyline(pts, { color: '#0284C7', weight: 4, opacity: 0.95 }));
     
+    // Draw Distinct Numbered Historical Points 1..8
     observations.forEach((p, i) => {
       if (p.LAT === 0 && p.LON === 0) return;
       const isSelected = i === currentSelected;
-      const markerColor = isSelected ? '#F59E0B' : '#0284C7';
-      const fillColor = isSelected ? '#FDE68A' : '#38BDF8';
-      const radius = isSelected ? 8 : 6;
       
-      const m = L.circleMarker([p.LAT, p.LON], { 
-        radius, 
-        color: markerColor, 
-        fillColor, 
-        fillOpacity: 1, 
-        weight: isSelected ? 3 : 2 
-      }).bindTooltip(`Titik ${i+1}: ${formatLat(p.LAT)}, ${formatLon(p.LON)}<br>Kec. Angin: ${p.WMO_WIND} kt (Klik untuk edit)`);
+      const icon = L.divIcon({
+        html: `<div class="obs-marker-node ${isSelected ? 'obs-node-active' : ''}"><span>${i+1}</span></div>`,
+        className: '',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+
+      const m = L.marker([p.LAT, p.LON], { icon })
+        .bindTooltip(`<strong>Titik ${i+1} (Histori Observasi)</strong><br>Koordinat: ${formatLat(p.LAT)}, ${formatLon(p.LON)}<br>Kec. Angin: ${p.WMO_WIND} knot<br>Tekanan: ${p.WMO_PRES} hPa<br><em>(Klik untuk edit)</em>`);
       
       m.on('click', (ev: any) => {
         L.DomEvent.stopPropagation(ev);
@@ -612,44 +640,54 @@ async function renderMap() {
       addLayer(m);
     });
 
-    // 3. Draw Predictions + Cone of Uncertainty
-    if (predResults.length > 0) {
-      let prevPt = pts[pts.length-1];
-      const uncertaintyRadii = [20000, 45000, 75000]; // Radius meter per step
+    // 3. Draw Recursive Predictions + Cone of Uncertainty
+    if (predResults && predResults.length > 0) {
+      let prevPt = pts[pts.length - 1];
+      const uncertaintyRadii = [20000, 45000, 75000]; // Meter radius per step (3h, 6h, 9h)
 
-      predResults.forEach((r,i) => {
-        const pt:[number,number] = [r.pred_lat, r.pred_lon];
+      predResults.forEach((r, i) => {
+        const pt: [number,number] = [r.pred_lat, r.pred_lon];
         
         // Cone of Uncertainty Circle
         const radiusM = uncertaintyRadii[i] || 75000;
-        addLayer(L.circle(pt, { radius: radiusM, color: '#DC2626', fillColor: '#EF4444', fillOpacity: 0.2, weight: 1.5, dashArray: '4,4' })
-          .bindTooltip(`Kerucut Ketidakpastian Step ${i+1}: ±${radiusM/1000} km`));
+        addLayer(L.circle(pt, { 
+          radius: radiusM, 
+          color: '#DC2626', 
+          fillColor: '#EF4444', 
+          fillOpacity: 0.22, 
+          weight: 1.5, 
+          dashArray: '4,4' 
+        }).bindTooltip(`Kerucut Ketidakpastian Proyeksi Langkah ${i+1}: ±${radiusM/1000} km`));
 
-        // Animated Trajectory Line
-        addLayer(L.polyline([prevPt, pt], { color: '#EF4444', weight: 3.5, dashArray: '8 6', opacity: 1 }));
+        // Animated Trajectory Line (Red Dash)
+        addLayer(L.polyline([prevPt, pt], { color: '#EF4444', weight: 4, dashArray: '8 6', opacity: 1 }));
 
-        // Pulsing Cyclone Eye Icon
+        // Pulsing Cyclone Eye Prediction Icon
         const icon = L.divIcon({
           html: `<div class="cyclone-marker-pulse"><span>P${i+1}</span></div>`,
-          className: '', iconSize: [28, 28], iconAnchor: [14, 14]
+          className: '', iconSize: [30, 30], iconAnchor: [15, 15]
         });
 
         addLayer(L.marker(pt, { icon }).bindTooltip(
-          `<strong>Proyeksi Prediksi Step ${i+1}</strong><br>` +
-          `Waktu: ${new Date(r.time).toLocaleString('id-ID')}<br>` +
+          `<strong>Proyeksi Prediksi LSTM Langkah ${i+1} (+${(i+1)*3} Jam)</strong><br>` +
+          `Waktu Target: ${new Date(r.time).toLocaleString('id-ID')} WIB<br>` +
           `Koordinat: ${formatLat(r.pred_lat)}, ${formatLon(r.pred_lon)}`
         ));
         prevPt = pt;
       });
     }
 
+    // Auto fit bounds to show all points
     const allPts = [
       ...pts, 
-      ...predResults.map(r => [r.pred_lat,r.pred_lon] as [number,number]),
+      ...predResults.map(r => [r.pred_lat, r.pred_lon] as [number,number]),
       ...PESISIR_SUMBAR.map(p => [p.lat, p.lon] as [number,number])
     ];
-    const lats = allPts.map(p=>p[0]), lons = allPts.map(p=>p[1]);
-    mapInstance.fitBounds([[Math.min(...lats)-0.8, Math.min(...lons)-0.8],[Math.max(...lats)+0.8, Math.max(...lons)+0.8]]);
+    const lats = allPts.map(p => p[0]), lons = allPts.map(p => p[1]);
+    mapInstance.fitBounds([
+      [Math.min(...lats) - 0.6, Math.min(...lons) - 0.6],
+      [Math.max(...lats) + 0.6, Math.max(...lons) + 0.6]
+    ], { padding: [20, 20] });
   }
 }
 
@@ -681,6 +719,11 @@ async function renderMap() {
     renderMap();
     document.getElementById('btn-print')!.removeAttribute('disabled');
     showMapToast('✅ Hasil prediksi LSTM berhasil dihitung!');
+    
+    // Smooth scroll down to results if on mobile
+    if (window.innerWidth <= 900) {
+      document.getElementById('threat-matrix-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   } catch(e:any) {
     alert(`⚠️ Terjadi kesalahan inferensi: ${e.message}`);
   } finally {
@@ -842,17 +885,16 @@ document.getElementById('point-select')!.addEventListener('change', () => {
 
 initPointSelect();
 renderObsTable();
-renderMap().catch(console.error);
 
-// Check if preset query parameter exists in URL
+// Check if preset query parameter exists in URL, otherwise load default Scenario A
 const urlParams = new URLSearchParams(window.location.search);
 const presetParam = urlParams.get('preset');
 if (presetParam && PRESETS[presetParam]) {
   (window as any).loadPreset(presetParam);
 } else {
-  // Default load Skenario A for instant impressive demonstration
   (window as any).loadPreset('padang_near');
 }
+
 </script>
 
 <style>
@@ -1199,15 +1241,43 @@ if (presetParam && PRESETS[presetParam]) {
     gap: 4px;
   }
 
+  /* Observation Numbered Marker Nodes */
+  .obs-marker-node {
+    width: 24px;
+    height: 24px;
+    background: #0284C7;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .obs-marker-node:hover {
+    transform: scale(1.22);
+    box-shadow: 0 4px 12px rgba(2,132,199,0.6);
+  }
+  .obs-node-active {
+    background: #F59E0B !important;
+    border-color: #FFFFFF !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.55), 0 3px 10px rgba(0,0,0,0.5) !important;
+    transform: scale(1.18);
+  }
+
   /* Cyclone Pulse Animation */
   .cyclone-marker-pulse {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     background: #DC2626;
     border: 2px solid white;
     border-radius: 50%;
     color: white;
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 900;
     display: flex;
     align-items: center;
@@ -1220,6 +1290,7 @@ if (presetParam && PRESETS[presetParam]) {
     70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
     100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
   }
+
 
   @media (max-width: 900px) {
     .war-room-header { padding: 14px 16px; }
