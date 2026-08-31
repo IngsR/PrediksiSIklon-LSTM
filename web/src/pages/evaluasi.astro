@@ -1,0 +1,230 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Evaluasi Akurasi">
+  <div class="fade-in">
+    <div class="page-section-header" style="margin-bottom:20px;">
+      <h2 class="section-title" style="font-size:1.2rem;">📈 EVALUASI AKURASI PER KASUS SIKLON</h2>
+    </div>
+
+    <!-- SID Selector -->
+    <div class="page-panel" style="margin-bottom:16px;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label" for="sid-select">🆔 Pilih ID Siklon untuk Evaluasi</label>
+        <select id="sid-select" class="form-select">
+          <option>Memuat data...</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cyclone Info -->
+    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:16px;">
+      <div class="grid-2" style="gap:10px;">
+        <div id="info-left" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+        <div id="info-right" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Metric Explanation -->
+    <div class="info-card" style="margin-bottom:16px;">
+      <h4>📊 Penjelasan Metrik Evaluasi</h4>
+      <p style="margin-bottom:6px;">Parameter pengukuran keakuratan model dalam memprediksi koordinat siklon (selisih jarak dalam <strong>Kilometer</strong>):</p>
+      <ul style="margin:0; line-height:2; padding-left:18px; font-size:0.85rem;">
+        <li><strong>MAE (Mean Absolute Error):</strong> Rata-rata kesalahan absolut prediksi model dari posisi sebenarnya.</li>
+        <li><strong>RMSE (Root Mean Square Error):</strong> Memberikan bobot lebih besar pada kesalahan signifikan. Semakin kecil = semakin stabil.</li>
+        <li><strong>Min Error:</strong> Jarak penyimpangan terkecil (titik paling akurat).</li>
+        <li><strong>Max Error:</strong> Jarak penyimpangan terbesar (titik paling meleset).</li>
+      </ul>
+    </div>
+
+    <!-- 4 Metric Cards -->
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="metric-card"><div class="metric-label">MAE (km)</div><div class="metric-value" id="m-mae">–</div></div>
+      <div class="metric-card"><div class="metric-label">RMSE (km)</div><div class="metric-value" id="m-rmse">–</div></div>
+      <div class="metric-card"><div class="metric-label">Min Error (km)</div><div class="metric-value" id="m-min" style="color:#059669;">–</div></div>
+      <div class="metric-card"><div class="metric-label">Max Error (km)</div><div class="metric-value" id="m-max" style="color:#DC2626;">–</div></div>
+    </div>
+
+    <!-- Quality Badge -->
+    <div id="quality-badge" style="border-radius:10px;padding:12px 20px;margin-bottom:18px;text-align:center;display:none;border-width:2px;border-style:solid;">
+      <span style="font-size:13px;font-weight:700;color:#4B5563;text-transform:uppercase;">Predikat Akurasi:</span>
+      <span id="quality-text" style="font-size:18px;font-weight:900;margin-left:10px;"></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid-2" style="margin-bottom:16px; gap:16px;">
+      <div class="page-panel" style="margin:0;">
+        <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📉 Grafik Deviasi Jarak Per Waktu (km)</div>
+        <div class="chart-container" style="height:240px;"><canvas id="chart-error"></canvas></div>
+      </div>
+      <div class="page-panel" style="margin:0;">
+        <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📊 Distribusi Frekuensi Error</div>
+        <div class="chart-container" style="height:240px;"><canvas id="chart-freq"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Chart Row 2 -->
+    <div class="page-panel" style="margin-bottom:16px;">
+      <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📐 Dekomposisi Deviasi LAT vs LON (Mutlak °)</div>
+      <div class="chart-container" style="height:220px;"><canvas id="chart-decomp"></canvas></div>
+    </div>
+
+    <!-- Table + Download -->
+    <div class="page-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <div style="font-weight:800; font-size:0.9rem; color:#1E3A8A;">📋 Tabel Perbandingan Koordinat</div>
+        <button class="btn btn-success" id="btn-download" onclick="downloadCSV()" style="font-size:0.82rem; padding:7px 14px; min-height:36px;">📥 Unduh CSV</button>
+      </div>
+      <div class="custom-table-wrapper" id="table-wrapper">
+        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih ID Siklon untuk melihat evaluasi.</div>
+      </div>
+    </div>
+
+    <!-- Narrative -->
+    <div class="narrative-box" style="margin-top:16px;">
+      <h4>[ Ringkasan Evaluasi Spasial ]</h4>
+      Halaman ini menampilkan tingkat akurasi model LSTM dengan membandingkan posisi aktual (data IBTrACS) dan posisi hasil prediksi pada setiap titik waktu. Statistik MAE dan RMSE memberikan gambaran kesalahan rata-rata dalam kilometer. Grafik dekomposisi membantu mengidentifikasi apakah model memiliki bias khusus pada sumbu Lintang (Utara-Selatan) atau Bujur (Barat-Timur).
+    </div>
+  </div>
+</Layout>
+
+<script>
+interface PredRow {
+  SID:string; NAME?:string; ISO_TIME:string;
+  LAT_ACTUAL:number; LON_ACTUAL:number; LAT_PRED:number; LON_PRED:number; ERROR_KM:number;
+}
+let predData: PredRow[] = [];
+let currentSIDData: PredRow[] = [];
+let chartError:any=null, chartFreq:any=null, chartDecomp:any=null;
+
+function parseCsv(text:string) {
+  const lines=text.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line=>{
+    const vals:string[]=[]; let inQ=false,cur='';
+    for(const ch of line){if(ch==='"'){inQ=!inQ;continue;}if(ch===','&&!inQ){vals.push(cur.trim());cur='';continue;}cur+=ch;}
+    vals.push(cur.trim());
+    return Object.fromEntries(headers.map((h,i)=>[h,vals[i]??'']));
+  });
+}
+
+async function loadChartJS():Promise<any> {
+  if((window as any).Chart) return (window as any).Chart;
+  await new Promise<void>(resolve=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';
+    s.onload=()=>resolve();
+    document.head.appendChild(s);
+  });
+  return (window as any).Chart;
+}
+
+async function init() {
+  const text = await fetch('/data/predictions_gab8.csv').then(r=>r.text());
+  const raw = parseCsv(text);
+  predData = raw.map(r=>({
+    SID:r['SID']??'', NAME:r['NAME'], ISO_TIME:r['ISO_TIME']??'',
+    LAT_ACTUAL:parseFloat(r['LAT_ACTUAL']??'0'), LON_ACTUAL:parseFloat(r['LON_ACTUAL']??'0'),
+    LAT_PRED:parseFloat(r['LAT_PRED']??'0'), LON_PRED:parseFloat(r['LON_PRED']??'0'),
+    ERROR_KM:parseFloat(r['ERROR_KM']??'0'),
+  }));
+  const sids = [...new Set(predData.map(r=>r.SID))].sort();
+  const sel = document.getElementById('sid-select') as HTMLSelectElement;
+  sel.innerHTML = sids.map(s=>`<option value="${s}">${s}</option>`).join('');
+  sel.addEventListener('change', ()=>renderSID(sel.value));
+  renderSID(sids[0]);
+}
+
+async function renderSID(sid:string) {
+  currentSIDData = predData.filter(r=>r.SID===sid).sort((a,b)=>a.ISO_TIME.localeCompare(b.ISO_TIME));
+  if(!currentSIDData.length) return;
+
+  const first=currentSIDData[0],last=currentSIDData[currentSIDData.length-1];
+  const durH=Math.round((new Date(last.ISO_TIME).getTime()-new Date(first.ISO_TIME).getTime())/3_600_000);
+  const name=first.NAME||'N/A';
+  document.getElementById('cyclone-info')!.style.display='block';
+  document.getElementById('info-left')!.innerHTML=`🆔 <b>ID Siklon</b>: <code>${sid}</code><br>🏷️ <b>Nama</b>: <code>${name}</code><br>⏱️ <b>Interval</b>: <code>3 Jam</code>`;
+  document.getElementById('info-right')!.innerHTML=`📅 <b>Periode</b>: <code>${new Date(first.ISO_TIME).toLocaleDateString('id-ID')} – ${new Date(last.ISO_TIME).toLocaleDateString('id-ID')}</code><br>⏳ <b>Durasi</b>: <code>${durH} jam</code><br>📌 <b>Jumlah titik</b>: <code>${currentSIDData.length}</code>`;
+
+  const errs = currentSIDData.map(r=>r.ERROR_KM);
+  const mae = errs.reduce((s,e)=>s+e,0)/errs.length;
+  const rmse = Math.sqrt(errs.reduce((s,e)=>s+e**2,0)/errs.length);
+  const minE = Math.min(...errs), maxE = Math.max(...errs);
+
+  document.getElementById('m-mae')!.textContent=mae.toFixed(2);
+  document.getElementById('m-rmse')!.textContent=rmse.toFixed(2);
+  document.getElementById('m-min')!.textContent=minE.toFixed(2);
+  document.getElementById('m-max')!.textContent=maxE.toFixed(2);
+
+  let ql='ERROR SANGAT RENDAH',qc='#059669';
+  if(mae>=60){ql='ERROR TINGGI';qc='#DC2626';}
+  else if(mae>=30){ql='ERROR SEDANG';qc='#D97706';}
+  else if(mae>=15){ql='ERROR RENDAH';qc='#1E3A8A';}
+  const qb=document.getElementById('quality-badge')!;
+  qb.style.display='block'; qb.style.borderColor=qc; qb.style.background='#F3F4F6';
+  document.getElementById('quality-text')!.style.color=qc;
+  document.getElementById('quality-text')!.textContent=ql;
+
+  const Chart = await loadChartJS();
+  const labels = currentSIDData.map(r=>new Date(r.ISO_TIME).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}));
+
+  // Chart 1: Error line
+  if(chartError) chartError.destroy();
+  chartError = new Chart(document.getElementById('chart-error'), {
+    type:'line',
+    data:{labels, datasets:[{label:'Deviasi (km)',data:errs,borderColor:'#1E3A8A',backgroundColor:'rgba(30,58,138,0.08)',borderWidth:2,pointRadius:2,tension:0.3,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}
+  });
+
+  // Chart 2: Frequency bar
+  const bins=[0,10,25,50];
+  const binLabels=['0–10 km','10–25 km','25–50 km','>50 km'];
+  const freqs=bins.map((b,i)=>{
+    const next=bins[i+1]??Infinity;
+    return (errs.filter(e=>e>=b&&e<next).length/errs.length)*100;
+  });
+  if(chartFreq) chartFreq.destroy();
+  chartFreq = new Chart(document.getElementById('chart-freq'),{
+    type:'bar',
+    data:{labels:binLabels,datasets:[{label:'Persentase (%)',data:freqs,backgroundColor:['#059669','#1E3A8A','#D97706','#DC2626'],borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:(v:any)=>`${v}%`},grid:{color:'#F3F4F6'}},x:{grid:{display:false}}}}
+  });
+
+  // Chart 3: LAT/LON decomp
+  const latDevs = currentSIDData.map(r=>Math.abs(r.LAT_ACTUAL-r.LAT_PRED));
+  const lonDevs = currentSIDData.map(r=>Math.abs(r.LON_ACTUAL-r.LON_PRED));
+  if(chartDecomp) chartDecomp.destroy();
+  chartDecomp = new Chart(document.getElementById('chart-decomp'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Deviasi LAT (°)',data:latDevs,borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,0.06)',borderWidth:2,pointRadius:1,tension:0.3,fill:false},
+      {label:'Deviasi LON (°)',data:lonDevs,borderColor:'#D97706',backgroundColor:'rgba(217,119,6,0.06)',borderWidth:2,pointRadius:1,tension:0.3,fill:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}
+  });
+
+  // Table
+  const tHead=`<tr><th>Waktu</th><th>LAT Aktual (°)</th><th>LON Aktual (°)</th><th>LAT Pred (°)</th><th>LON Pred (°)</th><th>Error (km)</th></tr>`;
+  const tBody=currentSIDData.map(r=>`<tr>
+    <td>${new Date(r.ISO_TIME).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+    <td>${r.LAT_ACTUAL.toFixed(4)}°</td><td>${r.LON_ACTUAL.toFixed(4)}°</td>
+    <td>${r.LAT_PRED.toFixed(4)}°</td><td>${r.LON_PRED.toFixed(4)}°</td>
+    <td>${r.ERROR_KM.toFixed(2)}</td>
+  </tr>`).join('');
+  document.getElementById('table-wrapper')!.innerHTML=`<table class="custom-table"><thead>${tHead}</thead><tbody>${tBody}</tbody></table>`;
+}
+
+(window as any).downloadCSV = function() {
+  if(!currentSIDData.length) return;
+  const headers=['ISO_TIME','LAT_ACTUAL','LON_ACTUAL','LAT_PRED','LON_PRED','ERROR_KM'];
+  const rows=[headers.join(','),...currentSIDData.map(r=>headers.map(h=>(r as any)[h]).join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows);
+  a.download=`eval_${currentSIDData[0].SID}.csv`;
+  a.click();
+};
+
+init().catch(console.error);
+</script>

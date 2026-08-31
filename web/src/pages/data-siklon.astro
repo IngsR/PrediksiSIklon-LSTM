@@ -1,0 +1,155 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Data Observasi">
+  <div class="fade-in">
+    <div class="page-section-header" style="margin-bottom:20px;">
+      <h2 class="section-title" style="font-size:1.2rem;">📊 DATA OBSERVASI SIKLON</h2>
+    </div>
+
+    <!-- Search + Dropdown -->
+    <div class="page-panel" style="margin-bottom:16px;">
+      <div class="form-group">
+        <label class="form-label" for="sid-search">🔍 Cari ID Siklon</label>
+        <input type="text" id="sid-search" class="form-input" placeholder="Ketik ID Siklon (misal: 1980002...)" />
+        <div id="search-suggestions" style="display:none; border:1px solid #E5E7EB; border-radius:8px; background:white; max-height:200px; overflow-y:auto; margin-top:4px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="sid-select">Atau pilih dari daftar:</label>
+        <select id="sid-select" class="form-select">
+          <option>Memuat data...</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cyclone Info -->
+    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:16px;">
+      <div class="grid-2" style="gap:10px;">
+        <div id="info-left" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+        <div id="info-right" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="page-panel">
+      <div style="font-weight:800; font-size:0.9rem; color:#1E3A8A; margin-bottom:12px;">📋 Tabel Data Observasi Lengkap</div>
+      <div class="custom-table-wrapper" id="table-wrapper">
+        <div style="text-align:center; padding:32px; color:#9CA3AF;">Pilih ID Siklon untuk melihat data observasi.</div>
+      </div>
+    </div>
+
+    <!-- Source Note -->
+    <div style="background:#F8F9FA; padding:18px 20px; border-radius:10px; border-left:4px solid #1E3A8A; margin-top:16px;">
+      <h5 style="color:#1E3A8A; margin:0 0 8px; font-size:0.9rem;">📋 Sumber Data & Keterangan Kolom</h5>
+      <p style="margin:0 0 8px; font-size:0.85rem; line-height:1.6; color:#374151;">
+        Data observasi siklon dari dataset internasional <strong>IBTrACS</strong>. Setiap baris merepresentasikan posisi dan kondisi atmosfer siklon pada interval 3 jam.
+      </p>
+      <ul style="margin:0; font-size:0.83rem; line-height:2; color:#374151; padding-left:18px;">
+        <li><strong>Wind (knot)</strong> – Kecepatan angin maksimum (WMO).</li>
+        <li><strong>Pressure (hPa)</strong> – Tekanan udara minimum di pusat siklon (WMO).</li>
+        <li><strong>Metode Imputasi</strong> – Teknik pengisian data hilang: <em>Original, Linear, Forward/Backward,</em> atau <em>Median</em>.</li>
+        <li><strong>Status</strong> –
+          <span class="badge badge-success" style="font-size:11px;">✅ Asli</span> = data asli observasi;&nbsp;
+          <span class="badge badge-warning" style="font-size:11px;">⚠️ Perbaikan</span> = nilai diisi melalui imputasi karena data hilang/kosong.
+        </li>
+      </ul>
+    </div>
+  </div>
+</Layout>
+
+<script>
+interface ObsRow {
+  SID:string; NAME?:string; ISO_TIME:string; LAT:number; LON:number;
+  WMO_WIND:number; WMO_PRES:number;
+  wind_imputation?:string; pres_imputation?:string;
+  'Status Wind'?:string; 'Status Pres'?:string;
+}
+let obsData: ObsRow[] = [];
+let allSIDs: string[] = [];
+let currentSID = '';
+
+function parseCsv(text:string) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals:string[]=[];let inQ=false,cur='';
+    for(const ch of line){if(ch==='"'){inQ=!inQ;continue;}if(ch===','&&!inQ){vals.push(cur.trim());cur='';continue;}cur+=ch;}
+    vals.push(cur.trim());
+    return Object.fromEntries(headers.map((h,i)=>[h,vals[i]??'']));
+  });
+}
+
+function badgeStatus(val:string):string {
+  if(val==='Asli') return '<span class="badge badge-success" style="font-size:11px;">✅ Asli</span>';
+  if(val==='Perbaikan') return '<span class="badge badge-warning" style="font-size:11px;">⚠️ Perbaikan</span>';
+  return val||'–';
+}
+
+async function init() {
+  const text = await fetch('/data/data_observasi.csv').then(r=>r.text());
+  const raw = parseCsv(text);
+  obsData = raw.map(r=>({
+    SID:r['SID']??'', NAME:r['NAME'], ISO_TIME:r['ISO_TIME']??'',
+    LAT:parseFloat(r['LAT']??'0'), LON:parseFloat(r['LON']??'0'),
+    WMO_WIND:parseFloat(r['WMO_WIND']??'0'), WMO_PRES:parseFloat(r['WMO_PRES']??'0'),
+    wind_imputation:r['wind_imputation'], pres_imputation:r['pres_imputation'],
+    'Status Wind':r['Status Wind'], 'Status Pres':r['Status Pres'],
+  }));
+  allSIDs = [...new Set(obsData.map(r=>r.SID))].sort();
+
+  const sel = document.getElementById('sid-select') as HTMLSelectElement;
+  sel.innerHTML = allSIDs.map(s=>`<option value="${s}">${s}</option>`).join('');
+  sel.addEventListener('change', ()=>renderSID(sel.value));
+
+  const search = document.getElementById('sid-search') as HTMLInputElement;
+  const sugg = document.getElementById('search-suggestions')!;
+  search.addEventListener('input', () => {
+    const term = search.value.toUpperCase();
+    if(!term){sugg.style.display='none';return;}
+    const matches = allSIDs.filter(s=>s.includes(term)).slice(0,15);
+    if(!matches.length){sugg.style.display='none';return;}
+    sugg.innerHTML = matches.map(s=>`<div style="padding:8px 12px;cursor:pointer;font-size:0.85rem;font-weight:600;" onmousedown="selectSID('${s}')">${s}</div>`).join('');
+    sugg.style.display='block';
+  });
+  search.addEventListener('blur',()=>setTimeout(()=>{sugg.style.display='none';},200));
+
+  renderSID(allSIDs[0]);
+}
+
+(window as any).selectSID = function(sid:string) {
+  const sel = document.getElementById('sid-select') as HTMLSelectElement;
+  sel.value = sid;
+  (document.getElementById('sid-search') as HTMLInputElement).value = sid;
+  document.getElementById('search-suggestions')!.style.display='none';
+  renderSID(sid);
+};
+
+function renderSID(sid:string) {
+  currentSID = sid;
+  const rows = obsData.filter(r=>r.SID===sid).sort((a,b)=>a.ISO_TIME.localeCompare(b.ISO_TIME));
+  if(!rows.length) return;
+
+  const first=rows[0], last=rows[rows.length-1];
+  const durH = Math.round((new Date(last.ISO_TIME).getTime()-new Date(first.ISO_TIME).getTime())/3_600_000);
+  document.getElementById('cyclone-info')!.style.display='block';
+  document.getElementById('info-left')!.innerHTML=`🆔 <b>ID Siklon</b>: <code>${sid}</code><br>⏱️ <b>Interval</b>: <code>3 Jam</code>`;
+  document.getElementById('info-right')!.innerHTML=
+    `📅 <b>Periode</b>: <code>${new Date(first.ISO_TIME).toLocaleDateString('id-ID')} – ${new Date(last.ISO_TIME).toLocaleDateString('id-ID')}</code><br>`+
+    `⏳ <b>Durasi</b>: <code>${durH} jam</code><br>📌 <b>Jumlah titik</b>: <code>${rows.length}</code>`;
+
+  const tHead=`<tr><th>Waktu</th><th>LAT (°)</th><th>LON (°)</th><th>Wind (knot)</th><th>Imputasi Angin</th><th>Pressure (hPa)</th><th>Imputasi Tekanan</th><th>Status Angin</th><th>Status Tekanan</th></tr>`;
+  const tBody = rows.map(r=>`<tr>
+    <td>${new Date(r.ISO_TIME).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+    <td>${r.LAT.toFixed(4)}°</td><td>${r.LON.toFixed(4)}°</td>
+    <td>${r.WMO_WIND.toFixed(2)}</td>
+    <td>${r.wind_imputation||'–'}</td>
+    <td>${r.WMO_PRES.toFixed(1)}</td>
+    <td>${r.pres_imputation||'–'}</td>
+    <td>${badgeStatus(r['Status Wind']||'')}</td>
+    <td>${badgeStatus(r['Status Pres']||'')}</td>
+  </tr>`).join('');
+  document.getElementById('table-wrapper')!.innerHTML=`<table class="custom-table"><thead>${tHead}</thead><tbody>${tBody}</tbody></table>`;
+}
+
+init().catch(console.error);
+</script>

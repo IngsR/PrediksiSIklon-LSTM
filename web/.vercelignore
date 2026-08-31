@@ -1,0 +1,11 @@
+# Vercel Deployment Ignore — keep repo size small
+node_modules
+.vercel
+.astro
+dist
+*.log
+*.pkl
+*.h5
+# Large CSVs excluded from git tracking (use Vercel's data serving)
+# data_observasi.csv and predictions files should be added via git-lfs or
+# included only in /public/data/ explicitly

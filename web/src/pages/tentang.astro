@@ -1,0 +1,303 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Tentang Model">
+  <div class="fade-in">
+    <div class="page-section-header" style="margin-bottom:20px;">
+      <h2 class="section-title" style="font-size:1.2rem;">ℹ️ TENTANG PENELITIAN & EVALUASI MODEL</h2>
+    </div>
+
+    <!-- Introduction Narrative Box -->
+    <div class="narrative-box" style="margin-bottom: 24px;">
+      <h4>👋 Pengantar Penelitian & Sistem Prediksi</h4>
+      <p style="margin-bottom: 12px;">
+        Selamat datang di halaman <strong>Tentang</strong>. Purwarupa aplikasi ini merupakan implementasi hasil penelitian mengenai
+        <strong>prediksi lintasan siklon tropis menggunakan arsitektur <em>Deep Learning Long Short-Term Memory</em> (LSTM)</strong>.
+        Aplikasi ini menyediakan visualisasi hasil prediksi, data observasi, serta evaluasi kinerja model untuk mendukung analisis
+        terhadap performa prediksi lintasan siklon tropis di <strong>Samudra Hindia</strong>.
+      </p>
+      <p style="margin: 0;">
+        Siklon tropis memiliki karakteristik pergerakan temporal dan spasial yang sangat dinamis. Untuk menangkap karakteristik pergerakannya secara akurat, penelitian ini memanfaatkan
+        data historis lintasan siklon dari dataset internasional <strong>IBTrACS (1980–2025)</strong>. Model dilatih menggunakan variasi parameter untuk
+        menemukan konfigurasi terbaik dalam memprediksi koordinat lintasan (Latitude dan Longitude) pada langkah waktu berikutnya.
+      </p>
+    </div>
+
+    <!-- Haversine Bar Chart Comparison -->
+    <div class="page-panel" style="margin-bottom: 20px;">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 6px;">📊 Perbandingan Kinerja Haversine Seluruh Model</div>
+      <p style="font-size: 0.83rem; color: #6B7280; margin: 0 0 14px;">Mean Haversine Distance (km) — Semakin rendah menunjukkan akurasi spasial yang lebih baik pada data uji.</p>
+      <div class="chart-container" style="height: 280px;">
+        <canvas id="chart-haversine-comp"></canvas>
+      </div>
+    </div>
+
+    <!-- Table Ranking Haversine -->
+    <div class="page-panel" style="margin-bottom: 20px;">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">🏅 Ranking Seluruh Model – Berdasarkan Mean Haversine Distance</div>
+      <div class="custom-table-wrapper" id="table-hav-wrapper">
+        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data ranking...</div>
+      </div>
+    </div>
+
+    <!-- Table R2 Score -->
+    <div class="page-panel" style="margin-bottom: 20px;">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">📈 Kinerja Model Berdasarkan R² Score</div>
+      <div class="custom-table-wrapper" id="table-r2-wrapper">
+        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data R² score...</div>
+      </div>
+    </div>
+
+    <!-- Overfitting & Inference Efficiency -->
+    <div class="page-panel" style="margin-bottom: 20px;">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 14px;">⚖️ Analisis Overfitting & Efisiensi Komputasi</div>
+      
+      <div style="font-weight: 700; font-size: 0.88rem; color: #374151; margin-bottom: 8px;">🔍 Ringkasan Evaluasi Overfitting (Gap Train vs Val Loss)</div>
+      <div class="custom-table-wrapper" id="table-overfit-wrapper" style="margin-bottom: 20px;">
+        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat evaluasi overfitting...</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="font-weight: 700; font-size: 0.88rem; color: #374151; margin-bottom: 6px;">⏱️ Kecepatan Inferensi Model (Detik)</div>
+      <p style="font-size: 0.83rem; color: #6B7280; margin: 0 0 14px;">Waktu inferensi (detik) diukur berdasarkan pemrosesan seluruh data pengujian untuk masing-masing konfigurasi model.</p>
+      <div class="chart-container" style="height: 280px;">
+        <canvas id="chart-inference-time"></canvas>
+      </div>
+    </div>
+
+    <!-- Detail Training Summary -->
+    <div class="page-panel" style="margin-bottom: 20px;">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">⏱️ Detail Statistik Pelatihan Model</div>
+      <div class="custom-table-wrapper" id="table-train-wrapper">
+        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data training summary...</div>
+      </div>
+    </div>
+
+    <!-- Model GAB-8 Selection Info -->
+    <div class="info-card" style="margin-bottom: 24px; background: #EFF6FF; border-left: 4px solid #1E3A8A;">
+      <h4 style="color: #1E3A8A; margin-top: 0; margin-bottom: 8px;">📌 Pemilihan Model Operasional</h4>
+      <p style="margin: 0; line-height: 1.6; font-size: 0.9rem;">
+        Berdasarkan seluruh metrik evaluasi di atas, model <strong>GAB Window 8</strong> dipilih sebagai model operasional terbaik. Model ini mencakup dinamika iklim dari kedua belahan samudra (North Indian + South Indian) dengan kestabilan overfitting yang sangat baik (Gap 7.07%) dan akurasi spasial yang tangguh (Mean Haversine 14.923 km).
+      </p>
+    </div>
+
+    <!-- Trajectory Best Model Visualization Images -->
+    <div class="page-panel">
+      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 16px;">🗺️ Visualisasi Trajectory Model Terbaik (GAB Window 8)</div>
+      
+      <div class="grid-2" style="gap: 16px; margin-bottom: 16px;">
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model1.png" alt="Trajectory Contoh 1" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 1 (Excellent Accuracy)</p>
+        </div>
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model2.png" alt="Trajectory Contoh 2" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 2 (High Precision)</p>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap: 16px;">
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model3.png" alt="Trajectory Contoh 3" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 3 (Good Fit)</p>
+        </div>
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model4.png" alt="Trajectory Contoh 4" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 4 (Consistent)</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<script>
+function parseCsv(text: string) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  return lines.slice(1).map(line => {
+    const vals: string[] = [];
+    let inQ = false, cur = '';
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    vals.push(cur.trim());
+    return Object.fromEntries(headers.map((h, i) => [h, vals[i] ?? '']));
+  });
+}
+
+async function loadChartJS(): Promise<any> {
+  if ((window as any).Chart) return (window as any).Chart;
+  await new Promise<void>(resolve => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';
+    s.onload = () => resolve();
+    document.head.appendChild(s);
+  });
+  return (window as any).Chart;
+}
+
+async function init() {
+  const Chart = await loadChartJS();
+
+  // 1. Load Haversine Ranking
+  try {
+    const havText = await fetch('/data/model_ranking_arversine.csv').then(r => r.text());
+    const havData = parseCsv(havText);
+
+    // Render Table Ranking
+    const havHeader = `<tr>
+      <th>Model</th><th>MAE LAT</th><th>MAE LON</th><th>RMSE LAT</th><th>RMSE LON</th>
+      <th>Mean Haversine (km)</th><th>Min Haversine (km)</th><th>Max Haversine (km)</th>
+    </tr>`;
+    const havRows = havData.map(r => `<tr>
+      <td><strong>${r.Scenario}-${r.Window}</strong></td>
+      <td>${parseFloat(r['MAE LAT'] || '0').toFixed(4)}</td>
+      <td>${parseFloat(r['MAE LON'] || '0').toFixed(4)}</td>
+      <td>${parseFloat(r['RMSE LAT'] || '0').toFixed(4)}</td>
+      <td>${parseFloat(r['RMSE LON'] || '0').toFixed(4)}</td>
+      <td><strong>${parseFloat(r['Mean Haversine (km)'] || '0').toFixed(3)}</strong></td>
+      <td>${parseFloat(r['Min Haversine (km)'] || '0').toFixed(3)}</td>
+      <td>${parseFloat(r['Max Haversine (km)'] || '0').toFixed(3)}</td>
+    </tr>`).join('');
+    document.getElementById('table-hav-wrapper')!.innerHTML = `<table class="custom-table"><thead>${havHeader}</thead><tbody>${havRows}</tbody></table>`;
+
+    // Sort for bar chart (GAB, NI, SI ordered, Window ordered)
+    const scenarioOrder = ['GAB', 'NI', 'SI'];
+    const sortedHav = [...havData].sort((a, b) => {
+      const sComp = scenarioOrder.indexOf(a.Scenario) - scenarioOrder.indexOf(b.Scenario);
+      if (sComp !== 0) return sComp;
+      return parseInt(a.Window) - parseInt(b.Window);
+    });
+
+    const labels = sortedHav.map(r => `${r.Scenario}-${r.Window}`);
+    const values = sortedHav.map(r => parseFloat(r['Mean Haversine (km)'] || '0'));
+
+    new Chart(document.getElementById('chart-haversine-comp'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Mean Haversine (km)',
+          data: values,
+          backgroundColor: '#1E3A8A',
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#F3F4F6' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  // 2. Load R2 Score
+  try {
+    const r2Text = await fetch('/data/model_ranking.csv').then(r => r.text());
+    const r2Data = parseCsv(r2Text);
+    const r2Header = `<tr><th>Scenario</th><th>Window</th><th>R² Latitude</th><th>R² Longitude</th><th>R² Mean</th></tr>`;
+    const r2Rows = r2Data.map(r => `<tr>
+      <td>${r.Scenario}</td>
+      <td>${r.Window}</td>
+      <td>${parseFloat(r['R² Latitude'] || '0').toFixed(6)}</td>
+      <td>${parseFloat(r['R² Longitude'] || '0').toFixed(6)}</td>
+      <td><strong>${parseFloat(r['R² Mean'] || '0').toFixed(6)}</strong></td>
+    </tr>`).join('');
+    document.getElementById('table-r2-wrapper')!.innerHTML = `<table class="custom-table"><thead>${r2Header}</thead><tbody>${r2Rows}</tbody></table>`;
+  } catch (e) {
+    console.error(e);
+  }
+
+  // 3. Load Overfitting Summary
+  try {
+    const overText = await fetch('/data/overfitting_summary.csv').then(r => r.text());
+    const overData = parseCsv(overText);
+    const overHeader = `<tr><th>Scenario</th><th>Window</th><th>Train Loss</th><th>Validation Loss</th><th>Gap</th><th>Gap (%)</th></tr>`;
+    const overRows = overData.map(r => `<tr>
+      <td>${r.Scenario}</td>
+      <td>${r.Window}</td>
+      <td>${parseFloat(r['Train Loss'] || '0').toFixed(5)}</td>
+      <td>${parseFloat(r['Validation Loss'] || '0').toFixed(5)}</td>
+      <td>${parseFloat(r['Gap'] || '0').toFixed(5)}</td>
+      <td><span class="badge" style="background:#EFF6FF; color:#1E3A8A; border:1px solid #BFDBFE;">${parseFloat(r['Gap (%)'] || '0').toFixed(2)}%</span></td>
+    </tr>`).join('');
+    document.getElementById('table-overfit-wrapper')!.innerHTML = `<table class="custom-table"><thead>${overHeader}</thead><tbody>${overRows}</tbody></table>`;
+  } catch (e) {
+    console.error(e);
+  }
+
+  // 4. Load Prediction Summary (Inference Speed)
+  try {
+    const infText = await fetch('/data/prediction_summary.csv').then(r => r.text());
+    const infData = parseCsv(infText);
+    const scenarioOrder = ['GAB', 'NI', 'SI'];
+    const sortedInf = [...infData].sort((a, b) => {
+      const sComp = scenarioOrder.indexOf(a.Scenario) - scenarioOrder.indexOf(b.Scenario);
+      if (sComp !== 0) return sComp;
+      return parseInt(a.Window) - parseInt(b.Window);
+    });
+
+    const infLabels = sortedInf.map(r => `${r.Scenario}-${r.Window}`);
+    const infValues = sortedInf.map(r => parseFloat(r['Prediction Time (Second)'] || '0'));
+
+    new Chart(document.getElementById('chart-inference-time'), {
+      type: 'bar',
+      data: {
+        labels: infLabels,
+        datasets: [{
+          label: 'Prediction Time (Second)',
+          data: infValues,
+          backgroundColor: '#059669',
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#F3F4F6' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  // 5. Load Training Summary
+  try {
+    const trainText = await fetch('/data/training_summary.csv').then(r => r.text());
+    const trainData = parseCsv(trainText);
+    const trainHeader = `<tr>
+      <th>Scenario</th><th>Window</th><th>Train Samples</th><th>Validation Samples</th>
+      <th>Epoch</th><th>Best Train Loss</th><th>Best Validation Loss</th><th>Waktu Training (s)</th>
+    </tr>`;
+    const trainRows = trainData.map(r => `<tr>
+      <td>${r.Scenario}</td>
+      <td>${r.Window}</td>
+      <td>${parseInt(r['Train Samples'] || '0').toLocaleString('id-ID')}</td>
+      <td>${parseInt(r['Validation Samples'] || '0').toLocaleString('id-ID')}</td>
+      <td>${r.Epoch}</td>
+      <td>${parseFloat(r['Best Train Loss'] || '0').toFixed(5)}</td>
+      <td>${parseFloat(r['Best Validation Loss'] || '0').toFixed(5)}</td>
+      <td>${parseFloat(r['Training Time (Second)'] || '0').toFixed(1)}s</td>
+    </tr>`).join('');
+    document.getElementById('table-train-wrapper')!.innerHTML = `<table class="custom-table"><thead>${trainHeader}</thead><tbody>${trainRows}</tbody></table>`;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+init().catch(console.error);
+</script>

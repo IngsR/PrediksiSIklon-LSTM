@@ -1,0 +1,141 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Beranda">
+  <div class="fade-in">
+    <!-- Hero Card -->
+    <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); padding: 36px; border-radius: 16px; border-left: 6px solid #1E3A8A; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08); margin-bottom: 28px;">
+      <h2 style="color: #1E3A8A; font-weight: 900; margin: 0 0 12px; font-size: 1.7rem;">Selamat Datang di Sistem Prediksi Siklon Tropis</h2>
+      <p style="color: #374151; font-size: 1.05rem; line-height: 1.75; margin: 0;">
+        Aplikasi ini dirancang untuk memprediksi lintasan siklon tropis menggunakan model Long Short-Term Memory (LSTM). Sistem ini memfokuskan mitigasi risiko bencana khususnya di wilayah Sumatera Barat.
+      </p>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="home-grid">
+      <!-- Left: Feature List -->
+      <div>
+        <h3 style="font-size: 1rem; font-weight: 800; color: #1E3A8A; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.04em;">Silakan gunakan menu navigasi untuk mengakses fitur berikut:</h3>
+        <div class="feature-list">
+          <a href="/prediksi" class="feature-card">
+            <div class="feature-card-inner">
+              <span class="feature-icon">🔮</span>
+              <div>
+                <p class="feature-title">Prediksi Siklon</p>
+                <p class="feature-desc">Editor interaktif untuk melakukan input data observasi dan memprediksi lintasan siklon di masa depan menggunakan model LSTM.</p>
+              </div>
+            </div>
+          </a>
+          <a href="/dashboard" class="feature-card">
+            <div class="feature-card-inner">
+              <span class="feature-icon">🗺️</span>
+              <div>
+                <p class="feature-title">Dashboard</p>
+                <p class="feature-desc">Visualisasi interaktif prediksi lintasan siklon di atas peta beserta metrik akurasinya (RMSE & MAE).</p>
+              </div>
+            </div>
+          </a>
+          <a href="/data-siklon" class="feature-card">
+            <div class="feature-card-inner">
+              <span class="feature-icon">📊</span>
+              <div>
+                <p class="feature-title">Data Siklon</p>
+                <p class="feature-desc">Rincian data observasi mentah dari IBTrACS yang digunakan sebagai input model.</p>
+              </div>
+            </div>
+          </a>
+          <a href="/evaluasi" class="feature-card">
+            <div class="feature-card-inner">
+              <span class="feature-icon">📈</span>
+              <div>
+                <p class="feature-title">Evaluasi</p>
+                <p class="feature-desc">Perbandingan detail koordinat aktual vs prediksi beserta grafik deviasi jarak pergerakan.</p>
+              </div>
+            </div>
+          </a>
+          <a href="/tentang" class="feature-card">
+            <div class="feature-card-inner">
+              <span class="feature-icon">ℹ️</span>
+              <div>
+                <p class="feature-title">Tentang</p>
+                <p class="feature-desc">Informasi lebih lanjut mengenai hasil penelitian, peringkat model eksperimen, dan evaluasi overfitting.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Banner Image -->
+      <div class="banner-wrap">
+        <img src="/assets/banner_beranda.png" alt="Visualisasi Siklon Tropis" class="banner-img"
+          onerror="this.style.display='none'; document.getElementById('banner-placeholder').style.display='flex';" />
+        <div id="banner-placeholder" class="banner-placeholder" style="display:none;">
+          <div style="text-align:center;">
+            <div style="font-size:80px; margin-bottom:16px;">🌪️</div>
+            <h3 style="color:white; margin:0; font-weight:800;">SIKLON TROPIS</h3>
+            <p style="color:#DBEAFE; margin-top:8px; font-size:0.85rem;">Sistem Prediksi LSTM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .home-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .feature-list { display: flex; flex-direction: column; gap: 12px; }
+  .feature-card {
+    background: #F8FAFC;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    display: block;
+  }
+  .feature-card:hover {
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(30,58,138,0.08);
+  }
+  .feature-card-inner { display: flex; align-items: flex-start; gap: 12px; }
+  .feature-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+  .feature-title { font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0 0 3px; }
+  .feature-desc { font-size: 0.83rem; color: #475569; margin: 0; line-height: 1.5; }
+
+  .banner-wrap {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(30,58,138,0.2);
+    min-height: 350px;
+  }
+  .banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    min-height: 350px;
+  }
+  .banner-placeholder {
+    background: linear-gradient(135deg, #1E3A8A 0%, #11224D 100%);
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+  }
+
+  @media (max-width: 900px) {
+    .home-grid { grid-template-columns: 1fr; }
+    .banner-wrap { min-height: 250px; }
+    .banner-img { min-height: 250px; }
+    .banner-placeholder { min-height: 250px; }
+  }
+</style>
