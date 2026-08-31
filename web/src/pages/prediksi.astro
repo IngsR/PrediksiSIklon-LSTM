@@ -173,8 +173,14 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           
-          <div id="pred-map" class="map-container" style="height:clamp(320px, 48vh, 520px);"></div>
+          <div id="pred-map" class="map-container" style="height:clamp(340px, 50vh, 540px);"></div>
           
+          <!-- Map Real-time Coordinate HUD Bar -->
+          <div id="map-coord-hud" class="map-coord-hud">
+            <span class="hud-dot"></span>
+            <span id="map-hud-text">📍 Arahkan kursor atau klik di peta untuk inspeksi koordinat</span>
+          </div>
+
           <!-- Interactive Map Toast Notification -->
           <div id="map-toast" class="map-toast" style="display:none;"></div>
         </div>
@@ -213,23 +219,27 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <!-- Prediction Step Results -->
-        <div id="results-panel" class="page-panel" style="display:none; margin-top:14px;">
+        <div id="results-panel" class="page-panel" style="display:none; margin-top:16px;">
           <div class="page-section-header">
-            <h2 class="section-title">📍 Rincian Koordinat Proyeksi Per Langkah (Horizon 3–9 Jam)</h2>
-            <p class="section-subtitle">Hasil inferensi rekursif model LSTM beserta kerucut ketidakpastian spasial.</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <h2 class="section-title">📍 Rincian Koordinat Proyeksi Per Langkah (Horizon 3–9 Jam)</h2>
+              <span class="badge badge-success" id="pred-badge-summary">3 Langkah Rekursif</span>
+            </div>
+            <p class="section-subtitle">Hasil inferensi rekursif model LSTM beserta kerucut ketidakpastian spasial (<em>Spatial Uncertainty Cone</em>).</p>
           </div>
-          <div id="results-content"></div>
           
-          <div class="page-notice" style="background:#FEF2F2; border-color:#FCA5A5; color:#991B1B; margin-top:12px;">
-            <strong>⚠️ Catatan Ilmiah:</strong> Prediksi ini bersifat <em>data-driven</em>. Peningkatan horizon waktu (6–9 jam) secara inheren meningkatkan akumulasi ketidakpastian (kerucut merah transparan membesar). Rekomendasikan verifikasi silang dengan buletin BMKG.
+          <div id="results-content" class="results-cards-container"></div>
+          
+          <div class="page-notice" style="background:#FEF2F2; border-color:#FCA5A5; color:#991B1B; margin-top:16px;">
+            <strong>⚠️ Catatan Ilmiah:</strong> Prediksi ini bersifat <em>data-driven</em>. Peningkatan horizon waktu (6–9 jam) secara inheren meningkatkan akumulasi ketidakpastian (kerucut ketidakpastian membesar). Rekomendasikan verifikasi silang dengan buletin BMKG.
           </div>
         </div>
 
         <!-- Spinner -->
-        <div id="pred-spinner" style="display:none; text-align:center; padding:24px;">
-          <div class="spinner" style="width:34px;height:34px;margin:0 auto 10px;"></div>
+        <div id="pred-spinner" style="display:none; text-align:center; padding:28px 20px;">
+          <div class="spinner" style="width:36px;height:36px;margin:0 auto 12px;"></div>
           <p style="color:#1E3A8A; font-weight:800; margin:0; font-size:0.95rem;">⏳ Menjalankan Inferensi Rekursif Model LSTM (ONNX)...</p>
-          <p style="color:#64748B; font-size:0.8rem; margin:4px 0 0;">Mengekstrak 8 fitur geometri & menghitung kerucut ketidakpastian spasial</p>
+          <p style="color:#64748B; font-size:0.82rem; margin:6px 0 0;">Mengekstrak 8 fitur geometri & menghitung kerucut ketidakpastian spasial</p>
         </div>
       </div>
 
@@ -357,10 +367,49 @@ function getCategory(wind:number):string {
   return 'Depresi Tropis (Tropical Depression)';
 }
 
-function getReliability(step:number) {
-  if(step===1) return {text:'Tinggi (92%)',color:'#059669',km:'±20 km uncertainty cone'};
-  if(step===2) return {text:'Sedang (78%)',color:'#D97706',km:'±45 km uncertainty cone'};
-  return {text:'Rendah (61%)',color:'#DC2626',km:'±75 km uncertainty cone'};
+function getReliability(step: number) {
+  if (step === 1) return {
+    text: 'Akurasi Tinggi (~92%)',
+    level: 'Tinggi',
+    color: '#059669',
+    badgeBg: '#D1FAE5',
+    badgeBorder: '#059669',
+    cardBorder: '#10B981',
+    km: '±20 km cone',
+    coneDesc: 'Radius Kerucut Spasial ±20 km',
+    icon: '🟢'
+  };
+  if (step === 2) return {
+    text: 'Akurasi Sedang (~78%)',
+    level: 'Sedang',
+    color: '#D97706',
+    badgeBg: '#FEF3C7',
+    badgeBorder: '#D97706',
+    cardBorder: '#F59E0B',
+    km: '±45 km cone',
+    coneDesc: 'Radius Kerucut Spasial ±45 km',
+    icon: '🟡'
+  };
+  return {
+    text: 'Akurasi Multi-Step (~61%)',
+    level: 'Rendah',
+    color: '#DC2626',
+    badgeBg: '#FEE2E2',
+    badgeBorder: '#DC2626',
+    cardBorder: '#EF4444',
+    km: '±75 km cone',
+    coneDesc: 'Radius Kerucut Spasial ±75 km',
+    icon: '🔴'
+  };
+}
+
+function bearingToCompassIndo(deg: number): string {
+  const directions = [
+    'Utara (U)', 'Timur Laut (TL)', 'Timur (T)', 'Tenggara (TG)',
+    'Selatan (S)', 'Barat Daya (BD)', 'Barat (B)', 'Barat Laut (BL)',
+  ];
+  const idx = Math.round(deg / 45) % 8;
+  return directions[idx];
 }
 
 function showMapToast(msg: string) {
@@ -543,6 +592,14 @@ async function ensureMapReady(): Promise<any> {
       if (mapInstance) mapInstance.invalidateSize();
     }, { passive: true });
 
+    // Real-time Coordinate HUD on Mouse Move
+    mapInstance.on('mousemove', (e: any) => {
+      const hud = document.getElementById('map-hud-text');
+      if (hud) {
+        hud.innerHTML = `<strong>Kursor Peta:</strong> ${formatLat(e.latlng.lat)}, ${formatLon(e.latlng.lng)} <span style="opacity:0.75; font-size:11px;">(${e.latlng.lat >= 0 ? '+' : ''}${e.latlng.lat.toFixed(3)}°, ${e.latlng.lng >= 0 ? '+' : ''}${e.latlng.lng.toFixed(3)}°)</span>`;
+      }
+    });
+
     // Interactive Map Click / Mobile Tap Handler
     mapInstance.on('click', (e: any) => {
       const lat = Math.round(e.latlng.lat * 100) / 100;
@@ -565,6 +622,11 @@ async function ensureMapReady(): Promise<any> {
       renderMap();
 
       showMapToast(`📍 Titik ${targetIdx + 1} diperbarui: <strong>${formatLat(lat)}, ${formatLon(lon)}</strong>`);
+
+      const hud = document.getElementById('map-hud-text');
+      if (hud) {
+        hud.innerHTML = `<strong>Titik ${targetIdx + 1} Disetel:</strong> ${formatLat(lat)}, ${formatLon(lon)}`;
+      }
 
       if (targetIdx < WINDOW_SIZE - 1 && observations[targetIdx + 1].LAT === 0) {
         setTimeout(() => {
@@ -594,18 +656,38 @@ async function renderMap() {
 
   clearMapLayers();
 
-  // 1. Draw Coastline Warning Buffers (500 km & 1000 km dari Padang)
+  // 1. Draw Coastline Warning Buffers (500 km & 1000 km dari Padang) with High Contrast
   const padangPt: [number,number] = [-0.95, 100.35];
-  addLayer(L.circle(padangPt, { radius: 500000, color: '#DC2626', weight: 1.2, fillOpacity: 0.05, dashArray: '6, 6' }).bindTooltip('Zona Bahaya Utama (500 km)'));
-  addLayer(L.circle(padangPt, { radius: 1000000, color: '#D97706', weight: 1, fillOpacity: 0.03, dashArray: '4, 4' }).bindTooltip('Zona Siaga (1000 km)'));
+  addLayer(L.circle(padangPt, { 
+    radius: 500000, 
+    color: '#EF4444', 
+    weight: 2, 
+    fillColor: '#EF4444', 
+    fillOpacity: 0.06, 
+    dashArray: '6, 6' 
+  }).bindTooltip('🚨 Zona Bahaya Utama Pesisir (500 km dari Padang)', { className: 'map-contrast-tooltip' }));
 
-  // 2. Draw Sumbar Coastal Landmarks
+  addLayer(L.circle(padangPt, { 
+    radius: 1000000, 
+    color: '#F59E0B', 
+    weight: 1.5, 
+    fillColor: '#F59E0B', 
+    fillOpacity: 0.04, 
+    dashArray: '5, 5' 
+  }).bindTooltip('⚠️ Zona Siaga / Pantauan (1000 km dari Padang)', { className: 'map-contrast-tooltip' }));
+
+  // 2. Draw Sumbar Coastal Landmarks with High-Contrast Solid Badges
   PESISIR_SUMBAR.forEach(p => {
     const icon = L.divIcon({
-      html: `<div style="background:#059669;color:white;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:800;border:1px solid white;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);">📍 ${p.name}</div>`,
-      className: '', iconSize: [90, 20], iconAnchor: [45, 10]
+      html: `<div class="coastal-landmark-badge">📍 ${p.name}</div>`,
+      className: '', 
+      iconSize: [115, 24], 
+      iconAnchor: [57, 12]
     });
-    addLayer(L.marker([p.lat, p.lon], { icon }).bindTooltip(`Pesisir ${p.name}`));
+    addLayer(L.marker([p.lat, p.lon], { icon }).bindTooltip(
+      `<strong>Pesisir ${p.name}</strong><br>Koordinat: ${formatLat(p.lat)}, ${formatLon(p.lon)}`,
+      { className: 'map-contrast-tooltip' }
+    ));
   });
 
   const valid = observations.filter(p => p.LAT !== 0 || p.LON !== 0);
@@ -614,23 +696,57 @@ async function renderMap() {
   if (valid.length > 0) {
     const pts = valid.map(p => [p.LAT, p.LON] as [number,number]);
     
-    // Draw Historical Trajectory (Cyan/Blue Line)
-    addLayer(L.polyline(pts, { color: '#0284C7', weight: 4, opacity: 0.95 }));
+    // Draw Historical Trajectory with Dual-Stroke (Dark Halo + Vibrant Electric Cyan)
+    // Layer 1: Dark Halo Underlay (Guarantees extreme contrast on light OSM and dark Satellite)
+    addLayer(L.polyline(pts, { 
+      color: '#020617', 
+      weight: 7, 
+      opacity: 0.92, 
+      lineCap: 'round', 
+      lineJoin: 'round' 
+    }));
+    // Layer 2: Core Vibrant Line (Bright Electric Cyan)
+    addLayer(L.polyline(pts, { 
+      color: '#00E5FF', 
+      weight: 3.5, 
+      opacity: 1, 
+      lineCap: 'round', 
+      lineJoin: 'round' 
+    }));
     
-    // Draw Distinct Numbered Historical Points 1..8
+    // Draw Distinct Numbered Historical Points 1..8 with High Contrast Nodes
     observations.forEach((p, i) => {
       if (p.LAT === 0 && p.LON === 0) return;
       const isSelected = i === currentSelected;
+      const isStart = i === 0;
+      const isEnd = i === valid.length - 1;
       
       const icon = L.divIcon({
-        html: `<div class="obs-marker-node ${isSelected ? 'obs-node-active' : ''}"><span>${i+1}</span></div>`,
+        html: `<div class="obs-marker-node ${isSelected ? 'obs-node-active' : ''} ${isEnd ? 'obs-node-latest' : ''}"><span>${i+1}</span></div>`,
         className: '',
-        iconSize: [26, 26],
-        iconAnchor: [13, 13]
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
       });
 
-      const m = L.marker([p.LAT, p.LON], { icon })
-        .bindTooltip(`<strong>Titik ${i+1} (Histori Observasi)</strong><br>Koordinat: ${formatLat(p.LAT)}, ${formatLon(p.LON)}<br>Kec. Angin: ${p.WMO_WIND} knot<br>Tekanan: ${p.WMO_PRES} hPa<br><em>(Klik untuk edit)</em>`);
+      const m = L.marker([p.LAT, p.LON], { icon });
+
+      // Permanent high-contrast badge on Start (T1) and Latest (T8) points
+      if (isStart || isEnd) {
+        m.bindTooltip(
+          `<strong>T${i+1}${isEnd ? ' (Terkini)' : ' (Awal)'}:</strong> ${formatLat(p.LAT)}, ${formatLon(p.LON)}`,
+          {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -15],
+            className: `map-contrast-tooltip ${isEnd ? 'map-tooltip-latest' : 'map-tooltip-start'}`
+          }
+        );
+      } else {
+        m.bindTooltip(
+          `<strong>Titik ${i+1} (Histori Observasi)</strong><br>Koordinat: <strong>${formatLat(p.LAT)}, ${formatLon(p.LON)}</strong><br>💨 Kec. Angin: ${p.WMO_WIND} knot<br>⏱️ Tekanan: ${p.WMO_PRES} hPa<br><em>(Klik untuk edit titik ini)</em>`,
+          { className: 'map-contrast-tooltip' }
+        );
+      }
       
       m.on('click', (ev: any) => {
         L.DomEvent.stopPropagation(ev);
@@ -640,39 +756,70 @@ async function renderMap() {
       addLayer(m);
     });
 
-    // 3. Draw Recursive Predictions + Cone of Uncertainty
+    // 3. Draw Recursive Predictions + Spatial Cone of Uncertainty + Permanent High-Contrast Labels
     if (predResults && predResults.length > 0) {
       let prevPt = pts[pts.length - 1];
       const uncertaintyRadii = [20000, 45000, 75000]; // Meter radius per step (3h, 6h, 9h)
+      const stepColors = ['#10B981', '#F59E0B', '#EF4444'];
+      const stepNames = ['+3 Jam', '+6 Jam', '+9 Jam'];
 
       predResults.forEach((r, i) => {
         const pt: [number,number] = [r.pred_lat, r.pred_lon];
-        
-        // Cone of Uncertainty Circle
         const radiusM = uncertaintyRadii[i] || 75000;
+        const sColor = stepColors[i] || '#EF4444';
+        const rel = getReliability(i + 1);
+
+        // Uncertainty Cone Circle with matching step color & crisp outline
         addLayer(L.circle(pt, { 
           radius: radiusM, 
-          color: '#DC2626', 
-          fillColor: '#EF4444', 
-          fillOpacity: 0.22, 
-          weight: 1.5, 
-          dashArray: '4,4' 
-        }).bindTooltip(`Kerucut Ketidakpastian Proyeksi Langkah ${i+1}: ±${radiusM/1000} km`));
+          color: sColor, 
+          fillColor: sColor, 
+          fillOpacity: 0.18, 
+          weight: 2, 
+          dashArray: '5, 5' 
+        }).bindTooltip(`Kerucut Ketidakpastian Spasial Langkah ${i+1} (${stepNames[i]}): ±${radiusM/1000} km`, { className: 'map-contrast-tooltip' }));
 
-        // Animated Trajectory Line (Red Dash)
-        addLayer(L.polyline([prevPt, pt], { color: '#EF4444', weight: 4, dashArray: '8 6', opacity: 1 }));
+        // Dual-Stroke Dashed Prediction Trajectory (Dark Halo + Neon Crimson Dash)
+        // Halo
+        addLayer(L.polyline([prevPt, pt], { 
+          color: '#020617', 
+          weight: 7.5, 
+          opacity: 0.92, 
+          lineCap: 'round', 
+          lineJoin: 'round' 
+        }));
+        // Core Line
+        addLayer(L.polyline([prevPt, pt], { 
+          color: '#FF2D55', 
+          weight: 4, 
+          dashArray: '8 6', 
+          opacity: 1, 
+          lineCap: 'round', 
+          lineJoin: 'round' 
+        }));
 
-        // Pulsing Cyclone Eye Prediction Icon
+        // Pulsing Cyclone Prediction Icon with Step-specific Glowing Marker
         const icon = L.divIcon({
-          html: `<div class="cyclone-marker-pulse"><span>P${i+1}</span></div>`,
-          className: '', iconSize: [30, 30], iconAnchor: [15, 15]
+          html: `<div class="cyclone-marker-pulse cyclone-step-${i+1}"><span>P${i+1}</span></div>`,
+          className: '', 
+          iconSize: [32, 32], 
+          iconAnchor: [16, 16]
         });
 
-        addLayer(L.marker(pt, { icon }).bindTooltip(
-          `<strong>Proyeksi Prediksi LSTM Langkah ${i+1} (+${(i+1)*3} Jam)</strong><br>` +
-          `Waktu Target: ${new Date(r.time).toLocaleString('id-ID')} WIB<br>` +
-          `Koordinat: ${formatLat(r.pred_lat)}, ${formatLon(r.pred_lon)}`
-        ));
+        const predMarker = L.marker(pt, { icon });
+        
+        // Permanent High-Contrast Coordinate Badge for Prediction Points
+        predMarker.bindTooltip(
+          `<strong>P${i+1} (${stepNames[i]}):</strong> ${formatLat(r.pred_lat)}, ${formatLon(r.pred_lon)} <span style="opacity:0.85; font-size:10px;">(${rel.km})</span>`,
+          {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -18],
+            className: `map-contrast-tooltip map-tooltip-p${i+1}`
+          }
+        );
+
+        addLayer(predMarker);
         prevPt = pt;
       });
     }
@@ -687,7 +834,7 @@ async function renderMap() {
     mapInstance.fitBounds([
       [Math.min(...lats) - 0.6, Math.min(...lons) - 0.6],
       [Math.max(...lats) + 0.6, Math.max(...lons) + 0.6]
-    ], { padding: [20, 20] });
+    ], { padding: [24, 24] });
   }
 }
 
@@ -776,7 +923,7 @@ function renderResults() {
   threatCat.textContent = catText.split('(')[0];
   threatWind.textContent = `${lastObs.WMO_WIND} Knot (${(lastObs.WMO_WIND * 1.852).toFixed(0)} km/h)`;
   threatSpeed.textContent = `${speed1} km/h`;
-  threatBearing.textContent = `Arah ${brng1}° (Azimuth)`;
+  threatBearing.textContent = `Arah ${brng1}° (${bearingToCompassIndo(parseFloat(brng1))})`;
 
   if (minDistance < 350) {
     threatTitle.textContent = 'LEVEL SIAGA 1: AWAS & RISIKO KRITIS';
@@ -795,42 +942,97 @@ function renderResults() {
     threatAdv.innerHTML = `<strong>STATUS AMAN RELATIF:</strong> Lintasan siklon berjarak ${minDistance.toFixed(1)} km dari pesisir ${closestCity}. Tetap pantau evolusi trajektori sistem tekanan rendah ini.`;
   }
 
-  // Rincian Step
-  const html = predResults.map((r,i) => {
-    const step = i+1;
+  // Update Summary Badge
+  const summaryBadge = document.getElementById('pred-badge-summary');
+  if (summaryBadge) {
+    summaryBadge.textContent = `${predResults.length} Langkah Proyeksi (+${predResults.length * 3} Jam)`;
+  }
+
+  // Rincian Step Cards with Dynamic Step Color Themes and Generous Spacing
+  const html = predResults.map((r, i) => {
+    const step = i + 1;
     const dist = haversine(prevLat, prevLon, r.pred_lat, r.pred_lon);
-    const speed = (dist/3).toFixed(1);
+    const speed = (dist / 3).toFixed(1);
     const brng = bearing(prevLat, prevLon, r.pred_lat, r.pred_lon).toFixed(1);
     const rel = getReliability(step);
-    prevLat = r.pred_lat; prevLon = r.pred_lon;
-    const ts = new Date(r.time).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    prevLat = r.pred_lat; 
+    prevLon = r.pred_lon;
+    const ts = new Date(r.time).toLocaleString('id-ID', {
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
     
     return `
-      <div class="result-step-card">
+      <div class="result-step-card step-card-${step}">
+        <!-- Header -->
         <div class="result-step-header">
-          <span class="result-step-num">LANGKAH ${step} (+${step*3} Jam)</span>
-          <span class="result-step-time">🕒 Target: ${ts} WIB</span>
-        </div>
-        <div class="grid-3" style="gap:8px;">
-          <div class="res-box">
-            <div class="res-box-lbl">Lintang Proyeksi</div>
-            <div class="res-box-val">${formatLat(r.pred_lat)}</div>
+          <div class="result-step-title-grp">
+            <span class="result-step-badge step-badge-${step}">
+              LANGKAH ${step} (+${step * 3} JAM)
+            </span>
+            <span class="result-step-time">
+              <span class="time-icon">🕒</span> Target: <strong>${ts} WIB</strong>
+            </span>
           </div>
-          <div class="res-box">
-            <div class="res-box-lbl">Bujur Proyeksi</div>
-            <div class="res-box-val">${formatLon(r.pred_lon)}</div>
-          </div>
-          <div class="res-box">
-            <div class="res-box-lbl">Kecepatan Gerak</div>
-            <div class="res-box-val">${speed} km/h</div>
+          <div class="result-step-rel step-rel-${step}">
+            <span class="rel-icon">${rel.icon}</span>
+            <span class="rel-text"><strong>${rel.text}</strong></span>
+            <span class="rel-cone">(${rel.km})</span>
           </div>
         </div>
-        <div class="result-step-meta">
-          <span>🧭 Arah: <strong>${brng}°</strong></span>
-          <span>🎯 Keandalan: <strong style="color:${rel.color};">${rel.text}</strong> (${rel.km})</span>
+
+        <!-- Metrics Grid (Spacious 3-Column Layout) -->
+        <div class="result-metrics-grid">
+          <div class="res-metric-item">
+            <div class="res-metric-lbl">
+              <span class="res-icon">🌐</span> Lintang Proyeksi
+            </div>
+            <div class="res-metric-val">${formatLat(r.pred_lat)}</div>
+            <div class="res-metric-sub">${r.pred_lat.toFixed(4)}° (Desimal)</div>
+          </div>
+
+          <div class="res-metric-item">
+            <div class="res-metric-lbl">
+              <span class="res-icon">🧭</span> Bujur Proyeksi
+            </div>
+            <div class="res-metric-val">${formatLon(r.pred_lon)}</div>
+            <div class="res-metric-sub">${r.pred_lon.toFixed(4)}° (Desimal)</div>
+          </div>
+
+          <div class="res-metric-item">
+            <div class="res-metric-lbl">
+              <span class="res-icon">⚡</span> Kecepatan Gerak
+            </div>
+            <div class="res-metric-val">${speed} <span class="res-unit">km/h</span></div>
+            <div class="res-metric-sub">~${(parseFloat(speed) / 1.852).toFixed(1)} Knot</div>
+          </div>
+        </div>
+
+        <!-- Footer Meta Strip with Clear Badges -->
+        <div class="result-step-footer">
+          <div class="res-footer-pill">
+            <span class="rf-icon">🧭</span>
+            <span class="rf-lbl">Arah:</span>
+            <span class="rf-val"><strong>${brng}°</strong> (${bearingToCompassIndo(parseFloat(brng))})</span>
+          </div>
+          <div class="res-footer-pill">
+            <span class="rf-icon">📏</span>
+            <span class="rf-lbl">Jarak Geser:</span>
+            <span class="rf-val"><strong>${dist.toFixed(1)} km</strong> / 3 jam</span>
+          </div>
+          <div class="res-footer-pill">
+            <span class="rf-icon">🎯</span>
+            <span class="rf-lbl">Kerucut Spasial:</span>
+            <span class="rf-val"><strong style="color:${rel.color};">${rel.coneDesc}</strong></span>
+          </div>
         </div>
       </div>`;
   }).join('');
+  
   document.getElementById('results-content')!.innerHTML = html;
 }
 
@@ -1067,20 +1269,50 @@ if (presetParam && PRESETS[presetParam]) {
     color: #FFFFFF;
   }
 
+  /* Map Real-time Coordinate HUD */
+  .map-coord-hud {
+    position: absolute;
+    top: 50px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #F8FAFC;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    z-index: 450;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    pointer-events: none;
+    max-width: calc(100% - 24px);
+  }
+  .hud-dot {
+    width: 6px;
+    height: 6px;
+    background: #00E5FF;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00E5FF;
+  }
+
   /* Map Toast Notification */
   .map-toast {
     position: absolute;
     bottom: 14px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: rgba(15, 23, 42, 0.92);
+    background: rgba(15, 23, 42, 0.94);
     color: #FFFFFF;
-    padding: 8px 14px;
+    padding: 8px 16px;
     border-radius: 30px;
     font-size: 0.78rem;
     font-weight: 700;
     z-index: 500;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
     border: 1px solid rgba(255,255,255,0.25);
     white-space: nowrap;
     opacity: 0;
@@ -1202,51 +1434,267 @@ if (presetParam && PRESETS[presetParam]) {
     line-height: 1.45;
   }
 
-  /* Result Step Cards */
-  .result-step-card {
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    background: #FAFAFA;
-    max-width: 100%;
+  /* ============================================
+     PREDICTION RESULT STEP CARDS (REFACTORED)
+     ============================================ */
+  .results-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 6px;
   }
+
+  .result-step-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    max-width: 100%;
+    position: relative;
+    background: #FFFFFF;
+  }
+  .result-step-card:hover {
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.09);
+  }
+
+  /* Step 1 Card Theming (Emerald) */
+  .step-card-1 {
+    border: 1.5px solid #A7F3D0;
+    border-left: 6px solid #059669;
+    background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 55%);
+  }
+  .step-badge-1 {
+    background: #059669;
+    color: #FFFFFF;
+  }
+  .step-rel-1 {
+    background: #DCFCE7;
+    border: 1px solid #86EFAC;
+    color: #166534;
+  }
+
+  /* Step 2 Card Theming (Amber) */
+  .step-card-2 {
+    border: 1.5px solid #FDE68A;
+    border-left: 6px solid #D97706;
+    background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 55%);
+  }
+  .step-badge-2 {
+    background: #D97706;
+    color: #FFFFFF;
+  }
+  .step-rel-2 {
+    background: #FEF3C7;
+    border: 1px solid #FCD34D;
+    color: #92400E;
+  }
+
+  /* Step 3 Card Theming (Crimson) */
+  .step-card-3 {
+    border: 1.5px solid #FECACA;
+    border-left: 6px solid #DC2626;
+    background: linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 55%);
+  }
+  .step-badge-3 {
+    background: #DC2626;
+    color: #FFFFFF;
+  }
+  .step-rel-3 {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+  }
+
+  /* Card Header */
   .result-step-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 6px;
-    font-size: 0.78rem;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    margin-bottom: 12px;
   }
-  .result-step-num { font-weight: 900; color: #1E3A8A; }
-  .result-step-time { color: #64748B; font-weight: 600; }
-  .res-box {
-    background: white;
-    border: 1px solid #E2E8F0;
-    border-radius: 6px;
-    padding: 6px 4px;
-    text-align: center;
-    min-width: 0;
-  }
-  .res-box-lbl { font-size: 8.5px; font-weight: 700; color: #64748B; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .res-box-val { font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 900; color: #1E3A8A; word-break: break-word; }
-  .result-step-meta {
-    margin-top: 6px;
-    font-size: 0.75rem;
-    color: #475569;
+  .result-step-title-grp {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
     flex-wrap: wrap;
+  }
+  .result-step-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+  .result-step-time {
+    font-size: 0.82rem;
+    color: #475569;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
     gap: 4px;
+  }
+  .result-step-time strong {
+    color: #0F172A;
+  }
+  .time-icon { font-size: 0.9rem; }
+  .result-step-rel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+  .rel-cone {
+    opacity: 0.85;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  /* Metrics Grid (Spacious Cards) */
+  .result-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .res-metric-item {
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+    text-align: left;
+    min-width: 0;
+    transition: border-color 0.15s;
+  }
+  .res-metric-item:hover {
+    border-color: #CBD5E1;
+  }
+  .res-metric-lbl {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .res-icon { font-size: 0.88rem; flex-shrink: 0; }
+  .res-metric-val {
+    font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+    font-weight: 900;
+    color: #0F172A;
+    line-height: 1.25;
+    margin: 2px 0 3px;
+    word-break: break-word;
+  }
+  .res-unit {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748B;
+  }
+  .res-metric-sub {
+    font-size: 0.72rem;
+    color: #94A3B8;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Card Footer Strip */
+  .result-step-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #E2E8F0;
+  }
+  .res-footer-pill {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.76rem;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    min-width: 140px;
+  }
+  .rf-icon { font-size: 0.85rem; flex-shrink: 0; }
+  .rf-lbl { color: #64748B; font-weight: 600; }
+  .rf-val { color: #0F172A; }
+
+  /* ============================================
+     MAP MARKERS, NODES & HIGH CONTRAST LABELS
+     ============================================ */
+  /* Sumbar Landmark Badge */
+  .coastal-landmark-badge {
+    background: #059669;
+    color: #FFFFFF;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    border: 2px solid #FFFFFF;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.55);
+    text-align: center;
+    letter-spacing: 0.02em;
   }
 
   /* Observation Numbered Marker Nodes */
   .obs-marker-node {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: #0284C7;
-    border: 2px solid #FFFFFF;
+    border: 2.5px solid #FFFFFF;
+    border-radius: 50%;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .obs-marker-node:hover {
+    transform: scale(1.22);
+    box-shadow: 0 5px 14px rgba(2,132,199,0.7);
+  }
+  .obs-node-active {
+    background: #F59E0B !important;
+    border-color: #FFFFFF !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.6), 0 4px 12px rgba(0,0,0,0.6) !important;
+    transform: scale(1.18);
+  }
+  .obs-node-latest {
+    background: #2563EB !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5), 0 3px 10px rgba(0,0,0,0.6) !important;
+  }
+
+  /* Cyclone Prediction Pulsing Nodes */
+  .cyclone-marker-pulse {
+    width: 32px;
+    height: 32px;
+    border: 2.5px solid #FFFFFF;
     border-radius: 50%;
     color: #FFFFFF;
     font-size: 11px;
@@ -1254,44 +1702,76 @@ if (presetParam && PRESETS[presetParam]) {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   }
-  .obs-marker-node:hover {
-    transform: scale(1.22);
-    box-shadow: 0 4px 12px rgba(2,132,199,0.6);
+  .cyclone-step-1 {
+    background: #059669;
+    animation: cyclone-pulse-green 1.4s infinite;
   }
-  .obs-node-active {
-    background: #F59E0B !important;
-    border-color: #FFFFFF !important;
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.55), 0 3px 10px rgba(0,0,0,0.5) !important;
-    transform: scale(1.18);
+  .cyclone-step-2 {
+    background: #D97706;
+    animation: cyclone-pulse-amber 1.4s infinite;
   }
-
-  /* Cyclone Pulse Animation */
-  .cyclone-marker-pulse {
-    width: 28px;
-    height: 28px;
+  .cyclone-step-3 {
     background: #DC2626;
-    border: 2px solid white;
-    border-radius: 50%;
-    color: white;
-    font-size: 10px;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
-    animation: cyclone-pulse 1.4s infinite;
-  }
-  @keyframes cyclone-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.8); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    animation: cyclone-pulse-red 1.4s infinite;
   }
 
+  @keyframes cyclone-pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
+    70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  @keyframes cyclone-pulse-amber {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8); }
+    70% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  }
+  @keyframes cyclone-pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
+    70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
 
+  /* High-Contrast Leaflet Tooltips across all Map Layers */
+  :global(.leaflet-tooltip.map-contrast-tooltip) {
+    background: rgba(15, 23, 42, 0.94) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 6px 10px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55) !important;
+    white-space: nowrap !important;
+    line-height: 1.4 !important;
+  }
+  :global(.leaflet-tooltip.map-contrast-tooltip::before) {
+    display: none !important;
+  }
+  :global(.leaflet-tooltip.map-tooltip-p1) {
+    border-color: #10B981 !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+  }
+  :global(.leaflet-tooltip.map-tooltip-p2) {
+    border-color: #F59E0B !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+  }
+  :global(.leaflet-tooltip.map-tooltip-p3) {
+    border-color: #EF4444 !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+  }
+  :global(.leaflet-tooltip.map-tooltip-start) {
+    border-color: #00E5FF !important;
+  }
+  :global(.leaflet-tooltip.map-tooltip-latest) {
+    border-color: #60A5FA !important;
+  }
+
+  /* Responsive Adjustments */
   @media (max-width: 900px) {
     .war-room-header { padding: 14px 16px; }
   }
@@ -1304,7 +1784,14 @@ if (presetParam && PRESETS[presetParam]) {
     .tm-val { margin: 0; font-size: 0.95rem; }
     .tm-sub { margin: 0; font-size: 0.7rem; }
     .map-panel-card { border-radius: 10px; }
+    
+    .result-metrics-grid { grid-template-columns: 1fr; gap: 8px; }
+    .res-metric-item { padding: 10px 12px; }
+    .result-step-header { flex-direction: column; align-items: flex-start; }
+    .result-step-footer { flex-direction: column; }
+    .res-footer-pill { width: 100%; min-width: unset; }
   }
 </style>
+
 
 
