@@ -428,7 +428,7 @@ function showMapToast(msg: string) {
 // ── Point selector ────────────────────────────────
 function initPointSelect() {
   const sel = document.getElementById('point-select') as HTMLSelectElement;
-  sel.innerHTML = Array.from({length:WINDOW_SIZE},(_,i)=>`<option value="${i}">Titik ${i+1} (Waktu T+${i*3}j)</option>`).join('');
+  sel.innerHTML = Array.from({length:WINDOW_SIZE},(_,i)=>`<option value="${i}">Titik ${i+1} — Jam ke-${i*3} (Observasi ${i+1}/8)</option>`).join('');
   sel.addEventListener('change', () => {
     loadPoint(parseInt(sel.value));
     renderObsTable();
@@ -722,10 +722,10 @@ async function renderMap() {
       const isEnd = i === valid.length - 1;
       
       const icon = L.divIcon({
-        html: `<div class="obs-marker-node ${isSelected ? 'obs-node-active' : ''} ${isEnd ? 'obs-node-latest' : ''}"><span>${i+1}</span></div>`,
+        html: `<div class="obs-marker-node ${isSelected ? 'obs-node-active' : ''} ${isEnd ? 'obs-node-latest' : ''}"><span class="obs-marker-num">${i+1}</span></div>`,
         className: '',
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
       });
 
       const m = L.marker([p.LAT, p.LON], { icon });
@@ -800,10 +800,10 @@ async function renderMap() {
 
         // Pulsing Cyclone Prediction Icon with Step-specific Glowing Marker
         const icon = L.divIcon({
-          html: `<div class="cyclone-marker-pulse cyclone-step-${i+1}"><span>P${i+1}</span></div>`,
+          html: `<div class="cyclone-marker-pulse cyclone-step-${i+1}"><span class="pred-marker-num">P${i+1}</span></div>`,
           className: '', 
-          iconSize: [32, 32], 
-          iconAnchor: [16, 16]
+          iconSize: [36, 36], 
+          iconAnchor: [18, 18]
         });
 
         const predMarker = L.marker(pt, { icon });
@@ -863,13 +863,35 @@ async function renderMap() {
     if (!res.ok || data.error) throw new Error(data.error||'Gagal menjalankan inferensi');
     predResults = data.predictions;
     renderResults();
-    renderMap();
+    await renderMap();
     document.getElementById('btn-print')!.removeAttribute('disabled');
-    showMapToast('✅ Hasil prediksi LSTM berhasil dihitung!');
+    showMapToast('✅ Prediksi LSTM selesai! Peta diarahkan ke lokasi proyeksi 🎯');
     
+    // ── Fly map to center on prediction results ──────────────────────
+    if (mapInstance && predResults.length > 0) {
+      const predLats = predResults.map((r: any) => r.pred_lat);
+      const predLons = predResults.map((r: any) => r.pred_lon);
+      // Include last observation point for context
+      const lastObs = observations[observations.length - 1];
+      predLats.push(lastObs.LAT);
+      predLons.push(lastObs.LON);
+      const minLat = Math.min(...predLats);
+      const maxLat = Math.max(...predLats);
+      const minLon = Math.min(...predLons);
+      const maxLon = Math.max(...predLons);
+      // Add generous padding so the full prediction tail is visible
+      const pad = 1.2;
+      mapInstance.flyToBounds(
+        [[minLat - pad, minLon - pad], [maxLat + pad, maxLon + pad]],
+        { animate: true, duration: 1.2, easeLinearity: 0.25, padding: [30, 30] }
+      );
+    }
+
     // Smooth scroll down to results if on mobile
     if (window.innerWidth <= 900) {
-      document.getElementById('threat-matrix-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => {
+        document.getElementById('threat-matrix-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 800);
     }
   } catch(e:any) {
     alert(`⚠️ Terjadi kesalahan inferensi: ${e.message}`);
@@ -1660,49 +1682,68 @@ if (presetParam && PRESETS[presetParam]) {
 
   /* Observation Numbered Marker Nodes */
   .obs-marker-node {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     background: #0284C7;
-    border: 2.5px solid #FFFFFF;
+    border: 3px solid #FFFFFF;
     border-radius: 50%;
     color: #FFFFFF;
-    font-size: 12px;
+    font-size: 0;
     font-weight: 900;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
+  .obs-marker-num {
+    font-size: 13px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    letter-spacing: -0.02em;
+  }
   .obs-marker-node:hover {
     transform: scale(1.22);
-    box-shadow: 0 5px 14px rgba(2,132,199,0.7);
+    box-shadow: 0 5px 16px rgba(2,132,199,0.75), 0 0 0 1px rgba(0,0,0,0.3);
   }
   .obs-node-active {
     background: #F59E0B !important;
     border-color: #FFFFFF !important;
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.6), 0 4px 12px rgba(0,0,0,0.6) !important;
-    transform: scale(1.18);
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.65), 0 4px 14px rgba(0,0,0,0.65) !important;
+    transform: scale(1.22);
   }
   .obs-node-latest {
     background: #2563EB !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5), 0 3px 10px rgba(0,0,0,0.6) !important;
+    border-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.55), 0 3px 12px rgba(0,0,0,0.65) !important;
   }
 
   /* Cyclone Prediction Pulsing Nodes */
   .cyclone-marker-pulse {
-    width: 32px;
-    height: 32px;
-    border: 2.5px solid #FFFFFF;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #FFFFFF;
     border-radius: 50%;
     color: #FFFFFF;
-    font-size: 11px;
+    font-size: 0;
     font-weight: 900;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.3);
+  }
+  .pred-marker-num {
+    font-size: 12px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    letter-spacing: -0.02em;
   }
   .cyclone-step-1 {
     background: #059669;
