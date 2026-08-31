@@ -3,16 +3,17 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Data Observasi">
   <div class="fade-in">
-    <div class="page-section-header" style="margin-bottom:20px;">
-      <h2 class="section-title" style="font-size:1.2rem;">📊 DATA OBSERVASI SIKLON</h2>
+    <div class="page-section-header" style="margin-bottom:16px;">
+      <h2 class="section-title">📊 DATA OBSERVASI SIKLON</h2>
+      <p class="section-subtitle">Eksplorasi riwayat observasi siklon tropis Samudra Hindia dari basis data IBTrACS (1980–2025).</p>
     </div>
 
     <!-- Search + Dropdown -->
-    <div class="page-panel" style="margin-bottom:16px;">
-      <div class="form-group">
+    <div class="page-panel" style="margin-bottom:14px;">
+      <div class="form-group" style="position:relative;">
         <label class="form-label" for="sid-search">🔍 Cari ID Siklon</label>
-        <input type="text" id="sid-search" class="form-input" placeholder="Ketik ID Siklon (misal: 1980002...)" />
-        <div id="search-suggestions" style="display:none; border:1px solid #E5E7EB; border-radius:8px; background:white; max-height:200px; overflow-y:auto; margin-top:4px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+        <input type="text" id="sid-search" class="form-input" placeholder="Ketik ID Siklon (misal: 1980002...)" autocomplete="off" />
+        <div id="search-suggestions" style="display:none; position:absolute; left:0; right:0; top:100%; z-index:1000; border:1.5px solid #CBD5E1; border-radius:8px; background:white; max-height:200px; overflow-y:auto; margin-top:4px; box-shadow:0 6px 18px rgba(0,0,0,0.12);"></div>
       </div>
       <div class="form-group" style="margin-bottom:0;">
         <label class="form-label" for="sid-select">Atau pilih dari daftar:</label>
@@ -23,34 +24,34 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Cyclone Info -->
-    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:16px;">
-      <div class="grid-2" style="gap:10px;">
-        <div id="info-left" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
-        <div id="info-right" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:14px;">
+      <div class="grid-2" style="gap:8px;">
+        <div id="info-left" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
+        <div id="info-right" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
       </div>
     </div>
 
     <!-- Data Table -->
     <div class="page-panel">
-      <div style="font-weight:800; font-size:0.9rem; color:#1E3A8A; margin-bottom:12px;">📋 Tabel Data Observasi Lengkap</div>
+      <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📋 Tabel Data Observasi Lengkap</div>
       <div class="custom-table-wrapper" id="table-wrapper">
-        <div style="text-align:center; padding:32px; color:#9CA3AF;">Pilih ID Siklon untuk melihat data observasi.</div>
+        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih ID Siklon untuk melihat data observasi.</div>
       </div>
     </div>
 
     <!-- Source Note -->
-    <div style="background:#F8F9FA; padding:18px 20px; border-radius:10px; border-left:4px solid #1E3A8A; margin-top:16px;">
-      <h5 style="color:#1E3A8A; margin:0 0 8px; font-size:0.9rem;">📋 Sumber Data & Keterangan Kolom</h5>
-      <p style="margin:0 0 8px; font-size:0.85rem; line-height:1.6; color:#374151;">
+    <div class="info-card" style="margin-top:14px;">
+      <h4 style="color:#1E3A8A; margin:0 0 6px; font-size:0.88rem;">📋 Sumber Data & Keterangan Kolom</h4>
+      <p style="margin:0 0 8px; font-size:0.82rem; line-height:1.5; color:#374151;">
         Data observasi siklon dari dataset internasional <strong>IBTrACS</strong>. Setiap baris merepresentasikan posisi dan kondisi atmosfer siklon pada interval 3 jam.
       </p>
-      <ul style="margin:0; font-size:0.83rem; line-height:2; color:#374151; padding-left:18px;">
+      <ul style="margin:0; font-size:0.8rem; line-height:1.8; color:#374151; padding-left:16px;">
         <li><strong>Wind (knot)</strong> – Kecepatan angin maksimum (WMO).</li>
         <li><strong>Pressure (hPa)</strong> – Tekanan udara minimum di pusat siklon (WMO).</li>
-        <li><strong>Metode Imputasi</strong> – Teknik pengisian data hilang: <em>Original, Linear, Forward/Backward,</em> atau <em>Median</em>.</li>
+        <li><strong>Metode Imputasi</strong> – Teknik pengisian data: <em>Original, Linear, Forward/Backward,</em> atau <em>Median</em>.</li>
         <li><strong>Status</strong> –
-          <span class="badge badge-success" style="font-size:11px;">✅ Asli</span> = data asli observasi;&nbsp;
-          <span class="badge badge-warning" style="font-size:11px;">⚠️ Perbaikan</span> = nilai diisi melalui imputasi karena data hilang/kosong.
+          <span class="badge badge-success">✅ Asli</span> = observasi asli;&nbsp;
+          <span class="badge badge-warning">⚠️ Perbaikan</span> = hasil imputasi data hilang.
         </li>
       </ul>
     </div>

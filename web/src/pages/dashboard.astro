@@ -3,29 +3,33 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Dashboard Prediksi">
   <div class="fade-in">
-    <div class="page-section-header" style="margin-bottom:20px;">
-      <h2 class="section-title" style="font-size:1.2rem;">🗺️ DASHBOARD PREDIKSI SIKLON</h2>
+    <div class="page-section-header" style="margin-bottom:16px;">
+      <h2 class="section-title">🗺️ DASHBOARD PREDIKSI SIKLON</h2>
+      <p class="section-subtitle">Visualisasi lintasan aktual vs hasil prediksi model LSTM dengan filter radius dari Sumatera Barat.</p>
     </div>
 
     <!-- Radius Slider -->
-    <div class="page-panel" style="margin-bottom:16px;">
+    <div class="page-panel" style="margin-bottom:14px;">
       <div class="form-group" style="margin:0;">
-        <label class="form-label">🎯 Radius dari Sumatera Barat (km): <span id="radius-val">1500</span> km</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label class="form-label" style="margin:0;">🎯 Radius dari Sumatera Barat:</label>
+          <span style="font-weight:800; color:#1E3A8A; font-size:0.9rem;"><span id="radius-val">1500</span> km</span>
+        </div>
         <input type="range" id="radius-slider" min="500" max="4000" step="250" value="1500"
-          style="width:100%; accent-color:#1E3A8A; height:6px; cursor:pointer;" />
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:#9CA3AF; margin-top:4px;">
+          style="width:100%; accent-color:#1E3A8A; height:8px; cursor:pointer;" />
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#94A3B8; margin-top:4px;">
           <span>500 km</span><span>4000 km</span>
         </div>
       </div>
     </div>
 
     <!-- Filter & Select SID -->
-    <div style="display:grid; grid-template-columns: 120px 1fr; gap:12px; align-items:end; margin-bottom:16px;">
-      <div id="sid-count-badge" class="metric-card" style="padding:10px; text-align:center;">
-        <div class="metric-label" style="font-size:10px;">Siklon</div>
-        <div class="metric-value" style="font-size:24px;" id="sid-count">–</div>
+    <div class="sid-select-container" style="margin-bottom:14px;">
+      <div id="sid-count-badge" class="metric-card" style="padding:8px 10px; text-align:center; min-width:80px;">
+        <div class="metric-label" style="font-size:9.5px; margin-bottom:2px;">Siklon</div>
+        <div class="metric-value" style="font-size:1.4rem;" id="sid-count">–</div>
       </div>
-      <div class="form-group" style="margin:0;">
+      <div class="form-group" style="margin:0; flex:1; min-width:0;">
         <label class="form-label" for="sid-select">🆔 Pilih ID Siklon</label>
         <select id="sid-select" class="form-select">
           <option>Memuat data...</option>
@@ -34,23 +38,24 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Cyclone Info -->
-    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:16px;">
-      <div class="grid-2" style="gap:10px;">
-        <div id="info-left" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
-        <div id="info-right" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:14px;">
+      <div class="grid-2" style="gap:8px;">
+        <div id="info-left" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
+        <div id="info-right" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
       </div>
     </div>
 
     <!-- Map -->
-    <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:16px;">
-      <div style="padding:12px 16px; border-bottom:1px solid #E5E7EB;">
-        <span style="font-weight:700; font-size:0.9rem; color:#1E3A8A;">🗺️ Visualisasi Peta Lintasan</span>
+    <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px;">
+      <div style="padding:10px 14px; border-bottom:1px solid #E5E7EB; background:#FAFAFA; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A;">🗺️ Visualisasi Peta Lintasan</span>
+        <span style="font-size:0.75rem; color:#64748B;">Hitam: Aktual | Biru: Prediksi</span>
       </div>
-      <div id="dashboard-map" class="map-container" style="height:520px;"></div>
+      <div id="dashboard-map" class="map-container" style="height:clamp(320px, 50vh, 480px);"></div>
     </div>
 
     <!-- Metrics -->
-    <div class="grid-2" style="gap:16px; margin-bottom:16px;">
+    <div class="grid-2" style="gap:12px; margin-bottom:14px;">
       <div class="metric-card">
         <div class="metric-label">RMSE (km)</div>
         <div class="metric-value" id="metric-rmse">–</div>
@@ -63,13 +68,27 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Table -->
     <div class="page-panel">
-      <div style="font-weight:800; font-size:0.9rem; color:#1E3A8A; margin-bottom:12px;">📋 Tabel Perbandingan Koordinat</div>
+      <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📋 Tabel Perbandingan Koordinat</div>
       <div class="custom-table-wrapper" id="table-wrapper">
-        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih siklon untuk melihat data.</div>
+        <div style="text-align:center; padding:20px; color:#9CA3AF;">Pilih siklon untuk melihat data.</div>
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+  .sid-select-container {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  @media (max-width: 480px) {
+    .sid-select-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>
 
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -166,10 +185,18 @@ async function init() {
   document.getElementById('sid-select')!.addEventListener('change', (e) => renderSID((e.target as HTMLSelectElement).value));
 
   const L = await loadLeaflet();
-  mapInstance = L.map('dashboard-map', { center: [-10, 90], zoom: 4 });
+  mapInstance = L.map('dashboard-map', { 
+    center: [-10, 90], 
+    zoom: 4,
+    preferCanvas: true // Hardware acceleration for fast mobile runtime
+  });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(mapInstance);
+
+  window.addEventListener('resize', () => {
+    if (mapInstance) mapInstance.invalidateSize();
+  }, { passive: true });
 
   filterAndRender(1500);
 }
@@ -218,12 +245,13 @@ function renderSID(sid: string) {
       L.circleMarker([r.LAT, r.LON], { radius: 4, color: '#111827', fillColor: 'white', fillOpacity: 1, weight: 1.5 }).addTo(mapInstance);
       L.circleMarker([r.LAT_PRED, r.LON_PRED], { radius: 4, color: '#1E3A8A', fillColor: 'white', fillOpacity: 1, weight: 1.5 }).addTo(mapInstance);
     }
-    L.circleMarker(actualPts[0], { radius: 8, color: 'green', fillColor: 'green', fillOpacity: 1 }).bindTooltip('Start').addTo(mapInstance);
-    L.circleMarker(actualPts[actualPts.length-1], { radius: 8, color: '#1E3A8A', fillColor: '#1E3A8A', fillOpacity: 1 }).bindTooltip('End').addTo(mapInstance);
+    L.circleMarker(actualPts[0], { radius: 7, color: 'green', fillColor: 'green', fillOpacity: 1 }).bindTooltip('Start').addTo(mapInstance);
+    L.circleMarker(actualPts[actualPts.length-1], { radius: 7, color: '#1E3A8A', fillColor: '#1E3A8A', fillOpacity: 1 }).bindTooltip('End').addTo(mapInstance);
 
     const allLats = [...actualPts, ...predPts].map(p => p[0]);
     const allLons = [...actualPts, ...predPts].map(p => p[1]);
     mapInstance.fitBounds([[Math.min(...allLats)-1, Math.min(...allLons)-1],[Math.max(...allLats)+1, Math.max(...allLons)+1]]);
+    mapInstance.invalidateSize();
   }
 
   // Table
@@ -232,7 +260,7 @@ function renderSID(sid: string) {
     <td>${new Date(r.ISO_TIME).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
     <td>${r.LAT.toFixed(4)}°</td><td>${r.LON.toFixed(4)}°</td>
     <td>${r.LAT_PRED.toFixed(4)}°</td><td>${r.LON_PRED.toFixed(4)}°</td>
-    <td>${r.ERROR_KM.toFixed(2)}</td>
+    <td><strong>${r.ERROR_KM.toFixed(2)}</strong></td>
   </tr>`).join('');
   document.getElementById('table-wrapper')!.innerHTML = `<table class="custom-table"><thead>${tHead}</thead><tbody>${tBody}</tbody></table>`;
 }

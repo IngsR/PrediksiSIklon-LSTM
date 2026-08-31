@@ -8,22 +8,27 @@ import Layout from '../layouts/Layout.astro';
     <div class="ops-status-bar">
       <div class="ops-left">
         <span class="live-dot"></span>
-        <span class="ops-title">OPERATIONS COMMAND CENTER</span>
-        <span class="ops-badge">WILAYAH SAMUDRA HINDIA & PESISIR SUMBAR</span>
+        <span class="ops-title">COMMAND CENTER</span>
+        <span class="ops-badge">SAMUDRA HINDIA & SUMBAR</span>
       </div>
       <div class="ops-right">
-        <span class="time-item">🕒 <strong id="live-clock-wib">--:--:-- WIB</strong></span>
-        <span class="time-divider">|</span>
-        <span class="time-item">🌐 <strong id="live-clock-utc">--:--:-- UTC</strong></span>
-        <span class="alert-pill">STATUS: MONITORING AKTIF</span>
+        <div class="time-group">
+          <span class="time-item">🕒 <strong id="live-clock-wib">--:--:-- WIB</strong></span>
+          <span class="time-divider">|</span>
+          <span class="time-item">🌐 <strong id="live-clock-utc">--:--:-- UTC</strong></span>
+        </div>
+        <span class="alert-pill">MONITORING AKTIF</span>
       </div>
     </div>
 
     <!-- ===== 2. HERO COMMAND CENTER BANNER ===== -->
     <div class="hero-command-card">
       <div class="hero-command-content">
-        <div class="hero-badge-tag">🌀 Deep Learning Spatial-Temporal Modeling</div>
-        <h1 class="hero-command-title">Sistem Prediksi Siklon Tropis & Pusat Mitigasi Bencana</h1>
+        <div class="hero-badge-tag">
+          <img src="/logo.jpg" alt="Logo" class="hero-badge-logo" width="18" height="18" />
+          <span>Deep Learning Spatial-Temporal Modeling</span>
+        </div>
+        <h1 class="hero-command-title">Sistem Prediksi Siklon Tropis & Mitigasi Bencana</h1>
         <p class="hero-command-desc">
           Platform operasional peramalan lintasan siklon tropis berbasis arsitektur <strong>Long Short-Term Memory (LSTM)</strong> 64 Units. 
           Dirancang untuk mendeteksi pergerakan siklon di Samudra Hindia secara rekursif, memproyeksikan kerucut ketidakpastian (<em>Cone of Uncertainty</em>), dan memperkuat kesiapsiagaan peringatan dini bencana pesisir Sumatera Barat.
@@ -33,35 +38,35 @@ import Layout from '../layouts/Layout.astro';
             <span>🔮 Masuk ke War Room Prediksi</span>
           </a>
           <a href="/dashboard" class="btn btn-hero-secondary">
-            <span>🗺️ Buka Dashboard Spasial</span>
+            <span>🗺️ Dashboard Spasial</span>
           </a>
           <a href="/evaluasi" class="btn btn-hero-outline">
-            <span>📈 Evaluasi Akurasi Model</span>
+            <span>📈 Evaluasi Akurasi</span>
           </a>
         </div>
       </div>
       <div class="hero-command-image">
-        <img src="/assets/banner_beranda.png" alt="Siklon Tropis" class="hero-img" 
+        <img src="/assets/banner_beranda.png" alt="Siklon Tropis" class="hero-img" loading="eager"
           onerror="this.style.display='none'; document.getElementById('hero-img-fallback').style.display='flex';" />
         <div id="hero-img-fallback" class="hero-fallback" style="display:none;">
           <div style="text-align:center;">
-            <div style="font-size:70px; margin-bottom:10px;">🌪️</div>
-            <p style="color:white; font-weight:800; margin:0; font-size:16px;">AI CYCLONE TRACKING</p>
-            <p style="color:#93C5FD; font-size:12px; margin:4px 0 0;">Sumatera Barat Coastline Focus</p>
+            <div style="font-size:54px; margin-bottom:8px;">🌪️</div>
+            <p style="color:white; font-weight:800; margin:0; font-size:15px;">AI CYCLONE TRACKING</p>
+            <p style="color:#93C5FD; font-size:11px; margin:4px 0 0;">Sumatera Barat Coastline Focus</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ===== 3. KEY TELEMETRY & SYSTEM METRICS ===== -->
-    <div class="grid-4" style="margin-bottom: 24px;">
+    <div class="grid-4" style="margin-bottom: 20px;">
       <div class="telemetry-card">
         <div class="telemetry-header">
           <span class="telemetry-icon">🧠</span>
           <span class="telemetry-tag">AI Engine</span>
         </div>
         <div class="telemetry-value">LSTM GAB-8</div>
-        <div class="telemetry-sub">ONNX Serverless Engine • Ukuran <strong>93.6 KB</strong> (&lt;15ms inferensi)</div>
+        <div class="telemetry-sub">ONNX Serverless Engine • Ukuran <strong>93.6 KB</strong> (&lt;15ms)</div>
       </div>
 
       <div class="telemetry-card">
@@ -76,43 +81,41 @@ import Layout from '../layouts/Layout.astro';
       <div class="telemetry-card">
         <div class="telemetry-header">
           <span class="telemetry-icon">⏱️</span>
-          <span class="telemetry-tag">Siklus & Horizon</span>
+          <span class="telemetry-tag">Horizon</span>
         </div>
         <div class="telemetry-value">3 – 9 Jam</div>
-        <div class="telemetry-sub">Inferensi rekursif beresolusi temporal interval 3 jam</div>
+        <div class="telemetry-sub">Inferensi rekursif resolusi temporal interval 3 jam</div>
       </div>
 
       <div class="telemetry-card">
         <div class="telemetry-header">
           <span class="telemetry-icon">🛡️</span>
-          <span class="telemetry-tag">Peringatan Dini</span>
+          <span class="telemetry-tag">Mitigasi</span>
         </div>
-        <div class="telemetry-value">Radius 500 km</div>
-        <div class="telemetry-sub">Kalkulator jarak terdekat ke garis pantai & analisis ancaman</div>
+        <div class="telemetry-value">Radius 500km</div>
+        <div class="telemetry-sub">Kalkulator jarak ke garis pantai & analisis bahaya</div>
       </div>
     </div>
 
     <!-- ===== 4. 1-CLICK QUICK SIMULATION PRESETS ===== -->
-    <div class="page-panel" style="margin-bottom: 24px; border: 1.5px solid #BFDBFE; background: linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-        <div>
-          <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:#1E3A8A; display:flex; align-items:center; gap:8px;">
-            <span>🚀 1-Click Skenario Demo Cepat (Untuk HR & Penguji Teknis)</span>
-          </h3>
-          <p style="margin:4px 0 0; font-size:0.83rem; color:#475569;">
-            Pilih salah satu skenario berikut untuk langsung menjalankan simulasi prediksi tanpa perlu memasukkan 8 titik koordinat manual:
-          </p>
-        </div>
+    <div class="page-panel" style="margin-bottom: 20px; border: 1.5px solid #BFDBFE; background: linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);">
+      <div style="margin-bottom:12px;">
+        <h3 style="margin:0; font-size:1rem; font-weight:800; color:#1E3A8A; display:flex; align-items:center; gap:8px;">
+          <span>🚀 1-Click Skenario Demo Cepat</span>
+        </h3>
+        <p style="margin:4px 0 0; font-size:0.82rem; color:#475569;">
+          Pilih skenario untuk langsung menjalankan simulasi prediksi tanpa memasukkan koordinat manual:
+        </p>
       </div>
 
-      <div class="grid-3" style="gap:12px;">
+      <div class="grid-3" style="gap:10px;">
         <a href="/prediksi?preset=padang_near" class="scenario-btn">
           <div class="scenario-btn-top">
             <span class="scenario-badge badge-danger">⚠️ Risiko Tinggi</span>
-            <span class="scenario-dist">Jarak ~380 km</span>
+            <span class="scenario-dist">~380 km</span>
           </div>
-          <div class="scenario-name">Skenario A: Siklon Mendekati Padang</div>
-          <div class="scenario-desc">Pusat badai bergerak ke arah timur laut mendekati pesisir Kota Padang & Painan dengan kecepatan 18.5 km/h.</div>
+          <div class="scenario-name">Skenario A: Mendekati Padang</div>
+          <div class="scenario-desc">Pusat badai bergerak ke arah timur laut mendekati pesisir Kota Padang & Painan (18.5 km/h).</div>
         </a>
 
         <a href="/prediksi?preset=cempaka" class="scenario-btn">
@@ -120,8 +123,8 @@ import Layout from '../layouts/Layout.astro';
             <span class="scenario-badge badge-warning">🌀 Kasus Nyata</span>
             <span class="scenario-dist">IBTrACS v4</span>
           </div>
-          <div class="scenario-name">Skenario B: Siklon Tropis Cempaka</div>
-          <div class="scenario-desc">Data historis siklon tropis Samudra Hindia Selatan Jawa-Sumatera dengan intensitas angin 45 knot (Badai Tropis).</div>
+          <div class="scenario-name">Skenario B: Siklon Cempaka</div>
+          <div class="scenario-desc">Data historis siklon tropis Samudra Hindia Selatan Jawa-Sumatera (45 knot / Badai Tropis).</div>
         </a>
 
         <a href="/prediksi?preset=extreme" class="scenario-btn">
@@ -130,13 +133,13 @@ import Layout from '../layouts/Layout.astro';
             <span class="scenario-dist">115 Knot</span>
           </div>
           <div class="scenario-name">Skenario C: Super Cyclone (Kat. 4)</div>
-          <div class="scenario-desc">Simulasi pergerakan badai berkekuatan ekstrem (115 knot / 950 hPa) dengan potensi gelombang pasang masif.</div>
+          <div class="scenario-desc">Simulasi pergerakan badai ekstrem (115 knot / 950 hPa) dengan potensi gelombang pasang masif.</div>
         </a>
       </div>
     </div>
 
     <!-- ===== 5. AI PIPELINE ARCHITECTURE (HOW IT WORKS) ===== -->
-    <div class="page-panel" style="margin-bottom: 24px;">
+    <div class="page-panel" style="margin-bottom: 20px;">
       <div class="page-section-header">
         <h2 class="section-title">⚙️ Arsitektur Pipeline Sistem AI & Mitigasi Bencana</h2>
         <p class="section-subtitle">Alur komputasi data spasial-temporal dari observasi mentah hingga rilis dokumen peringatan dini resmi.</p>
@@ -147,7 +150,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">01</div>
           <div class="step-icon">📡</div>
           <div class="step-title">Observasi Spasial</div>
-          <div class="step-desc">Input 8 titik sliding window (Latitude, Longitude, Wind Speed WMO, Central Pressure).</div>
+          <div class="step-desc">Input 8 titik sliding window (Lat, Lon, Wind Speed, Pressure).</div>
         </div>
 
         <div class="pipeline-arrow">➔</div>
@@ -155,8 +158,8 @@ import Layout from '../layouts/Layout.astro';
         <div class="pipeline-step">
           <div class="step-num">02</div>
           <div class="step-icon">📐</div>
-          <div class="step-title">Feature Engineering</div>
-          <div class="step-desc">Ekstraksi 8 parameter: Haversine distance, speed, bearing rate, acceleration, & cyclical month.</div>
+          <div class="step-title">Feature Eng.</div>
+          <div class="step-desc">Ekstraksi 8 parameter: Haversine distance, speed, bearing, cyclical month.</div>
         </div>
 
         <div class="pipeline-arrow">➔</div>
@@ -165,7 +168,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">03</div>
           <div class="step-icon">🧠</div>
           <div class="step-title">Inference LSTM</div>
-          <div class="step-desc">Eksekusi model ONNX Runtime serverless secara rekursif (1 s/d 3 step) dengan latensi ultra-cepat.</div>
+          <div class="step-desc">Eksekusi model ONNX Serverless secara rekursif (1 s/d 3 step).</div>
         </div>
 
         <div class="pipeline-arrow">➔</div>
@@ -174,7 +177,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">04</div>
           <div class="step-icon">🗺️</div>
           <div class="step-title">Cone of Uncertainty</div>
-          <div class="step-desc">Proyeksi kerucut ketidakpastian spasial (±20km s/d ±75km) & deteksi radius bahaya pesisir.</div>
+          <div class="step-desc">Proyeksi kerucut ketidakpastian (±20km s/d ±75km) & radius bahaya.</div>
         </div>
 
         <div class="pipeline-arrow">➔</div>
@@ -183,14 +186,14 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">05</div>
           <div class="step-icon">📄</div>
           <div class="step-title">Laporan Peringatan</div>
-          <div class="step-desc">Pembuatan laporan resmi standar BMKG/BPBD dengan visualisasi peta dan tanda tangan digital.</div>
+          <div class="step-desc">Pembuatan laporan resmi standar BMKG/BPBD dengan visualisasi peta.</div>
         </div>
       </div>
     </div>
 
     <!-- ===== 6. CORE APPLICATION MODULES ===== -->
     <div style="margin-bottom: 20px;">
-      <h3 style="font-size: 1.05rem; font-weight: 800; color: #1E3A8A; margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.04em;">
+      <h3 style="font-size: 1rem; font-weight: 800; color: #1E3A8A; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.04em;">
         🧭 Modul Operasional & Menu Aplikasi
       </h3>
       <div class="feature-matrix">
@@ -200,7 +203,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status status-active">MODUL UTAMA</span>
           </div>
           <div class="matrix-title">War Room Prediksi Siklon</div>
-          <div class="matrix-desc">Editor interaktif 8 titik, visualisasi Leaflet satelit, kerucut ketidakpastian spasial, analisis ancaman pesisir, dan cetak laporan PDF resmi.</div>
+          <div class="matrix-desc">Editor interaktif 8 titik, visualisasi Leaflet satelit, kerucut ketidakpastian spasial, analisis ancaman pesisir, dan cetak PDF resmi.</div>
           <div class="matrix-footer">Buka Simulator ➔</div>
         </a>
 
@@ -210,7 +213,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status">EXPLORER</span>
           </div>
           <div class="matrix-title">Dashboard Prediksi Spasial</div>
-          <div class="matrix-desc">Filter radius dari Sumatera Barat (500–4000 km), visualisasi perbandingan lintasan aktual vs prediksi, dan penghitungan metrik RMSE & MAE per kasus.</div>
+          <div class="matrix-desc">Filter radius dari Sumatera Barat (500–4000 km), visualisasi perbandingan aktual vs prediksi, dan penghitungan metrik RMSE & MAE.</div>
           <div class="matrix-footer">Buka Dashboard ➔</div>
         </a>
 
@@ -220,7 +223,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status">DATASET</span>
           </div>
           <div class="matrix-title">Data Observasi IBTrACS</div>
-          <div class="matrix-desc">Pencarian cerdas rekaman observasi siklon historis (1980–2025), audit status imputasi data (Asli vs Perbaikan), dan parameter fisis siklon.</div>
+          <div class="matrix-desc">Pencarian cerdas rekaman observasi historis (1980–2025), audit status imputasi data (Asli vs Perbaikan), dan parameter fisis siklon.</div>
           <div class="matrix-footer">Eksplorasi Data ➔</div>
         </a>
 
@@ -230,7 +233,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status">METRICS</span>
           </div>
           <div class="matrix-title">Evaluasi Akurasi Spasial</div>
-          <div class="matrix-desc">Analisis statistik deviasi spasial, grafik dekomposisi Latitude vs Longitude, distribusi frekuensi error, dan ekspor dataset CSV.</div>
+          <div class="matrix-desc">Analisis statistik deviasi spasial, grafik dekomposisi Latitude vs Longitude, distribusi frekuensi error, dan ekspor CSV.</div>
           <div class="matrix-footer">Lihat Evaluasi ➔</div>
         </a>
 
@@ -240,7 +243,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status">RESEARCH</span>
           </div>
           <div class="matrix-title">Tentang Model & Riset</div>
-          <div class="matrix-desc">Dokumentasi hasil eksperimen multi-skenario (GAB, NI, SI), grafik komparasi Mean Haversine seluruh model, dan analisis efisiensi komputasi.</div>
+          <div class="matrix-desc">Dokumentasi hasil eksperimen multi-skenario (GAB, NI, SI), grafik komparasi Mean Haversine seluruh model, dan analisis efisiensi.</div>
           <div class="matrix-footer">Baca Riset ➔</div>
         </a>
       </div>
@@ -283,31 +286,33 @@ import Layout from '../layouts/Layout.astro';
     background: #0F172A;
     color: #F8FAFC;
     border-radius: 12px;
-    padding: 10px 18px;
+    padding: 10px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 18px;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
     border-left: 4px solid #10B981;
   }
   .ops-left {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.82rem;
+    gap: 8px;
+    font-size: 0.8rem;
     font-weight: 700;
+    flex-wrap: wrap;
   }
   .live-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     background: #10B981;
     border-radius: 50%;
     display: inline-block;
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
     animation: pulse-green 1.8s infinite;
+    flex-shrink: 0;
   }
   @keyframes pulse-green {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
@@ -316,33 +321,41 @@ import Layout from '../layouts/Layout.astro';
   }
   .ops-title {
     color: #FFFFFF;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    font-weight: 800;
   }
   .ops-badge {
     background: #1E293B;
     color: #94A3B8;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.7rem;
     font-weight: 600;
   }
   .ops-right {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #CBD5E1;
+    flex-wrap: wrap;
+  }
+  .time-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .time-divider { color: #475569; }
   .alert-pill {
     background: rgba(16, 185, 129, 0.15);
     color: #34D399;
     border: 1px solid rgba(16, 185, 129, 0.4);
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.04em;
+    white-space: nowrap;
   }
 
   /* ============================================
@@ -350,15 +363,15 @@ import Layout from '../layouts/Layout.astro';
      ============================================ */
   .hero-command-card {
     background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #172554 100%);
-    border-radius: 18px;
-    padding: 36px 36px;
+    border-radius: 16px;
+    padding: 28px 28px;
     color: white;
     display: grid;
     grid-template-columns: 1.35fr 1fr;
-    gap: 28px;
+    gap: 22px;
     align-items: center;
-    box-shadow: 0 12px 28px -4px rgba(30, 58, 138, 0.35);
-    margin-bottom: 24px;
+    box-shadow: 0 10px 24px -4px rgba(30, 58, 138, 0.3);
+    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
   }
@@ -367,90 +380,102 @@ import Layout from '../layouts/Layout.astro';
     position: absolute;
     top: -50%;
     right: -20%;
-    width: 400px;
-    height: 400px;
+    width: 360px;
+    height: 360px;
     background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
     pointer-events: none;
   }
   .hero-badge-tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     font-weight: 700;
     color: #93C5FD;
-    letter-spacing: 0.04em;
-    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+    margin-bottom: 10px;
+    max-width: 100%;
+  }
+  .hero-badge-logo {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    object-fit: cover;
+    margin-right: 6px;
+    border: 1px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
   }
   .hero-command-title {
-    font-size: 1.8rem;
+    font-size: clamp(1.2rem, 3.5vw, 1.75rem);
     font-weight: 900;
     color: #FFFFFF;
-    margin: 0 0 14px;
+    margin: 0 0 12px;
     line-height: 1.25;
     letter-spacing: -0.01em;
   }
   .hero-command-desc {
     color: #DBEAFE;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    margin: 0 0 22px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 0 0 18px;
   }
   .hero-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
   }
   .btn-hero-glow {
     background: #2563EB !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
   }
   .btn-hero-glow:hover {
     background: #1D4ED8 !important;
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.7);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.65);
   }
   .btn-hero-secondary {
     background: rgba(255,255,255,0.12);
     color: #FFFFFF;
     border: 1.5px solid rgba(255,255,255,0.3);
-    padding: 10px 18px;
-    border-radius: 10px;
+    padding: 8px 14px;
+    border-radius: 8px;
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    min-height: 40px;
   }
   .btn-hero-secondary:hover {
     background: rgba(255,255,255,0.22);
-    transform: translateY(-1px);
   }
   .btn-hero-outline {
     background: transparent;
     color: #93C5FD;
     border: 1.5px solid rgba(147, 197, 253, 0.4);
-    padding: 10px 16px;
-    border-radius: 10px;
+    padding: 8px 14px;
+    border-radius: 8px;
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    min-height: 40px;
   }
   .btn-hero-outline:hover {
     background: rgba(147, 197, 253, 0.15);
     color: white;
   }
   .hero-command-image {
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     height: 100%;
-    min-height: 280px;
+    min-height: 240px;
     display: flex;
     align-items: center;
     background: #0B1329;
@@ -476,41 +501,41 @@ import Layout from '../layouts/Layout.astro';
   .telemetry-card {
     background: #FFFFFF;
     border: 1.5px solid #E2E8F0;
-    border-radius: 14px;
-    padding: 16px 18px;
-    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    border-radius: 12px;
+    padding: 14px 14px;
+    box-shadow: 0 2px 6px rgba(15,23,42,0.03);
     transition: all 0.2s ease;
   }
   .telemetry-card:hover {
     border-color: #93C5FD;
-    box-shadow: 0 6px 18px rgba(30,58,138,0.08);
+    box-shadow: 0 4px 14px rgba(30,58,138,0.07);
     transform: translateY(-2px);
   }
   .telemetry-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
-  .telemetry-icon { font-size: 1.3rem; }
+  .telemetry-icon { font-size: 1.2rem; }
   .telemetry-tag {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 800;
     color: #64748B;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
   }
   .telemetry-value {
-    font-size: 1.45rem;
+    font-size: clamp(1.15rem, 3.2vw, 1.35rem);
     font-weight: 900;
     color: #1E3A8A;
     line-height: 1.15;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
   .telemetry-sub {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: #64748B;
-    line-height: 1.45;
+    line-height: 1.4;
   }
 
   /* ============================================
@@ -519,20 +544,20 @@ import Layout from '../layouts/Layout.astro';
   .scenario-btn {
     background: #FFFFFF;
     border: 1.5px solid #CBD5E1;
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-radius: 10px;
+    padding: 12px 14px;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    transition: all 0.2s ease;
+    gap: 4px;
+    transition: all 0.15s ease;
   }
   .scenario-btn:hover {
     border-color: #2563EB;
     background: #FFFFFF;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
   }
   .scenario-btn-top {
     display: flex;
@@ -540,25 +565,25 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
   }
   .scenario-badge {
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.7rem;
     font-weight: 800;
   }
   .scenario-dist {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: #64748B;
   }
   .scenario-name {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 800;
     color: #0F172A;
   }
   .scenario-desc {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: #475569;
-    line-height: 1.45;
+    line-height: 1.4;
   }
 
   /* ============================================
@@ -568,45 +593,47 @@ import Layout from '../layouts/Layout.astro';
     display: flex;
     align-items: stretch;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     padding-bottom: 6px;
+    scrollbar-width: thin;
   }
   .pipeline-step {
     flex: 1;
-    min-width: 140px;
+    min-width: 130px;
     background: #F8FAFC;
     border: 1.5px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 14px 12px;
+    border-radius: 10px;
+    padding: 12px 10px;
     text-align: center;
     position: relative;
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
   .pipeline-step:hover {
     background: #EFF6FF;
     border-color: #93C5FD;
-    transform: translateY(-2px);
   }
   .step-num {
     position: absolute;
-    top: 8px;
-    left: 10px;
-    font-size: 0.7rem;
+    top: 6px;
+    left: 8px;
+    font-size: 0.68rem;
     font-weight: 900;
     color: #94A3B8;
   }
-  .step-icon { font-size: 1.6rem; margin: 4px 0 6px; }
-  .step-title { font-size: 0.84rem; font-weight: 800; color: #1E3A8A; margin-bottom: 4px; }
-  .step-desc { font-size: 0.73rem; color: #64748B; line-height: 1.4; }
+  .step-icon { font-size: 1.4rem; margin: 2px 0 4px; }
+  .step-title { font-size: 0.82rem; font-weight: 800; color: #1E3A8A; margin-bottom: 3px; }
+  .step-desc { font-size: 0.71rem; color: #64748B; line-height: 1.35; }
   .pipeline-arrow {
     display: flex;
     align-items: center;
     justify-content: center;
     color: #94A3B8;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
     padding: 0 2px;
+    flex-shrink: 0;
   }
 
   /* ============================================
@@ -614,60 +641,60 @@ import Layout from '../layouts/Layout.astro';
      ============================================ */
   .feature-matrix {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
   }
   .matrix-card {
     background: #FFFFFF;
     border: 1.5px solid #E2E8F0;
-    border-radius: 14px;
-    padding: 18px;
+    border-radius: 12px;
+    padding: 16px;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
   }
   .matrix-card:hover {
     border-color: #1E3A8A;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.09);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(30, 58, 138, 0.08);
   }
   .matrix-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  .matrix-icon { font-size: 1.5rem; }
+  .matrix-icon { font-size: 1.4rem; }
   .matrix-status {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 800;
-    padding: 2px 7px;
-    border-radius: 6px;
+    padding: 2px 6px;
+    border-radius: 5px;
     background: #F1F5F9;
     color: #475569;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
   .matrix-status.status-active {
     background: #DBEAFE;
     color: #1E3A8A;
   }
   .matrix-title {
-    font-size: 0.96rem;
+    font-size: 0.92rem;
     font-weight: 800;
     color: #0F172A;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
   .matrix-desc {
-    font-size: 0.81rem;
+    font-size: 0.78rem;
     color: #475569;
-    line-height: 1.5;
+    line-height: 1.45;
     flex-grow: 1;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .matrix-footer {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 800;
     color: #2563EB;
     display: flex;
@@ -675,15 +702,26 @@ import Layout from '../layouts/Layout.astro';
   }
 
   @media (max-width: 900px) {
-    .hero-command-card { grid-template-columns: 1fr; padding: 24px; }
-    .hero-command-image { min-height: 200px; }
+    .hero-command-card { grid-template-columns: 1fr; padding: 20px; gap: 16px; }
+    .hero-command-image { min-height: 180px; height: 180px; }
     .pipeline-grid { flex-wrap: wrap; }
     .pipeline-arrow { display: none; }
-    .pipeline-step { min-width: calc(50% - 10px); }
+    .pipeline-step { min-width: calc(50% - 6px); }
   }
+  
   @media (max-width: 640px) {
-    .ops-status-bar { flex-direction: column; align-items: flex-start; }
-    .hero-command-title { font-size: 1.4rem; }
-    .pipeline-step { min-width: 100%; }
+    .ops-status-bar { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px 12px; }
+    .ops-right { width: 100%; justify-content: space-between; }
+    .hero-command-title { font-size: 1.25rem; }
+    .hero-command-desc { font-size: 0.82rem; margin-bottom: 14px; }
+    .hero-actions { width: 100%; }
+    .hero-actions .btn, .hero-actions .btn-hero-secondary, .hero-actions .btn-hero-outline {
+      width: 100%;
+      justify-content: center;
+    }
+    .pipeline-step { min-width: 100%; text-align: left; padding: 10px 12px; }
+    .step-icon { display: inline-block; vertical-align: middle; margin: 0 6px 0 0; }
+    .step-title { display: inline-block; vertical-align: middle; }
+    .step-num { position: static; display: inline-block; margin-right: 6px; }
   }
 </style>

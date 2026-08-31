@@ -24,87 +24,87 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Haversine Bar Chart Comparison -->
-    <div class="page-panel" style="margin-bottom: 20px;">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 6px;">📊 Perbandingan Kinerja Haversine Seluruh Model</div>
-      <p style="font-size: 0.83rem; color: #6B7280; margin: 0 0 14px;">Mean Haversine Distance (km) — Semakin rendah menunjukkan akurasi spasial yang lebih baik pada data uji.</p>
-      <div class="chart-container" style="height: 280px;">
+    <div class="page-panel" style="margin-bottom: 16px;">
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 4px;">📊 Perbandingan Kinerja Haversine Seluruh Model</div>
+      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 12px;">Mean Haversine Distance (km) — Semakin rendah menunjukkan akurasi spasial lebih baik.</p>
+      <div class="chart-container" style="height: clamp(200px, 30vh, 260px);">
         <canvas id="chart-haversine-comp"></canvas>
       </div>
     </div>
 
     <!-- Table Ranking Haversine -->
-    <div class="page-panel" style="margin-bottom: 20px;">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">🏅 Ranking Seluruh Model – Berdasarkan Mean Haversine Distance</div>
+    <div class="page-panel" style="margin-bottom: 16px;">
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">🏅 Ranking Seluruh Model – Mean Haversine Distance</div>
       <div class="custom-table-wrapper" id="table-hav-wrapper">
-        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data ranking...</div>
+        <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data ranking...</div>
       </div>
     </div>
 
     <!-- Table R2 Score -->
-    <div class="page-panel" style="margin-bottom: 20px;">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">📈 Kinerja Model Berdasarkan R² Score</div>
+    <div class="page-panel" style="margin-bottom: 16px;">
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">📈 Kinerja Model Berdasarkan R² Score</div>
       <div class="custom-table-wrapper" id="table-r2-wrapper">
-        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data R² score...</div>
+        <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data R² score...</div>
       </div>
     </div>
 
     <!-- Overfitting & Inference Efficiency -->
-    <div class="page-panel" style="margin-bottom: 20px;">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 14px;">⚖️ Analisis Overfitting & Efisiensi Komputasi</div>
+    <div class="page-panel" style="margin-bottom: 16px;">
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 12px;">⚖️ Analisis Overfitting & Efisiensi Komputasi</div>
       
-      <div style="font-weight: 700; font-size: 0.88rem; color: #374151; margin-bottom: 8px;">🔍 Ringkasan Evaluasi Overfitting (Gap Train vs Val Loss)</div>
-      <div class="custom-table-wrapper" id="table-overfit-wrapper" style="margin-bottom: 20px;">
-        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat evaluasi overfitting...</div>
+      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 6px;">🔍 Ringkasan Overfitting (Gap Train vs Val Loss)</div>
+      <div class="custom-table-wrapper" id="table-overfit-wrapper" style="margin-bottom: 16px;">
+        <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat evaluasi overfitting...</div>
       </div>
 
       <div class="divider"></div>
 
-      <div style="font-weight: 700; font-size: 0.88rem; color: #374151; margin-bottom: 6px;">⏱️ Kecepatan Inferensi Model (Detik)</div>
-      <p style="font-size: 0.83rem; color: #6B7280; margin: 0 0 14px;">Waktu inferensi (detik) diukur berdasarkan pemrosesan seluruh data pengujian untuk masing-masing konfigurasi model.</p>
-      <div class="chart-container" style="height: 280px;">
+      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 4px;">⏱️ Kecepatan Inferensi Model (Detik)</div>
+      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 10px;">Waktu inferensi diukur pada seluruh data pengujian.</p>
+      <div class="chart-container" style="height: clamp(200px, 30vh, 260px);">
         <canvas id="chart-inference-time"></canvas>
       </div>
     </div>
 
     <!-- Detail Training Summary -->
-    <div class="page-panel" style="margin-bottom: 20px;">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 12px;">⏱️ Detail Statistik Pelatihan Model</div>
+    <div class="page-panel" style="margin-bottom: 16px;">
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">⏱️ Detail Statistik Pelatihan Model</div>
       <div class="custom-table-wrapper" id="table-train-wrapper">
-        <div style="text-align:center; padding: 20px; color: #9CA3AF;">Memuat data training summary...</div>
+        <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data training summary...</div>
       </div>
     </div>
 
     <!-- Model GAB-8 Selection Info -->
-    <div class="info-card" style="margin-bottom: 24px; background: #EFF6FF; border-left: 4px solid #1E3A8A;">
-      <h4 style="color: #1E3A8A; margin-top: 0; margin-bottom: 8px;">📌 Pemilihan Model Operasional</h4>
-      <p style="margin: 0; line-height: 1.6; font-size: 0.9rem;">
-        Berdasarkan seluruh metrik evaluasi di atas, model <strong>GAB Window 8</strong> dipilih sebagai model operasional terbaik. Model ini mencakup dinamika iklim dari kedua belahan samudra (North Indian + South Indian) dengan kestabilan overfitting yang sangat baik (Gap 7.07%) dan akurasi spasial yang tangguh (Mean Haversine 14.923 km).
+    <div class="info-card" style="margin-bottom: 18px; background: #EFF6FF; border-left: 4px solid #1E3A8A;">
+      <h4 style="color: #1E3A8A; margin-top: 0; margin-bottom: 6px;">📌 Pemilihan Model Operasional</h4>
+      <p style="margin: 0; line-height: 1.55; font-size: 0.86rem;">
+        Berdasarkan seluruh metrik evaluasi, model <strong>GAB Window 8</strong> dipilih sebagai model operasional terbaik. Model ini mencakup dinamika iklim dari kedua belahan samudra (North Indian + South Indian) dengan stabilitas overfitting tinggi (Gap 7.07%) dan akurasi spasial tangguh (Mean Haversine 14.923 km).
       </p>
     </div>
 
     <!-- Trajectory Best Model Visualization Images -->
     <div class="page-panel">
-      <div style="font-weight: 800; font-size: 0.95rem; color: #1E3A8A; margin-bottom: 16px;">🗺️ Visualisasi Trajectory Model Terbaik (GAB Window 8)</div>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 14px;">🗺️ Visualisasi Trajectory Model Terbaik (GAB Window 8)</div>
       
-      <div class="grid-2" style="gap: 16px; margin-bottom: 16px;">
-        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model1.png" alt="Trajectory Contoh 1" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 1 (Excellent Accuracy)</p>
+      <div class="grid-2" style="gap: 12px; margin-bottom: 12px;">
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model1.png" alt="Trajectory Contoh 1" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 1 (Excellent Accuracy)</p>
         </div>
-        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model2.png" alt="Trajectory Contoh 2" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 2 (High Precision)</p>
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model2.png" alt="Trajectory Contoh 2" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 2 (High Precision)</p>
         </div>
       </div>
 
-      <div class="grid-2" style="gap: 16px;">
-        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model3.png" alt="Trajectory Contoh 3" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 3 (Good Fit)</p>
+      <div class="grid-2" style="gap: 12px;">
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model3.png" alt="Trajectory Contoh 3" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 3 (Good Fit)</p>
         </div>
-        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 8px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model4.png" alt="Trajectory Contoh 4" style="width: 100%; border-radius: 8px;" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 0; font-size: 0.8rem; font-weight: 600; color: #4B5563;">Trajectory Contoh 4 (Consistent)</p>
+        <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
+          <img src="/assets/trajectory_best_model4.png" alt="Trajectory Contoh 4" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 4 (Consistent)</p>
         </div>
       </div>
     </div>
@@ -184,16 +184,17 @@ async function init() {
           label: 'Mean Haversine (km)',
           data: values,
           backgroundColor: '#1E3A8A',
-          borderRadius: 6,
+          borderRadius: 4,
         }]
       },
       options: {
+        animation: { duration: 250 },
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           y: { beginAtZero: true, grid: { color: '#F3F4F6' } },
-          x: { grid: { display: false } }
+          x: { ticks: { font: { size: 9 } }, grid: { display: false } }
         }
       }
     });
@@ -258,16 +259,17 @@ async function init() {
           label: 'Prediction Time (Second)',
           data: infValues,
           backgroundColor: '#059669',
-          borderRadius: 6,
+          borderRadius: 4,
         }]
       },
       options: {
+        animation: { duration: 250 },
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           y: { beginAtZero: true, grid: { color: '#F3F4F6' } },
-          x: { grid: { display: false } }
+          x: { ticks: { font: { size: 9 } }, grid: { display: false } }
         }
       }
     });

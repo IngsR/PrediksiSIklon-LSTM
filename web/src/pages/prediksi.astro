@@ -9,15 +9,15 @@ import Layout from '../layouts/Layout.astro';
       <div>
         <div class="war-room-badge">
           <span class="live-pulse"></span>
-          <span>SPATIAL-TEMPORAL AI SIMULATION WAR ROOM</span>
+          <span>SPATIAL-TEMPORAL AI WAR ROOM</span>
         </div>
         <h2 class="war-room-title">🔮 Simulasi & Prediksi Lintasan Siklon (LSTM)</h2>
         <p class="war-room-subtitle">
-          Pusat komputasi peramalan trajektori siklon di Samudra Hindia dengan pemodelan kerucut ketidakpastian (<em>Cone of Uncertainty</em>) dan matriks mitigasi risiko pesisir Sumatera Barat.
+          Pusat komputasi peramalan trajektori siklon di Samudra Hindia dengan pemodelan kerucut ketidakpastian (<em>Cone of Uncertainty</em>) dan mitigasi risiko pesisir Sumatera Barat.
         </p>
       </div>
       <div class="war-room-stats">
-        <div class="stat-pill"><span class="stat-lbl">Model</span><strong>LSTM 64 (GAB-8)</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Model</span><strong>LSTM 64 GAB-8</strong></div>
         <div class="stat-pill"><span class="stat-lbl">Interval</span><strong>3 Jam / Step</strong></div>
         <div class="stat-pill"><span class="stat-lbl">Engine</span><strong>ONNX Serverless</strong></div>
       </div>
@@ -26,24 +26,24 @@ import Layout from '../layouts/Layout.astro';
     <!-- 1-Click Quick Preset Scenarios Bar -->
     <div class="preset-bar-card">
       <div class="preset-bar-title">
-        <span>🚀 1-Click Skenario Demo Instan (Coba Cepat Tanpa Input Manual):</span>
+        <span>🚀 1-Click Skenario Demo Instan:</span>
       </div>
       <div class="preset-buttons">
         <button type="button" class="btn-preset preset-danger" onclick="loadPreset('padang_near')">
           <span class="p-icon">⚠️</span>
-          <span><strong>Skenario A:</strong> Siklon Mendekati Padang (&lt;400 km)</span>
+          <span><strong>Skenario A:</strong> Mendekati Padang (&lt;400 km)</span>
         </button>
         <button type="button" class="btn-preset preset-warning" onclick="loadPreset('cempaka')">
           <span class="p-icon">🌀</span>
-          <span><strong>Skenario B:</strong> Siklon Tropis Cempaka (Historis)</span>
+          <span><strong>Skenario B:</strong> Siklon Cempaka (Historis)</span>
         </button>
         <button type="button" class="btn-preset preset-danger" onclick="loadPreset('extreme')">
           <span class="p-icon">🌪️</span>
-          <span><strong>Skenario C:</strong> Super Cyclone (Kat. 4 - 115 Knot)</span>
+          <span><strong>Skenario C:</strong> Super Cyclone (115 Kt)</span>
         </button>
         <button type="button" class="btn-preset preset-neutral" onclick="loadPreset('moving_away')">
           <span class="p-icon">🌊</span>
-          <span><strong>Skenario D:</strong> Siklon Menjauhi Pesisir</span>
+          <span><strong>Skenario D:</strong> Menjauhi Pesisir</span>
         </button>
       </div>
     </div>
@@ -55,7 +55,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="page-panel">
           <div class="page-section-header">
             <h2 class="section-title">📝 Editor Data Observasi (8 Titik)</h2>
-            <p class="section-subtitle">Pilih titik untuk disunting atau klik langsung koordinat di atas peta interaktif.</p>
+            <p class="section-subtitle">Pilih titik untuk diedit atau klik koordinat langsung di peta.</p>
           </div>
 
           <!-- Point Selector -->
@@ -95,7 +95,7 @@ import Layout from '../layouts/Layout.astro';
 
           <!-- Config Accordion -->
           <details open style="margin-bottom:12px;">
-            <summary style="font-weight:800; font-size:0.88rem; color:#1E3A8A; cursor:pointer; padding:6px 0; user-select:none;">
+            <summary style="font-weight:800; font-size:0.86rem; color:#1E3A8A; cursor:pointer; padding:4px 0; user-select:none;">
               ⚙️ Konfigurasi Horizon & Waktu Awal
             </summary>
             <div style="margin-top:10px;">
@@ -124,27 +124,29 @@ import Layout from '../layouts/Layout.astro';
 
           <!-- Observation Table -->
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-weight:800; font-size:0.85rem; color:#1E3A8A;">📋 Tabel 8 Titik Observasi</span>
-            <span style="font-size:0.75rem; color:#6B7280;">Interval 3 Jam</span>
+            <span style="font-weight:800; font-size:0.84rem; color:#1E3A8A;">📋 Tabel 8 Titik Observasi</span>
+            <span style="font-size:0.72rem; color:#64748B;">Interval 3 Jam</span>
           </div>
           <div class="custom-table-wrapper" id="obs-table-wrapper"></div>
         </div>
 
         <div class="page-notice">
-          💡 <strong>Tip Navigasi:</strong> Anda dapat mengklik sembarang titik di peta satelit sebelah kanan untuk mengisi otomatis koordinat kosong berikutnya.
+          💡 <strong>Tip:</strong> Klik sembarang titik di peta satelit untuk mengisi otomatis koordinat kosong berikutnya.
         </div>
 
-        <!-- Action Buttons -->
-        <div class="grid-3" style="gap:8px; margin-top:8px;">
-          <button type="button" class="btn btn-secondary" id="btn-print" disabled onclick="printReport()">
-            📄 Print Laporan PDF
-          </button>
-          <button type="button" class="btn btn-primary" id="btn-predict" onclick="runPrediction()">
+        <!-- Action Buttons (Responsive Layout) -->
+        <div class="pred-actions-grid" style="margin-top:10px; margin-bottom:14px;">
+          <button type="button" class="btn btn-primary btn-predict-main" id="btn-predict" onclick="runPrediction()">
             🧠 Prediksi LSTM
           </button>
-          <button type="button" class="btn btn-danger" onclick="resetAll()">
-            🗑️ Bersihkan
-          </button>
+          <div class="pred-sub-actions">
+            <button type="button" class="btn btn-secondary" id="btn-print" disabled onclick="printReport()" style="flex:1;">
+              📄 Print PDF
+            </button>
+            <button type="button" class="btn btn-danger" onclick="resetAll()" style="flex:1;">
+              🗑️ Reset
+            </button>
+          </div>
         </div>
       </div>
 
@@ -153,8 +155,8 @@ import Layout from '../layouts/Layout.astro';
         <!-- War Room Map Container -->
         <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px; position:relative;">
           <div class="map-toolbar">
-            <span style="font-weight:800; font-size:0.88rem; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
-              <span>🗺️ Geospatial War Room Map</span>
+            <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
+              <span>🗺️ Geospatial Map</span>
             </span>
             <!-- Map Layer Switcher -->
             <div class="map-layer-selector">
@@ -164,7 +166,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           
-          <div id="pred-map" class="map-container" style="height:560px;"></div>
+          <div id="pred-map" class="map-container" style="height:clamp(320px, 50vh, 540px);"></div>
         </div>
 
         <!-- Threat Level Matrix & Advisory (Real-Time Disaster Mitigation) -->
@@ -179,7 +181,7 @@ import Layout from '../layouts/Layout.astro';
 
           <div class="threat-metrics-grid">
             <div class="threat-metric-box">
-              <span class="tm-label">Jarak Terdekat ke Pantai</span>
+              <span class="tm-label">Jarak Terdekat Pantai</span>
               <span class="tm-val" id="threat-dist">-- km</span>
               <span class="tm-sub" id="threat-closest-city">Pantai Padang</span>
             </div>
@@ -209,15 +211,15 @@ import Layout from '../layouts/Layout.astro';
           <div id="results-content"></div>
           
           <div class="page-notice" style="background:#FEF2F2; border-color:#FCA5A5; color:#991B1B; margin-top:12px;">
-            <strong>⚠️ Catatan Ilmiah Peringatan Dini:</strong> Prediksi ini bersifat <em>data-driven</em>. Peningkatan horizon waktu (6–9 jam) secara inheren meningkatkan akumulasi ketidakpastian (kerucut merah transparan membesar). Rekomendasikan verifikasi silang berkala dengan buletin resmi BMKG.
+            <strong>⚠️ Catatan Ilmiah:</strong> Prediksi ini bersifat <em>data-driven</em>. Peningkatan horizon waktu (6–9 jam) secara inheren meningkatkan akumulasi ketidakpastian (kerucut merah transparan membesar). Rekomendasikan verifikasi silang dengan buletin BMKG.
           </div>
         </div>
 
         <!-- Spinner -->
-        <div id="pred-spinner" style="display:none; text-align:center; padding:28px;">
-          <div class="spinner" style="width:36px;height:36px;margin:0 auto 12px;"></div>
-          <p style="color:#1E3A8A; font-weight:800; margin:0; font-size:1rem;">⏳ Menjalankan Inferensi Rekursif Model LSTM (ONNX)...</p>
-          <p style="color:#64748B; font-size:0.83rem; margin:4px 0 0;">Mengekstrak 8 fitur geometri & menghitung kerucut ketidakpastian spasial</p>
+        <div id="pred-spinner" style="display:none; text-align:center; padding:24px;">
+          <div class="spinner" style="width:34px;height:34px;margin:0 auto 10px;"></div>
+          <p style="color:#1E3A8A; font-weight:800; margin:0; font-size:0.95rem;">⏳ Menjalankan Inferensi Rekursif Model LSTM (ONNX)...</p>
+          <p style="color:#64748B; font-size:0.8rem; margin:4px 0 0;">Mengekstrak 8 fitur geometri & menghitung kerucut ketidakpastian spasial</p>
         </div>
       </div>
 
@@ -456,11 +458,21 @@ function addLayer(l:any) {
 async function renderMap() {
   const L = await loadLeaflet();
   if (!mapInstance) {
-    mapInstance = L.map('pred-map', { center: [-1.5, 99.5], zoom: 6, zoomControl: true });
+    mapInstance = L.map('pred-map', { 
+      center: [-1.5, 99.5], 
+      zoom: 6, 
+      zoomControl: true,
+      preferCanvas: true // Hardware acceleration for fast mobile runtime
+    });
     
     // Default Satellite Layer
     const conf = TILES.satellite;
     currentTileLayer = L.tileLayer(conf.url, { attribution: conf.attr, maxZoom: 18 }).addTo(mapInstance);
+
+    // Resize listener to prevent broken/gray tiles
+    window.addEventListener('resize', () => {
+      if (mapInstance) mapInstance.invalidateSize();
+    }, { passive: true });
 
     // Click on map → fill empty point
     mapInstance.on('click', (e:any) => {
@@ -751,32 +763,32 @@ if (presetParam && PRESETS[presetParam]) {
      ============================================ */
   .war-room-header {
     background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
-    border-radius: 16px;
-    padding: 22px 26px;
+    border-radius: 14px;
+    padding: 18px 20px;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 18px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+    gap: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
   }
   .war-room-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: rgba(255,255,255,0.12);
-    padding: 4px 10px;
+    padding: 3px 9px;
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 800;
     color: #93C5FD;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     margin-bottom: 6px;
   }
   .live-pulse {
-    width: 8px; height: 8px;
+    width: 7px; height: 7px;
     background: #EF4444;
     border-radius: 50%;
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
@@ -788,33 +800,37 @@ if (presetParam && PRESETS[presetParam]) {
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
   }
   .war-room-title {
-    font-size: 1.4rem;
+    font-size: clamp(1.15rem, 3.2vw, 1.4rem);
     font-weight: 900;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
     color: #FFFFFF;
+    line-height: 1.25;
   }
   .war-room-subtitle {
-    font-size: 0.86rem;
+    font-size: 0.82rem;
     color: #DBEAFE;
     margin: 0;
     max-width: 680px;
-    line-height: 1.5;
+    line-height: 1.45;
   }
   .war-room-stats {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
   }
   .stat-pill {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
     text-align: center;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
+    flex: 1;
+    min-width: 90px;
   }
   .stat-lbl {
     display: block;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     color: #93C5FD;
     text-transform: uppercase;
     font-weight: 700;
@@ -825,11 +841,11 @@ if (presetParam && PRESETS[presetParam]) {
     background: #F8FAFC;
     border: 1.5px solid #CBD5E1;
     border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 18px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
   }
   .preset-bar-title {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: #1E3A8A;
     margin-bottom: 8px;
@@ -838,26 +854,28 @@ if (presetParam && PRESETS[presetParam]) {
     gap: 6px;
   }
   .preset-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 6px;
   }
   .btn-preset {
-    padding: 6px 12px;
+    padding: 7px 10px;
     border-radius: 8px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 600;
     cursor: pointer;
     border: 1.5px solid transparent;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     background: white;
+    text-align: left;
+    min-height: 38px;
   }
   .btn-preset:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
   }
   .preset-danger { border-color: #FCA5A5; color: #991B1B; background: #FEF2F2; }
   .preset-danger:hover { background: #FEE2E2; border-color: #EF4444; }
@@ -866,35 +884,60 @@ if (presetParam && PRESETS[presetParam]) {
   .preset-neutral { border-color: #E2E8F0; color: #334155; }
   .preset-neutral:hover { border-color: #94A3B8; }
 
+  /* Action Buttons */
+  .pred-actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-predict-main {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 11px 16px;
+    background: #1E3A8A;
+    box-shadow: 0 4px 12px rgba(30,58,138,0.25);
+  }
+  .btn-predict-main:hover {
+    background: #163172;
+    box-shadow: 0 6px 16px rgba(30,58,138,0.35);
+  }
+  .pred-sub-actions {
+    display: flex;
+    gap: 8px;
+  }
+
   /* Map Toolbar */
   .map-toolbar {
-    padding: 10px 16px;
+    padding: 8px 12px;
     border-bottom: 1px solid #E5E7EB;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #FAFAFA;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .map-layer-selector {
     display: flex;
-    gap: 12px;
-    font-size: 0.78rem;
+    gap: 8px;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #475569;
+    flex-wrap: wrap;
   }
   .layer-opt {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
   }
 
   /* Threat Panel */
   .threat-panel {
     background: #FFFFFF;
     border: 2px solid #F59E0B;
-    border-radius: 14px;
-    padding: 18px 20px;
+    border-radius: 12px;
+    padding: 14px 16px;
     margin-bottom: 14px;
     box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);
   }
@@ -902,90 +945,97 @@ if (presetParam && PRESETS[presetParam]) {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #FEF3C7;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
+    gap: 8px;
   }
   .threat-tag {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 800;
     color: #D97706;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
   }
   .threat-title {
     margin: 2px 0 0;
-    font-size: 1.15rem;
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
     font-weight: 900;
     color: #D97706;
   }
-  .threat-badge-icon { font-size: 1.8rem; }
+  .threat-badge-icon { font-size: 1.6rem; flex-shrink: 0; }
   .threat-metrics-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
   }
   .threat-metric-box {
     background: #FFFBEB;
     border: 1px solid #FDE68A;
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 8px;
+    padding: 8px 6px;
     text-align: center;
+    min-width: 0;
   }
-  .tm-label { display: block; font-size: 0.68rem; font-weight: 700; color: #92400E; text-transform: uppercase; }
-  .tm-val { display: block; font-size: 1.1rem; font-weight: 900; color: #B45309; margin: 2px 0; }
-  .tm-sub { font-size: 0.72rem; color: #783504; font-weight: 600; }
+  .tm-label { display: block; font-size: 0.64rem; font-weight: 700; color: #92400E; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tm-val { display: block; font-size: clamp(0.95rem, 2.5vw, 1.1rem); font-weight: 900; color: #B45309; margin: 2px 0; word-break: break-word; }
+  .tm-sub { font-size: 0.68rem; color: #783504; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
   .threat-advisory {
     background: #FEF3C7;
     border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.82rem;
+    padding: 9px 12px;
+    font-size: 0.8rem;
     color: #783504;
-    line-height: 1.5;
+    line-height: 1.45;
   }
 
   /* Result Step Cards */
   .result-step-card {
     border: 1px solid #E2E8F0;
     border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     background: #FAFAFA;
   }
   .result-step-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 0.8rem;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    flex-wrap: wrap;
+    gap: 4px;
   }
   .result-step-num { font-weight: 900; color: #1E3A8A; }
   .result-step-time { color: #64748B; font-weight: 600; }
   .res-box {
     background: white;
     border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 8px;
+    border-radius: 6px;
+    padding: 6px 4px;
     text-align: center;
+    min-width: 0;
   }
-  .res-box-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; }
-  .res-box-val { font-size: 1.05rem; font-weight: 900; color: #1E3A8A; }
+  .res-box-lbl { font-size: 8.5px; font-weight: 700; color: #64748B; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .res-box-val { font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 900; color: #1E3A8A; word-break: break-word; }
   .result-step-meta {
-    margin-top: 8px;
-    font-size: 0.78rem;
+    margin-top: 6px;
+    font-size: 0.75rem;
     color: #475569;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
   /* Cyclone Pulse Animation */
   .cyclone-marker-pulse {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     background: #DC2626;
     border: 2px solid white;
     border-radius: 50%;
     color: white;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 900;
     display: flex;
     align-items: center;
@@ -998,14 +1048,18 @@ if (presetParam && PRESETS[presetParam]) {
     70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
     100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
   }
-  .pulse-anim { animation: btn-bounce 0.6s 2; }
-  @keyframes btn-bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
 
   @media (max-width: 900px) {
-    .threat-metrics-grid { grid-template-columns: 1fr; }
-    .war-room-header { padding: 18px; }
+    .war-room-header { padding: 14px 16px; }
+  }
+
+  @media (max-width: 640px) {
+    .preset-buttons { grid-template-columns: 1fr; }
+    .threat-metrics-grid { grid-template-columns: 1fr; gap: 6px; }
+    .threat-metric-box { padding: 8px 10px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .tm-label { margin: 0; font-size: 0.7rem; }
+    .tm-val { margin: 0; font-size: 0.95rem; }
+    .tm-sub { margin: 0; font-size: 0.7rem; }
   }
 </style>
+

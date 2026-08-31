@@ -3,12 +3,13 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Evaluasi Akurasi">
   <div class="fade-in">
-    <div class="page-section-header" style="margin-bottom:20px;">
-      <h2 class="section-title" style="font-size:1.2rem;">📈 EVALUASI AKURASI PER KASUS SIKLON</h2>
+    <div class="page-section-header" style="margin-bottom:16px;">
+      <h2 class="section-title">📈 EVALUASI AKURASI PER KASUS SIKLON</h2>
+      <p class="section-subtitle">Analisis statistik deviasi spasial aktual vs prediksi per siklon (selisih jarak dalam Kilometer).</p>
     </div>
 
     <!-- SID Selector -->
-    <div class="page-panel" style="margin-bottom:16px;">
+    <div class="page-panel" style="margin-bottom:14px;">
       <div class="form-group" style="margin:0;">
         <label class="form-label" for="sid-select">🆔 Pilih ID Siklon untuk Evaluasi</label>
         <select id="sid-select" class="form-select">
@@ -18,72 +19,71 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Cyclone Info -->
-    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:16px;">
-      <div class="grid-2" style="gap:10px;">
-        <div id="info-left" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
-        <div id="info-right" style="font-size:0.88rem; line-height:1.9; font-weight:600;"></div>
+    <div id="cyclone-info" class="page-panel" style="display:none; margin-bottom:14px;">
+      <div class="grid-2" style="gap:8px;">
+        <div id="info-left" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
+        <div id="info-right" style="font-size:0.84rem; line-height:1.7; font-weight:600;"></div>
       </div>
     </div>
 
     <!-- Metric Explanation -->
-    <div class="info-card" style="margin-bottom:16px;">
-      <h4>📊 Penjelasan Metrik Evaluasi</h4>
-      <p style="margin-bottom:6px;">Parameter pengukuran keakuratan model dalam memprediksi koordinat siklon (selisih jarak dalam <strong>Kilometer</strong>):</p>
-      <ul style="margin:0; line-height:2; padding-left:18px; font-size:0.85rem;">
-        <li><strong>MAE (Mean Absolute Error):</strong> Rata-rata kesalahan absolut prediksi model dari posisi sebenarnya.</li>
-        <li><strong>RMSE (Root Mean Square Error):</strong> Memberikan bobot lebih besar pada kesalahan signifikan. Semakin kecil = semakin stabil.</li>
-        <li><strong>Min Error:</strong> Jarak penyimpangan terkecil (titik paling akurat).</li>
-        <li><strong>Max Error:</strong> Jarak penyimpangan terbesar (titik paling meleset).</li>
+    <div class="info-card" style="margin-bottom:14px;">
+      <h4 style="color:#1E3A8A; margin:0 0 6px;">📊 Penjelasan Metrik Evaluasi</h4>
+      <p style="margin:0 0 6px; font-size:0.82rem; line-height:1.5;">Pengukuran keakuratan model dalam memprediksi koordinat siklon:</p>
+      <ul style="margin:0; line-height:1.8; padding-left:16px; font-size:0.8rem; color:#374151;">
+        <li><strong>MAE (Mean Absolute Error):</strong> Rata-rata kesalahan absolut jarak spasial (km).</li>
+        <li><strong>RMSE (Root Mean Square Error):</strong> Bobot penalti pada kesalahan signifikan (km).</li>
+        <li><strong>Min / Max Error:</strong> Jarak penyimpangan terkecil & terbesar.</li>
       </ul>
     </div>
 
     <!-- 4 Metric Cards -->
-    <div class="grid-4" style="margin-bottom:16px;">
+    <div class="grid-4" style="margin-bottom:14px;">
       <div class="metric-card"><div class="metric-label">MAE (km)</div><div class="metric-value" id="m-mae">–</div></div>
       <div class="metric-card"><div class="metric-label">RMSE (km)</div><div class="metric-value" id="m-rmse">–</div></div>
-      <div class="metric-card"><div class="metric-label">Min Error (km)</div><div class="metric-value" id="m-min" style="color:#059669;">–</div></div>
-      <div class="metric-card"><div class="metric-label">Max Error (km)</div><div class="metric-value" id="m-max" style="color:#DC2626;">–</div></div>
+      <div class="metric-card"><div class="metric-label">Min Error</div><div class="metric-value" id="m-min" style="color:#059669;">–</div></div>
+      <div class="metric-card"><div class="metric-label">Max Error</div><div class="metric-value" id="m-max" style="color:#DC2626;">–</div></div>
     </div>
 
     <!-- Quality Badge -->
-    <div id="quality-badge" style="border-radius:10px;padding:12px 20px;margin-bottom:18px;text-align:center;display:none;border-width:2px;border-style:solid;">
-      <span style="font-size:13px;font-weight:700;color:#4B5563;text-transform:uppercase;">Predikat Akurasi:</span>
-      <span id="quality-text" style="font-size:18px;font-weight:900;margin-left:10px;"></span>
+    <div id="quality-badge" style="border-radius:10px;padding:10px 16px;margin-bottom:16px;text-align:center;display:none;border-width:2px;border-style:solid;">
+      <span style="font-size:12px;font-weight:700;color:#4B5563;text-transform:uppercase;">Predikat Akurasi:</span>
+      <span id="quality-text" style="font-size:clamp(14px, 3.5vw, 18px);font-weight:900;margin-left:8px;"></span>
     </div>
 
     <div class="divider"></div>
 
     <!-- Charts Row 1 -->
-    <div class="grid-2" style="margin-bottom:16px; gap:16px;">
+    <div class="grid-2" style="margin-bottom:14px; gap:14px;">
       <div class="page-panel" style="margin:0;">
-        <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📉 Grafik Deviasi Jarak Per Waktu (km)</div>
-        <div class="chart-container" style="height:240px;"><canvas id="chart-error"></canvas></div>
+        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📉 Deviasi Jarak Per Waktu (km)</div>
+        <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-error"></canvas></div>
       </div>
       <div class="page-panel" style="margin:0;">
-        <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📊 Distribusi Frekuensi Error</div>
-        <div class="chart-container" style="height:240px;"><canvas id="chart-freq"></canvas></div>
+        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📊 Distribusi Frekuensi Error</div>
+        <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-freq"></canvas></div>
       </div>
     </div>
 
     <!-- Chart Row 2 -->
-    <div class="page-panel" style="margin-bottom:16px;">
-      <div style="font-weight:700; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📐 Dekomposisi Deviasi LAT vs LON (Mutlak °)</div>
-      <div class="chart-container" style="height:220px;"><canvas id="chart-decomp"></canvas></div>
+    <div class="page-panel" style="margin-bottom:14px;">
+      <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📐 Dekomposisi Deviasi LAT vs LON (Mutlak °)</div>
+      <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-decomp"></canvas></div>
     </div>
 
     <!-- Table + Download -->
     <div class="page-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-        <div style="font-weight:800; font-size:0.9rem; color:#1E3A8A;">📋 Tabel Perbandingan Koordinat</div>
-        <button class="btn btn-success" id="btn-download" onclick="downloadCSV()" style="font-size:0.82rem; padding:7px 14px; min-height:36px;">📥 Unduh CSV</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A;">📋 Tabel Perbandingan Koordinat</div>
+        <button class="btn btn-success" id="btn-download" onclick="downloadCSV()" style="font-size:0.8rem; padding:6px 12px; min-height:34px;">📥 Unduh CSV</button>
       </div>
       <div class="custom-table-wrapper" id="table-wrapper">
-        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih ID Siklon untuk melihat evaluasi.</div>
+        <div style="text-align:center; padding:20px; color:#9CA3AF;">Pilih ID Siklon untuk melihat evaluasi.</div>
       </div>
     </div>
 
     <!-- Narrative -->
-    <div class="narrative-box" style="margin-top:16px;">
+    <div class="narrative-box" style="margin-top:14px;">
       <h4>[ Ringkasan Evaluasi Spasial ]</h4>
       Halaman ini menampilkan tingkat akurasi model LSTM dengan membandingkan posisi aktual (data IBTrACS) dan posisi hasil prediksi pada setiap titik waktu. Statistik MAE dan RMSE memberikan gambaran kesalahan rata-rata dalam kilometer. Grafik dekomposisi membantu mengidentifikasi apakah model memiliki bias khusus pada sumbu Lintang (Utara-Selatan) atau Bujur (Barat-Timur).
     </div>
@@ -175,7 +175,13 @@ async function renderSID(sid:string) {
   chartError = new Chart(document.getElementById('chart-error'), {
     type:'line',
     data:{labels, datasets:[{label:'Deviasi (km)',data:errs,borderColor:'#1E3A8A',backgroundColor:'rgba(30,58,138,0.08)',borderWidth:2,pointRadius:2,tension:0.3,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}
+    options:{
+      animation:{duration:250},
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:6,font:{size:9}},grid:{display:false}}}
+    }
   });
 
   // Chart 2: Frequency bar
@@ -188,8 +194,14 @@ async function renderSID(sid:string) {
   if(chartFreq) chartFreq.destroy();
   chartFreq = new Chart(document.getElementById('chart-freq'),{
     type:'bar',
-    data:{labels:binLabels,datasets:[{label:'Persentase (%)',data:freqs,backgroundColor:['#059669','#1E3A8A','#D97706','#DC2626'],borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:(v:any)=>`${v}%`},grid:{color:'#F3F4F6'}},x:{grid:{display:false}}}}
+    data:{labels:binLabels,datasets:[{label:'Persentase (%)',data:freqs,backgroundColor:['#059669','#1E3A8A','#D97706','#DC2626'],borderRadius:4}]},
+    options:{
+      animation:{duration:250},
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:(v:any)=>`${v}%`,font:{size:9}},grid:{color:'#F3F4F6'}},x:{ticks:{font:{size:9}},grid:{display:false}}}
+    }
   });
 
   // Chart 3: LAT/LON decomp
@@ -202,7 +214,13 @@ async function renderSID(sid:string) {
       {label:'Deviasi LAT (°)',data:latDevs,borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,0.06)',borderWidth:2,pointRadius:1,tension:0.3,fill:false},
       {label:'Deviasi LON (°)',data:lonDevs,borderColor:'#D97706',backgroundColor:'rgba(217,119,6,0.06)',borderWidth:2,pointRadius:1,tension:0.3,fill:false},
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}
+    options:{
+      animation:{duration:250},
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10}}}},
+      scales:{y:{beginAtZero:true,grid:{color:'#F3F4F6'}},x:{ticks:{maxTicksLimit:6,font:{size:9}},grid:{display:false}}}
+    }
   });
 
   // Table
@@ -211,7 +229,7 @@ async function renderSID(sid:string) {
     <td>${new Date(r.ISO_TIME).toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
     <td>${r.LAT_ACTUAL.toFixed(4)}°</td><td>${r.LON_ACTUAL.toFixed(4)}°</td>
     <td>${r.LAT_PRED.toFixed(4)}°</td><td>${r.LON_PRED.toFixed(4)}°</td>
-    <td>${r.ERROR_KM.toFixed(2)}</td>
+    <td><strong>${r.ERROR_KM.toFixed(2)}</strong></td>
   </tr>`).join('');
   document.getElementById('table-wrapper')!.innerHTML=`<table class="custom-table"><thead>${tHead}</thead><tbody>${tBody}</tbody></table>`;
 }
