@@ -3,6 +3,7 @@ import vercel from '@astrojs/vercel/serverless';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://siklon-prediksi.vercel.app',
   output: 'hybrid',
   adapter: vercel({
     includeFiles: [

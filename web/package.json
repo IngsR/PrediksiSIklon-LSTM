@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro build && node scripts/fix_vercel_runtime.js",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate-og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "astro": "^4.16.18",
