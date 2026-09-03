@@ -1,53 +1,25 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="War Room Prediksi Siklon">
+<Layout title="Prediksi Siklon">
   <div class="fade-in">
     
-    <!-- Header Command Center -->
-    <div class="war-room-header">
+    <!-- Header Prediksi -->
+    <div class="pred-header">
       <div>
-        <div class="war-room-badge">
-          <span class="live-pulse"></span>
-          <span>SPATIAL-TEMPORAL AI WAR ROOM</span>
-        </div>
-        <h2 class="war-room-title">🔮 Simulasi & Prediksi Lintasan Siklon (LSTM)</h2>
-        <p class="war-room-subtitle">
-          Pusat komputasi peramalan trajektori siklon di Samudra Hindia dengan pemodelan kerucut ketidakpastian (<em>Cone of Uncertainty</em>) dan mitigasi risiko pesisir Sumatera Barat.
+        <h1 class="pred-title">Simulasi Prediksi Lintasan Siklon Tropis</h1>
+        <p class="pred-subtitle">
+          Masukkan 8 titik posisi siklon (interval 3 jam), lalu jalankan model LSTM untuk melihat proyeksi lintasan dan estimasi ancaman ke pesisir Sumatera Barat.
         </p>
       </div>
       <div class="war-room-stats">
-        <div class="stat-pill"><span class="stat-lbl">Model</span><strong>LSTM 64 GAB-8</strong></div>
-        <div class="stat-pill"><span class="stat-lbl">Interval</span><strong>3 Jam / Step</strong></div>
-        <div class="stat-pill"><span class="stat-lbl">Engine</span><strong>ONNX Serverless</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Model</span><strong>LSTM 64 Unit</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Interval</span><strong>3 Jam / Titik</strong></div>
+        <div class="stat-pill"><span class="stat-lbl">Engine</span><strong>ONNX</strong></div>
       </div>
     </div>
 
-    <!-- 1-Click Quick Preset Scenarios Bar -->
-    <div class="preset-bar-card">
-      <div class="preset-bar-title">
-        <span>🚀 1-Click Skenario Demo Instan:</span>
-      </div>
-      <div class="preset-buttons">
-        <button type="button" class="btn-preset preset-danger" onclick="loadPreset('padang_near')">
-          <span class="p-icon">⚠️</span>
-          <span><strong>Skenario A:</strong> Mendekati Padang (&lt;400 km)</span>
-        </button>
-        <button type="button" class="btn-preset preset-warning" onclick="loadPreset('cempaka')">
-          <span class="p-icon">🌀</span>
-          <span><strong>Skenario B:</strong> Siklon Cempaka (Historis)</span>
-        </button>
-        <button type="button" class="btn-preset preset-danger" onclick="loadPreset('extreme')">
-          <span class="p-icon">🌪️</span>
-          <span><strong>Skenario C:</strong> Super Cyclone (115 Kt)</span>
-        </button>
-        <button type="button" class="btn-preset preset-neutral" onclick="loadPreset('moving_away')">
-          <span class="p-icon">🌊</span>
-          <span><strong>Skenario D:</strong> Menjauhi Pesisir</span>
-        </button>
-      </div>
-    </div>
-        <div class="split-layout" style="align-items:start;">
+    <div class="split-layout" style="align-items:start;">
       
       <!-- ===== KIRI: KONFIGURASI & EDITOR OBSERVASI ===== -->
       <div class="left-command-col">
@@ -157,13 +129,13 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
-      <!-- ===== KANAN: WAR ROOM PETA & MATRIKS ANCAMAN ===== -->
+      <!-- ===== KANAN: PETA & HASIL PREDIKSI ===== -->
       <div class="right-display-col">
         <!-- War Room Map Container -->
         <div class="page-panel map-panel-card" style="padding:0; overflow:hidden; margin-bottom:14px; position:relative;">
           <div class="map-toolbar">
             <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
-              <span>🗺️ Geospatial War Room Map</span>
+              <span>🗺️ Peta Lintasan Siklon</span>
             </span>
             <!-- Map Layer Switcher -->
             <div class="map-layer-selector">
@@ -1131,10 +1103,10 @@ if (presetParam && PRESETS[presetParam]) {
     max-width: 100%;
   }
 
-  .war-room-header {
+  .pred-header {
     background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
     border-radius: 14px;
-    padding: 16px 18px;
+    padding: 18px 20px;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -1144,44 +1116,18 @@ if (presetParam && PRESETS[presetParam]) {
     margin-bottom: 14px;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
   }
-  .war-room-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.12);
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 0.7rem;
+  .pred-title {
+    font-size: clamp(1.15rem, 3vw, 1.45rem);
     font-weight: 800;
-    color: #93C5FD;
-    letter-spacing: 0.04em;
-    margin-bottom: 6px;
-  }
-  .live-pulse {
-    width: 7px; height: 7px;
-    background: #EF4444;
-    border-radius: 50%;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    animation: pulse-red 1.5s infinite;
-  }
-  @keyframes pulse-red {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-  }
-  .war-room-title {
-    font-size: clamp(1.1rem, 3.2vw, 1.35rem);
-    font-weight: 900;
-    margin: 0 0 4px;
+    margin: 0 0 6px;
     color: #FFFFFF;
-    line-height: 1.25;
   }
-  .war-room-subtitle {
-    font-size: 0.82rem;
+  .pred-subtitle {
+    font-size: 0.84rem;
     color: #DBEAFE;
     margin: 0;
-    max-width: 680px;
-    line-height: 1.45;
+    max-width: 650px;
+    line-height: 1.5;
   }
   .war-room-stats {
     display: flex;
@@ -1814,7 +1760,7 @@ if (presetParam && PRESETS[presetParam]) {
 
   /* Responsive Adjustments */
   @media (max-width: 900px) {
-    .war-room-header { padding: 14px 16px; }
+    .pred-header { padding: 14px 16px; }
   }
 
   @media (max-width: 640px) {
@@ -1833,6 +1779,10 @@ if (presetParam && PRESETS[presetParam]) {
     .res-footer-pill { width: 100%; min-width: unset; }
   }
 </style>
+
+
+
+
 
 
 
