@@ -33,11 +33,6 @@ async function generateOpenGraph() {
         <stop offset="60%" stop-color="#f8fafc" />
         <stop offset="100%" stop-color="#eff6ff" />
       </linearGradient>
-      <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#1e3a8a" />
-        <stop offset="50%" stop-color="#2563eb" />
-        <stop offset="100%" stop-color="#1e3a8a" />
-      </linearGradient>
       <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#1e3a8a" flood-opacity="0.10" />
         <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1e3a8a" flood-opacity="0.05" />
@@ -46,9 +41,6 @@ async function generateOpenGraph() {
 
     <!-- Background Utama -->
     <rect width="${width}" height="${height}" fill="url(#bgGrad)" />
-
-    <!-- Aksen Bar Kiri (Deep Navy Siklon) -->
-    <rect x="0" y="0" width="12" height="${height}" fill="url(#barGrad)" />
 
     <!-- Border Luar Halus -->
     <rect x="1" y="1" width="${width - 2}" height="${height - 2}" fill="none" stroke="#e2e8f0" stroke-width="2" />
@@ -114,25 +106,62 @@ async function generateOpenGraph() {
   </svg>
   `;
 
-  // 3. Gabungkan background SVG dengan foto profil di koordinat x: 75, y: 135
-  const outputBuffer = await sharp(Buffer.from(svgBackground))
+  // 3. Render SVG background tepat 1200x630
+  const svgBuffer = await sharp(Buffer.from(svgBackground.trim()))
+    .resize(width, height)
+    .png()
+    .toBuffer();
+
+  // 4. Buat kanvas dasar putih solid 1200x630 (RGB tanpa alpha)
+  const baseCanvas = await sharp({
+    create: {
+      width: width,
+      height: height,
+      channels: 3,
+      background: { r: 255, g: 255, b: 255 },
+    },
+  })
+    .png()
+    .toBuffer();
+
+  // 5. Gabungkan canvas dasar + background SVG + foto profil
+  const finalImage = sharp(baseCanvas)
     .composite([
+      {
+        input: svgBuffer,
+        top: 0,
+        left: 0,
+      },
       {
         input: roundedProfile,
         top: 135,
         left: 75,
       },
     ])
-    .png({ quality: 100 })
+    .flatten({ background: '#ffffff' });
+
+  // Ekspor PNG (24-bit RGB) presisi 1200x630
+  const outputPngBuffer = await finalImage
+    .clone()
+    .png({ quality: 95, compressionLevel: 8 })
     .toBuffer();
 
-  // Simpan ke public/og.png dan public/opengraph-image.png
+  // Ekspor JPEG presisi 1200x630 untuk kompatibilitas universal
+  const outputJpgBuffer = await finalImage
+    .clone()
+    .jpeg({ quality: 90, mozjpeg: true })
+    .toBuffer();
+
+  // Simpan ke public/og.png, public/opengraph-image.png, dan public/og.jpg
   const targetOgPng = path.resolve('public/og.png');
   const targetOpengraphPng = path.resolve('public/opengraph-image.png');
-  fs.writeFileSync(targetOgPng, outputBuffer);
-  fs.writeFileSync(targetOpengraphPng, outputBuffer);
+  const targetOgJpg = path.resolve('public/og.jpg');
 
-  console.log(`✅ Gambar OpenGraph Siklon Tropis berhasil diperbarui sempurna!`);
+  fs.writeFileSync(targetOgPng, outputPngBuffer);
+  fs.writeFileSync(targetOpengraphPng, outputPngBuffer);
+  fs.writeFileSync(targetOgJpg, outputJpgBuffer);
+
+  console.log(`✅ Gambar OpenGraph (og.png, opengraph-image.png, og.jpg) berhasil diperbarui presisi 1200x630 tanpa alpha!`);
 }
 
 generateOpenGraph().catch((err) => {
