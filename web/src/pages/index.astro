@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Beranda">
+<Layout title="Halaman Awal">
   <div class="fade-in">
 
     <!-- ===== HERO ===== -->
@@ -9,33 +9,34 @@ import Layout from '../layouts/Layout.astro';
       <div class="hero-content">
         <div class="hero-badge">
           <img src="/logo.jpg" alt="Logo" class="hero-badge-logo" width="16" height="16" />
-          <span>Tugas Akhir &bull; Teknik Informatika</span>
+          <span>Skripsi &bull; Teknik Informatika</span>
         </div>
-        <h1 class="hero-title">Prediksi Lintasan Siklon Tropis berbasis LSTM</h1>
+        <h1 class="hero-title">Melihat ke Arah Mana Badai akan Pergi</h1>
         <p class="hero-desc">
-          Sistem prediksi berbasis deep learning yang memperkirakan pergerakan siklon di Samudera Hindia 
-          dan menganalisis potensi ancaman ke wilayah pesisir Sumatera Barat.
+          Penelitian ini memperbaiki cara data badai diolah sebelum masuk ke model LSTM,
+          supaya modelnya lebih mudah mengenali pola gerak badai. Hasilnya: tebakan arah
+          badai di Samudra Hindia yang bisa dipakai bersiap oleh warga pantai Sumatera Barat.
         </p>
         <div class="hero-actions">
           <a href="/prediksi" class="btn btn-primary btn-hero-glow">
-            <span>🌀 Coba Prediksi Sekarang</span>
+            <span>🌀 Coba Prediksi</span>
           </a>
           <a href="/dashboard" class="btn btn-hero-secondary">
-            <span>🗺️ Dashboard</span>
+            <span>🗺️ Lihat Peta</span>
           </a>
           <a href="/evaluasi" class="btn btn-hero-outline">
-            <span>📊 Evaluasi Akurasi</span>
+            <span>📊 Seberapa Tepat?</span>
           </a>
         </div>
       </div>
       <div class="hero-image">
-        <img src="/assets/banner_beranda.png" alt="Siklon Tropis" class="hero-img" loading="eager"
+        <img src="/assets/banner_beranda.png" alt="Badai (Siklon)" class="hero-img" loading="eager"
           onerror="this.style.display='none'; document.getElementById('hero-fallback').style.display='flex';" />
         <div id="hero-fallback" class="hero-fallback" style="display:none;">
           <div style="text-align:center;">
             <div style="font-size:54px; margin-bottom:8px;">🌀</div>
-            <p style="color:white; font-weight:800; margin:0; font-size:15px;">Prediksi Siklon Tropis</p>
-            <p style="color:#93C5FD; font-size:11px; margin:4px 0 0;">Samudera Hindia · Sumatera Barat</p>
+            <p style="color:white; font-weight:800; margin:0; font-size:15px;">Prediksi Jalur Badai</p>
+            <p style="color:#93C5FD; font-size:11px; margin:4px 0 0;">Samudra Hindia · Sumatera Barat</p>
           </div>
         </div>
       </div>
@@ -45,51 +46,51 @@ import Layout from '../layouts/Layout.astro';
     <div class="grid-4" style="margin-bottom: 20px;">
       <div class="info-card-mini">
         <div class="info-mini-header">
-          <span class="info-mini-icon">🤖</span>
-          <span class="info-mini-label">Model AI</span>
+          <span class="info-mini-icon">🔧</span>
+          <span class="info-mini-label">Inti Penelitian</span>
         </div>
-        <div class="info-mini-value">LSTM 64 Unit</div>
-        <div class="info-mini-sub">ONNX · Inferensi kurang dari 15ms</div>
+        <div class="info-mini-value">Pengolahan Data</div>
+        <div class="info-mini-sub">Jarak, arah gerak, dan kecepatan dihitung lebih dulu agar pola badai lebih mudah dikenali model</div>
       </div>
       <div class="info-card-mini">
         <div class="info-mini-header">
-          <span class="info-mini-icon">📍</span>
-          <span class="info-mini-label">Area Pemantauan</span>
+          <span class="info-mini-icon">📚</span>
+          <span class="info-mini-label">Data Latih</span>
         </div>
-        <div class="info-mini-value">Pesisir Sumbar</div>
-        <div class="info-mini-sub">Padang, Painan, Pariaman, Pasaman Barat</div>
+        <div class="info-mini-value">IBTrACS 1980–2025</div>
+        <div class="info-mini-sub">Ribuan titik badai dari catatan internasional</div>
       </div>
       <div class="info-card-mini">
         <div class="info-mini-header">
           <span class="info-mini-icon">⏱️</span>
-          <span class="info-mini-label">Jangkauan Prediksi</span>
+          <span class="info-mini-label">Jangkauan</span>
         </div>
         <div class="info-mini-value">3 – 9 Jam</div>
-        <div class="info-mini-sub">Interval 3 jam per langkah prediksi</div>
+        <div class="info-mini-sub">Tiap 3 jam dihitung sebagai satu langkah</div>
       </div>
       <div class="info-card-mini">
         <div class="info-mini-header">
-          <span class="info-mini-icon">🛡️</span>
-          <span class="info-mini-label">Radius Pantau</span>
+          <span class="info-mini-icon">📍</span>
+          <span class="info-mini-label">Wilayah Pantau</span>
         </div>
-        <div class="info-mini-value">500 km</div>
-        <div class="info-mini-sub">Estimasi jarak ke garis pantai terdekat</div>
+        <div class="info-mini-value">Pesisir Sumbar</div>
+        <div class="info-mini-sub">Padang, Painan, Pariaman, Pasaman Barat</div>
       </div>
     </div>
 
     <!-- ===== CARA KERJA SISTEM ===== -->
     <div class="page-panel" style="margin-bottom: 20px;">
       <div class="page-section-header">
-        <h2 class="section-title">⚙️ Cara Kerja Sistem</h2>
-        <p class="section-subtitle">Dari data observasi mentah hingga hasil prediksi lintasan dan laporan peringatan dini.</p>
+        <h2 class="section-title">⚙️ Alur Kerja Sistem</h2>
+        <p class="section-subtitle">Dari data badai mentah hingga jadi perkiraan lintasan yang bisa dibaca di peta. Ada 5 tahap.</p>
       </div>
 
       <div class="pipeline-grid">
         <div class="pipeline-step">
           <div class="step-num">01</div>
           <div class="step-icon">📡</div>
-          <div class="step-title">Input Observasi</div>
-          <div class="step-desc">8 titik posisi siklon (Lat, Lon, kecepatan angin, tekanan udara) dengan interval 3 jam.</div>
+          <div class="step-title">Data Masukan</div>
+          <div class="step-desc">8 posisi badai terakhir (selang 3 jam): lintang, bujur, kecepatan angin, dan tekanan udara.</div>
         </div>
 
         <div class="pipeline-arrow">›</div>
@@ -97,8 +98,8 @@ import Layout from '../layouts/Layout.astro';
         <div class="pipeline-step">
           <div class="step-num">02</div>
           <div class="step-icon">🔧</div>
-          <div class="step-title">Ekstraksi Fitur</div>
-          <div class="step-desc">Menghitung jarak Haversine, bearing, kecepatan, dan fitur siklikal dari data mentah.</div>
+          <div class="step-title">Pengolahan Data</div>
+          <div class="step-desc">Data mentah diubah menjadi fitur yang bermakna: jarak tempuh, arah gerak, dan kecepatan badai. Tahap inilah yang menjadi inti penelitian.</div>
         </div>
 
         <div class="pipeline-arrow">›</div>
@@ -107,7 +108,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">03</div>
           <div class="step-icon">🧠</div>
           <div class="step-title">Model LSTM</div>
-          <div class="step-desc">Inferensi rekursif menggunakan model ONNX untuk 1–3 langkah prediksi ke depan.</div>
+          <div class="step-desc">Model membaca pola dari delapan titik berurutan, lalu memperkirakan posisi badai 3, 6, dan 9 jam ke depan.</div>
         </div>
 
         <div class="pipeline-arrow">›</div>
@@ -115,8 +116,8 @@ import Layout from '../layouts/Layout.astro';
         <div class="pipeline-step">
           <div class="step-num">04</div>
           <div class="step-icon">🗺️</div>
-          <div class="step-title">Kerucut Ketidakpastian</div>
-          <div class="step-desc">Proyeksi lintasan + area ketidakpastian (±20–75 km) divisualisasikan di peta.</div>
+          <div class="step-title">Visualisasi Peta</div>
+          <div class="step-desc">Lintasan badai dan area kemungkinan digambar di peta, lengkap dengan jaraknya ke pesisir Sumatera Barat.</div>
         </div>
 
         <div class="pipeline-arrow">›</div>
@@ -125,22 +126,22 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">05</div>
           <div class="step-icon">📋</div>
           <div class="step-title">Laporan Peringatan</div>
-          <div class="step-desc">Laporan PDF dengan analisis ancaman ke pesisir, sesuai standar BMKG/BPBD.</div>
+          <div class="step-desc">Hasil prediksi dirangkum menjadi laporan PDF yang bisa diunduh dan dibagikan ke pihak terkait.</div>
         </div>
       </div>
     </div>
 
     <!-- ===== MENU HALAMAN ===== -->
     <div style="margin-bottom: 20px;">
-      <h2 class="section-nav-title">Halaman Aplikasi</h2>
+      <h2 class="section-nav-title">Halaman di Aplikasi Ini</h2>
       <div class="feature-matrix">
         <a href="/prediksi" class="matrix-card">
           <div class="matrix-header">
             <span class="matrix-icon">🌀</span>
             <span class="matrix-status status-active">UTAMA</span>
           </div>
-          <div class="matrix-title">Prediksi Siklon</div>
-          <div class="matrix-desc">Input 8 titik observasi, jalankan model LSTM, dan lihat prediksi lintasan berikut analisis ancaman ke pesisir.</div>
+          <div class="matrix-title">Coba Prediksi</div>
+          <div class="matrix-desc">Masukkan riwayat posisi badai, jalankan model LSTM, lalu lihat arah gerak badai beserta analisis dampaknya ke pesisir.</div>
           <div class="matrix-footer">Buka →</div>
         </a>
 
@@ -149,8 +150,8 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-icon">🗺️</span>
             <span class="matrix-status">ANALISIS</span>
           </div>
-          <div class="matrix-title">Dashboard Prediksi</div>
-          <div class="matrix-desc">Bandingkan hasil aktual vs prediksi model, filter radius dari Sumatera Barat, dan lihat metrik RMSE & MAE.</div>
+          <div class="matrix-title">Peta Hasil Prediksi</div>
+          <div class="matrix-desc">Bandingkan lintasan aktual badai dengan hasil prediksi model, lengkap dengan nilai error dan filter radius dari Sumatera Barat.</div>
           <div class="matrix-footer">Buka →</div>
         </a>
 
@@ -160,7 +161,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-status">DATA</span>
           </div>
           <div class="matrix-title">Data Observasi</div>
-          <div class="matrix-desc">Jelajahi rekaman historis siklon (1980–2025) dari dataset IBTrACS, lengkap dengan parameter fisis dan status data.</div>
+          <div class="matrix-desc">Telusuri rekaman badai Samudra Hindia tahun 1980–2025 dari dataset IBTrACS, termasuk kecepatan angin, tekanan udara, dan status pengisian data.</div>
           <div class="matrix-footer">Lihat Data →</div>
         </a>
 
@@ -169,18 +170,18 @@ import Layout from '../layouts/Layout.astro';
             <span class="matrix-icon">📊</span>
             <span class="matrix-status">EVALUASI</span>
           </div>
-          <div class="matrix-title">Evaluasi Akurasi</div>
-          <div class="matrix-desc">Statistik deviasi spasial, grafik error per koordinat, distribusi frekuensi, dan ekspor hasil ke CSV.</div>
-          <div class="matrix-footer">Lihat Evaluasi →</div>
+          <div class="matrix-title">Seberapa Tepat?</div>
+          <div class="matrix-desc">Ukur seberapa jauh selisih posisi badai sebenarnya dengan hasil prediksi model, disajikan dalam grafik dan tabel error (km).</div>
+          <div class="matrix-footer">Lihat →</div>
         </a>
 
         <a href="/tentang" class="matrix-card">
           <div class="matrix-header">
             <span class="matrix-icon">📖</span>
-            <span class="matrix-status">RISET</span>
+            <span class="matrix-status">INFO</span>
           </div>
           <div class="matrix-title">Tentang Penelitian</div>
-          <div class="matrix-desc">Dokumentasi eksperimen multi-skenario (GAB, NI, SI), perbandingan performa antar model, dan metodologi penelitian.</div>
+          <div class="matrix-desc">Penjelasan rancangan penelitian, strategi pengolahan data, dan perbandingan performa antar konfigurasi model (GAB, NI, SI).</div>
           <div class="matrix-footer">Baca →</div>
         </a>
       </div>

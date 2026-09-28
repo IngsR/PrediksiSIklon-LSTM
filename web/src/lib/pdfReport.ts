@@ -663,9 +663,9 @@ export async function generateAndDownloadPdfReport(
   doc.setTextColor(120, 53, 4);
 
   const notes = [
-    '1. Pendekatan Komputasi Data-Driven: Prediksi lintasan berbasis Deep Learning LSTM 64 Units mengekstraksi pola temporal dinamis dari data historis IBTrACS v4 (1980-2025). Model mempelajari pola statistik spasial-temporal data latih.',
-    '2. Akumulasi Ketidakpastian: Inferensi rekursif secara inheren mengalami akumulasi kesalahan (error accumulation) seiring penambahan horizon waktu (3-9 jam). Langkah pertama memiliki tingkat reliabilitas tertinggi.',
-    '3. Rekomendasi Mitigasi: Hasil prediksi sebagai pendukung informasi peringatan dini. Masyarakat & instansi terkait diimbau memantau visualisasi berkala serta verifikasi rilis resmi BMKG.',
+    '1. Cara Kerja Model: Prediksi dibuat dengan model LSTM yang dilatih memakai data badai IBTrACS 1980-2025. Data mentah diolah lebih dulu (jarak tempuh, arah gerak, kecepatan) agar pola badai lebih mudah dikenali.',
+    '2. Batas Ketelitian: Setiap langkah tambahan ke depan membuat perkiraan makin melebar, karena kesalahan langkah sebelumnya ikut dipakai untuk langkah berikutnya. Langkah pertama paling bisa diandalkan.',
+    '3. Sifat Hasil: Laporan ini adalah perkiraan awal, bukan pengganti peringatan resmi. Selalu cocokkan dengan rilis terbaru BMKG dan arahan BPBD setempat.',
   ];
 
   notes.forEach((note, i) => {

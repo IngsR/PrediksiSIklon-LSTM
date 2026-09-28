@@ -4,15 +4,15 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Dashboard Prediksi">
   <div class="fade-in">
     <div class="page-section-header" style="margin-bottom:16px;">
-      <h2 class="section-title">🗺️ DASHBOARD PREDIKSI SIKLON</h2>
-      <p class="section-subtitle">Visualisasi lintasan aktual vs hasil prediksi model LSTM dengan filter radius dari Sumatera Barat.</p>
+      <h2 class="section-title">🗺️ PETA PERBANDINGAN: BADAI ASLI vs HASIL PREDIKSI</h2>
+      <p class="section-subtitle">Pilih siklon, lalu lihat seberapa dekat lintasan hasil prediksi model dengan lintasan badai yang sebenarnya.</p>
     </div>
 
     <!-- Radius Slider -->
     <div class="page-panel" style="margin-bottom:14px;">
       <div class="form-group" style="margin:0;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <label class="form-label" style="margin:0;">🎯 Radius dari Sumatera Barat:</label>
+          <label class="form-label" style="margin:0;">🎯 Hanya tampilkan siklon dalam radius:</label>
           <span style="font-weight:800; color:#1E3A8A; font-size:0.9rem;"><span id="radius-val">1500</span> km</span>
         </div>
         <input type="range" id="radius-slider" min="500" max="4000" step="250" value="1500"
@@ -30,7 +30,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="metric-value" style="font-size:1.4rem;" id="sid-count">–</div>
       </div>
       <div class="form-group" style="margin:0; flex:1; min-width:0;">
-        <label class="form-label" for="sid-select">🆔 Pilih ID Siklon</label>
+        <label class="form-label" for="sid-select">🆔 Pilih Siklon</label>
         <select id="sid-select" class="form-select">
           <option>Memuat data...</option>
         </select>
@@ -48,8 +48,8 @@ import Layout from '../layouts/Layout.astro';
     <!-- Map -->
     <div class="page-panel" style="padding:0; overflow:hidden; margin-bottom:14px;">
       <div style="padding:10px 14px; border-bottom:1px solid #E5E7EB; background:#FAFAFA; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A;">🗺️ Visualisasi Peta Lintasan</span>
-        <span style="font-size:0.75rem; color:#64748B;">Hitam: Aktual | Biru: Prediksi</span>
+        <span style="font-weight:800; font-size:0.86rem; color:#1E3A8A;">🗺️ Peta Jalur Siklon</span>
+        <span style="font-size:0.75rem; color:#64748B;">Hitam = jalur asli &nbsp;|&nbsp; Merah putus-putus = hasil prediksi</span>
       </div>
       <div id="dashboard-map" class="map-container" style="height:clamp(320px, 50vh, 480px);"></div>
     </div>
@@ -57,18 +57,18 @@ import Layout from '../layouts/Layout.astro';
     <!-- Metrics -->
     <div class="grid-2" style="gap:12px; margin-bottom:14px;">
       <div class="metric-card">
-        <div class="metric-label">RMSE (km)</div>
+        <div class="metric-label">RMSE — rata-rata error (km)</div>
         <div class="metric-value" id="metric-rmse">–</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">MAE (km)</div>
+        <div class="metric-label">MAE — rata-rata selisih (km)</div>
         <div class="metric-value" id="metric-mae">–</div>
       </div>
     </div>
 
     <!-- Table -->
     <div class="page-panel">
-      <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📋 Tabel Perbandingan Koordinat</div>
+      <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📋 Tabel Perbandingan Posisi (Asli vs Prediksi)</div>
       <div class="custom-table-wrapper" id="table-wrapper">
         <div style="text-align:center; padding:20px; color:#9CA3AF;">Pilih siklon untuk melihat data.</div>
       </div>
@@ -185,8 +185,8 @@ async function init() {
   document.getElementById('sid-select')!.addEventListener('change', (e) => renderSID((e.target as HTMLSelectElement).value));
 
   const L = await loadLeaflet();
-  mapInstance = L.map('dashboard-map', { 
-    center: [-10, 90], 
+  mapInstance = L.map('dashboard-map', {
+    center: [-10, 90],
     zoom: 4,
     preferCanvas: true // Hardware acceleration for fast mobile runtime
   });
@@ -238,15 +238,19 @@ function renderSID(sid: string) {
     const actualPts = merged.map(r => [r.LAT, r.LON] as [number,number]);
     const predPts = merged.map(r => [r.LAT_PRED, r.LON_PRED] as [number,number]);
 
-    L.polyline(actualPts, { color: '#111827', weight: 3 }).bindTooltip('Aktual').addTo(mapInstance);
-    L.polyline(predPts, { color: '#1E3A8A', weight: 3, dashArray: '8 6' }).bindTooltip('Prediksi').addTo(mapInstance);
+    // Jalur aktual: halo putih + garis hitam pekat (jelas di semua jenis peta)
+    L.polyline(actualPts, { color: '#FFFFFF', weight: 8, opacity: 0.95 }).addTo(mapInstance);
+    L.polyline(actualPts, { color: '#111827', weight: 4 }).bindTooltip('Jalur Aktual (posisi asli)').addTo(mapInstance);
+    // Jalur prediksi: halo putih + garis merah tua bergaris putus-putus
+    L.polyline(predPts, { color: '#FFFFFF', weight: 8, opacity: 0.95 }).addTo(mapInstance);
+    L.polyline(predPts, { color: '#BE123C', weight: 4, dashArray: '10 7' }).bindTooltip('Jalur Prediksi (hasil model)').addTo(mapInstance);
 
     for (const r of merged) {
-      L.circleMarker([r.LAT, r.LON], { radius: 4, color: '#111827', fillColor: 'white', fillOpacity: 1, weight: 1.5 }).addTo(mapInstance);
-      L.circleMarker([r.LAT_PRED, r.LON_PRED], { radius: 4, color: '#1E3A8A', fillColor: 'white', fillOpacity: 1, weight: 1.5 }).addTo(mapInstance);
+      L.circleMarker([r.LAT, r.LON], { radius: 4.5, color: '#FFFFFF', fillColor: '#111827', fillOpacity: 1, weight: 2 }).addTo(mapInstance);
+      L.circleMarker([r.LAT_PRED, r.LON_PRED], { radius: 4.5, color: '#FFFFFF', fillColor: '#BE123C', fillOpacity: 1, weight: 2 }).addTo(mapInstance);
     }
-    L.circleMarker(actualPts[0], { radius: 7, color: 'green', fillColor: 'green', fillOpacity: 1 }).bindTooltip('Start').addTo(mapInstance);
-    L.circleMarker(actualPts[actualPts.length-1], { radius: 7, color: '#1E3A8A', fillColor: '#1E3A8A', fillOpacity: 1 }).bindTooltip('End').addTo(mapInstance);
+    L.circleMarker(actualPts[0], { radius: 8, color: '#FFFFFF', weight: 2.5, fillColor: '#059669', fillOpacity: 1 }).bindTooltip('Titik Mulai').addTo(mapInstance);
+    L.circleMarker(actualPts[actualPts.length-1], { radius: 8, color: '#FFFFFF', weight: 2.5, fillColor: '#7C3AED', fillOpacity: 1 }).bindTooltip('Titik Akhir').addTo(mapInstance);
 
     const allLats = [...actualPts, ...predPts].map(p => p[0]);
     const allLons = [...actualPts, ...predPts].map(p => p[1]);

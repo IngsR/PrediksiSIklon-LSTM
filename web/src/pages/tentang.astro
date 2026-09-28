@@ -4,29 +4,37 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Tentang Model">
   <div class="fade-in">
     <div class="page-section-header" style="margin-bottom:20px;">
-      <h2 class="section-title" style="font-size:1.2rem;">ℹ️ TENTANG PENELITIAN & EVALUASI MODEL</h2>
+      <h2 class="section-title" style="font-size:1.2rem;">ℹ️ TENTANG PENELITIAN & PEMILIHAN MODEL</h2>
     </div>
 
     <!-- Introduction Narrative Box -->
     <div class="narrative-box" style="margin-bottom: 24px;">
-      <h4>👋 Pengantar Penelitian & Sistem Prediksi</h4>
+      <h4>👋 Cerita di Balik Aplikasi Ini</h4>
       <p style="margin-bottom: 12px;">
-        Selamat datang di halaman <strong>Tentang</strong>. Purwarupa aplikasi ini merupakan implementasi hasil penelitian mengenai
-        <strong>prediksi lintasan siklon tropis menggunakan arsitektur <em>Deep Learning Long Short-Term Memory</em> (LSTM)</strong>.
-        Aplikasi ini menyediakan visualisasi hasil prediksi, data observasi, serta evaluasi kinerja model untuk mendukung analisis
-        terhadap performa prediksi lintasan siklon tropis di <strong>Samudra Hindia</strong>.
+        Badai tropis (siklon) di Samudra Hindia bergerak terus dan bisa berbelok arah.
+        Bagi warga pesisir Sumatera Barat, tahu ke mana badai akan pergi beberapa jam ke depan
+        itu penting. Dari situ penelitian ini dimulai: bagaimana membuat komputer bisa menebak
+        arah gerak badai dengan lebih baik.
+      </p>
+      <p style="margin-bottom: 12px;">
+        Model LSTM sebenarnya bisa membaca pola gerak dari deretan posisi badai. Masalahnya,
+        data mentah saja sering membuat model bingung, karena angkanya tidak beraturan dan
+        sulit dibaca. Maka bagian terpenting dari penelitian ini bukan sekadar memakai LSTM,
+        tapi <strong>merancang pengolahan data (preprocessing) yang lebih optimal</strong>:
+        menghitung jarak antar titik, arah gerak, kecepatan, dan bentuk pola lain dari data badai
+        sebelum diserahkan ke model.
       </p>
       <p style="margin: 0;">
-        Siklon tropis memiliki karakteristik pergerakan temporal dan spasial yang sangat dinamis. Untuk menangkap karakteristik pergerakannya secara akurat, penelitian ini memanfaatkan
-        data historis lintasan siklon dari dataset internasional <strong>IBTrACS (1980–2025)</strong>. Model dilatih menggunakan variasi parameter untuk
-        menemukan konfigurasi terbaik dalam memprediksi koordinat lintasan (Latitude dan Longitude) pada langkah waktu berikutnya.
+        Hasilnya, model jauh lebih mudah mengenali pola gerak badai. Data latihnya sendiri
+        diambil dari catatan badai internasional <strong>IBTrACS tahun 1980–2025</strong>,
+        yaitu ribuan titik badai yang pernah tercatat di Samudra Hindia dan sekitarnya.
       </p>
     </div>
 
     <!-- Haversine Bar Chart Comparison -->
     <div class="page-panel" style="margin-bottom: 16px;">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 4px;">📊 Perbandingan Kinerja Haversine Seluruh Model</div>
-      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 12px;">Mean Haversine Distance (km) — Semakin rendah menunjukkan akurasi spasial lebih baik.</p>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 4px;">📊 Perbandingan Jarak Error (Haversine) Antar Model</div>
+      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 12px;">Rata-rata jarak selisih prediksi terhadap posisi badai sebenarnya (km). Semakin kecil nilainya, semakin tepat model tersebut.</p>
       <div class="chart-container" style="height: clamp(200px, 30vh, 260px);">
         <canvas id="chart-haversine-comp"></canvas>
       </div>
@@ -34,7 +42,7 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Table Ranking Haversine -->
     <div class="page-panel" style="margin-bottom: 16px;">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">🏅 Ranking Seluruh Model – Mean Haversine Distance</div>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">🏅 Peringkat Model Berdasarkan Rata-rata Error</div>
       <div class="custom-table-wrapper" id="table-hav-wrapper">
         <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data ranking...</div>
       </div>
@@ -42,7 +50,7 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Table R2 Score -->
     <div class="page-panel" style="margin-bottom: 16px;">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">📈 Kinerja Model Berdasarkan R² Score</div>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">📈 Kinerja Model Berdasarkan Nilai R²</div>
       <div class="custom-table-wrapper" id="table-r2-wrapper">
         <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data R² score...</div>
       </div>
@@ -50,17 +58,17 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Overfitting & Inference Efficiency -->
     <div class="page-panel" style="margin-bottom: 16px;">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 12px;">⚖️ Analisis Overfitting & Efisiensi Komputasi</div>
-      
-      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 6px;">🔍 Ringkasan Overfitting (Gap Train vs Val Loss)</div>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 12px;">⚖️ Uji Overfitting & Kecepatan Komputasi</div>
+
+      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 6px;">🔍 Selisih Loss Data Latih vs Validasi</div>
       <div class="custom-table-wrapper" id="table-overfit-wrapper" style="margin-bottom: 16px;">
         <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat evaluasi overfitting...</div>
       </div>
 
       <div class="divider"></div>
 
-      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 4px;">⏱️ Kecepatan Inferensi Model (Detik)</div>
-      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 10px;">Waktu inferensi diukur pada seluruh data pengujian.</p>
+      <div style="font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 4px;">⏱️ Waktu Inferensi per Model (Detik)</div>
+      <p style="font-size: 0.8rem; color: #6B7280; margin: 0 0 10px;">Diukur dengan menjalankan prediksi pada seluruh data pengujian.</p>
       <div class="chart-container" style="height: clamp(200px, 30vh, 260px);">
         <canvas id="chart-inference-time"></canvas>
       </div>
@@ -68,7 +76,7 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Detail Training Summary -->
     <div class="page-panel" style="margin-bottom: 16px;">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">⏱️ Detail Statistik Pelatihan Model</div>
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 10px;">⏱️ Statistik Pelatihan Tiap Model</div>
       <div class="custom-table-wrapper" id="table-train-wrapper">
         <div style="text-align:center; padding: 18px; color: #9CA3AF;">Memuat data training summary...</div>
       </div>
@@ -76,35 +84,35 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Model GAB-8 Selection Info -->
     <div class="info-card" style="margin-bottom: 18px; background: #EFF6FF; border-left: 4px solid #1E3A8A;">
-      <h4 style="color: #1E3A8A; margin-top: 0; margin-bottom: 6px;">📌 Pemilihan Model Operasional</h4>
+      <h4 style="color: #1E3A8A; margin-top: 0; margin-bottom: 6px;">📌 Model yang Dipakai di Aplikasi</h4>
       <p style="margin: 0; line-height: 1.55; font-size: 0.86rem;">
-        Berdasarkan seluruh metrik evaluasi, model <strong>GAB Window 8</strong> dipilih sebagai model operasional terbaik. Model ini mencakup dinamika iklim dari kedua belahan samudra (North Indian + South Indian) dengan stabilitas overfitting tinggi (Gap 7.07%) dan akurasi spasial tangguh (Mean Haversine 14.923 km).
+        Dari seluruh pengujian, konfigurasi <strong>GAB Window 8</strong> memberi hasil paling seimbang: mencakup pola badai dari dua belahan Samudra Hindia (utara dan selatan), selisih loss latih–validasi hanya 7,07% (tidak mudah hafal data), dan rata-rata error 14,923 km. Karena itu konfigurasi inilah yang dipakai sebagai model utama pada halaman prediksi.
       </p>
     </div>
 
     <!-- Trajectory Best Model Visualization Images -->
     <div class="page-panel">
-      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 14px;">🗺️ Visualisasi Trajectory Model Terbaik (GAB Window 8)</div>
-      
+      <div style="font-weight: 800; font-size: 0.92rem; color: #1E3A8A; margin-bottom: 14px;">🗺️ Contoh Lintasan Hasil Model GAB Window 8</div>
+
       <div class="grid-2" style="gap: 12px; margin-bottom: 12px;">
         <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model1.png" alt="Trajectory Contoh 1" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 1 (Excellent Accuracy)</p>
+          <img src="/assets/trajectory_best_model1.png" alt="Contoh lintasan 1" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Contoh 1 — Prediksi mendekati posisi asli</p>
         </div>
         <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model2.png" alt="Trajectory Contoh 2" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 2 (High Precision)</p>
+          <img src="/assets/trajectory_best_model2.png" alt="Contoh lintasan 2" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Contoh 2 — Selisih error kecil</p>
         </div>
       </div>
 
       <div class="grid-2" style="gap: 12px;">
         <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model3.png" alt="Trajectory Contoh 3" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 3 (Good Fit)</p>
+          <img src="/assets/trajectory_best_model3.png" alt="Contoh lintasan 3" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Contoh 3 — Arah gerak terprediksi baik</p>
         </div>
         <div style="text-align: center; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; padding: 6px; background: #FAFAFA;">
-          <img src="/assets/trajectory_best_model4.png" alt="Trajectory Contoh 4" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
-          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Trajectory 4 (Consistent)</p>
+          <img src="/assets/trajectory_best_model4.png" alt="Contoh lintasan 4" style="width: 100%; border-radius: 6px; display:block;" loading="lazy" onerror="this.src='/assets/trajectory_best_model.png'" />
+          <p style="margin: 6px 0 2px; font-size: 0.78rem; font-weight: 700; color: #4B5563;">Contoh 4 — Hasil konsisten di beberapa kasus</p>
         </div>
       </div>
     </div>

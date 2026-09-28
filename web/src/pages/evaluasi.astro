@@ -4,14 +4,14 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Evaluasi Akurasi">
   <div class="fade-in">
     <div class="page-section-header" style="margin-bottom:16px;">
-      <h2 class="section-title">📈 EVALUASI AKURASI PER KASUS SIKLON</h2>
-      <p class="section-subtitle">Analisis statistik deviasi spasial aktual vs prediksi per siklon (selisih jarak dalam Kilometer).</p>
+      <h2 class="section-title">📈 SEBERAPA TEPAT PREDIKSI MODEL?</h2>
+      <p class="section-subtitle">Perbandingan posisi badai sebenarnya dengan hasil prediksi model, dihitung sebagai selisih jarak dalam kilometer.</p>
     </div>
 
     <!-- SID Selector -->
     <div class="page-panel" style="margin-bottom:14px;">
       <div class="form-group" style="margin:0;">
-        <label class="form-label" for="sid-select">🆔 Pilih ID Siklon untuk Evaluasi</label>
+        <label class="form-label" for="sid-select">🆔 Pilih Siklon yang Ingin Dievaluasi</label>
         <select id="sid-select" class="form-select">
           <option>Memuat data...</option>
         </select>
@@ -28,12 +28,12 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Metric Explanation -->
     <div class="info-card" style="margin-bottom:14px;">
-      <h4 style="color:#1E3A8A; margin:0 0 6px;">📊 Penjelasan Metrik Evaluasi</h4>
-      <p style="margin:0 0 6px; font-size:0.82rem; line-height:1.5;">Pengukuran keakuratan model dalam memprediksi koordinat siklon:</p>
+      <h4 style="color:#1E3A8A; margin:0 0 6px;">📊 Cara Membaca Angka di Halaman Ini</h4>
+      <p style="margin:0 0 6px; font-size:0.82rem; line-height:1.5;">Semua angka di bawah ini mengukur jarak: seberapa jauh hasil prediksi bergeser dari posisi badai yang sebenarnya.</p>
       <ul style="margin:0; line-height:1.8; padding-left:16px; font-size:0.8rem; color:#374151;">
-        <li><strong>MAE (Mean Absolute Error):</strong> Rata-rata kesalahan absolut jarak spasial (km).</li>
-        <li><strong>RMSE (Root Mean Square Error):</strong> Bobot penalti pada kesalahan signifikan (km).</li>
-        <li><strong>Min / Max Error:</strong> Jarak penyimpangan terkecil & terbesar.</li>
+        <li><strong>MAE (km):</strong> rata-rata selisih jarak prediksi terhadap posisi asli.</li>
+        <li><strong>RMSE (km):</strong> seperti MAE, tetapi lebih menyoroti kesalahan yang besar.</li>
+        <li><strong>Min / Max Error:</strong> selisih terkecil dan terbesar yang pernah terjadi.</li>
       </ul>
     </div>
 
@@ -41,13 +41,13 @@ import Layout from '../layouts/Layout.astro';
     <div class="grid-4" style="margin-bottom:14px;">
       <div class="metric-card"><div class="metric-label">MAE (km)</div><div class="metric-value" id="m-mae">–</div></div>
       <div class="metric-card"><div class="metric-label">RMSE (km)</div><div class="metric-value" id="m-rmse">–</div></div>
-      <div class="metric-card"><div class="metric-label">Min Error</div><div class="metric-value" id="m-min" style="color:#059669;">–</div></div>
-      <div class="metric-card"><div class="metric-label">Max Error</div><div class="metric-value" id="m-max" style="color:#DC2626;">–</div></div>
+      <div class="metric-card"><div class="metric-label">Min Error (km)</div><div class="metric-value" id="m-min" style="color:#059669;">–</div></div>
+      <div class="metric-card"><div class="metric-label">Max Error (km)</div><div class="metric-value" id="m-max" style="color:#DC2626;">–</div></div>
     </div>
 
     <!-- Quality Badge -->
     <div id="quality-badge" style="border-radius:10px;padding:10px 16px;margin-bottom:16px;text-align:center;display:none;border-width:2px;border-style:solid;">
-      <span style="font-size:12px;font-weight:700;color:#4B5563;text-transform:uppercase;">Predikat Akurasi:</span>
+      <span style="font-size:12px;font-weight:700;color:#4B5563;text-transform:uppercase;">Kualitas Prediksi:</span>
       <span id="quality-text" style="font-size:clamp(14px, 3.5vw, 18px);font-weight:900;margin-left:8px;"></span>
     </div>
 
@@ -56,18 +56,18 @@ import Layout from '../layouts/Layout.astro';
     <!-- Charts Row 1 -->
     <div class="grid-2" style="margin-bottom:14px; gap:14px;">
       <div class="page-panel" style="margin:0;">
-        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📉 Deviasi Jarak Per Waktu (km)</div>
+        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📉 Selisih Jarak Tiap Waktu (km)</div>
         <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-error"></canvas></div>
       </div>
       <div class="page-panel" style="margin:0;">
-        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📊 Distribusi Frekuensi Error</div>
+        <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📊 Sebaran Besar Error (Frekuensi)</div>
         <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-freq"></canvas></div>
       </div>
     </div>
 
     <!-- Chart Row 2 -->
     <div class="page-panel" style="margin-bottom:14px;">
-      <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📐 Dekomposisi Deviasi LAT vs LON (Mutlak °)</div>
+      <div style="font-weight:800; font-size:0.85rem; color:#1E3A8A; margin-bottom:8px;">📐 Selisih Lintang vs Bujur (nilai mutlak °)</div>
       <div class="chart-container" style="height:clamp(180px, 28vh, 220px);"><canvas id="chart-decomp"></canvas></div>
     </div>
 
@@ -84,8 +84,8 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Narrative -->
     <div class="narrative-box" style="margin-top:14px;">
-      <h4>[ Ringkasan Evaluasi Spasial ]</h4>
-      Halaman ini menampilkan tingkat akurasi model LSTM dengan membandingkan posisi aktual (data IBTrACS) dan posisi hasil prediksi pada setiap titik waktu. Statistik MAE dan RMSE memberikan gambaran kesalahan rata-rata dalam kilometer. Grafik dekomposisi membantu mengidentifikasi apakah model memiliki bias khusus pada sumbu Lintang (Utara-Selatan) atau Bujur (Barat-Timur).
+      <h4>Ringkasan</h4>
+      Halaman ini membandingkan posisi badai sebenarnya (dari data IBTrACS) dengan posisi hasil prediksi model pada setiap titik waktu. Nilai MAE dan RMSE menunjukkan rata-rata kesalahan dalam kilometer. Grafik terakhir memisahkan kesalahan pada arah lintang (utara–selatan) dan bujur (barat–timur), sehingga bisa terlihat apakah model cenderung melenceng pada sumbu tertentu.
     </div>
   </div>
 </Layout>
@@ -158,10 +158,10 @@ async function renderSID(sid:string) {
   document.getElementById('m-min')!.textContent=minE.toFixed(2);
   document.getElementById('m-max')!.textContent=maxE.toFixed(2);
 
-  let ql='ERROR SANGAT RENDAH',qc='#059669';
-  if(mae>=60){ql='ERROR TINGGI';qc='#DC2626';}
-  else if(mae>=30){ql='ERROR SEDANG';qc='#D97706';}
-  else if(mae>=15){ql='ERROR RENDAH';qc='#1E3A8A';}
+  let ql="Error sangat kecil",qc='#059669';
+  if(mae>=60){ql='Error besar';qc='#DC2626';}
+  else if(mae>=30){ql='Error sedang';qc='#D97706';}
+  else if(mae>=15){ql='Error kecil';qc='#1E3A8A';}
   const qb=document.getElementById('quality-badge')!;
   qb.style.display='block'; qb.style.borderColor=qc; qb.style.background='#F3F4F6';
   document.getElementById('quality-text')!.style.color=qc;

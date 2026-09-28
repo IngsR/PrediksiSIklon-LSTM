@@ -4,15 +4,15 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Data Observasi">
   <div class="fade-in">
     <div class="page-section-header" style="margin-bottom:16px;">
-      <h2 class="section-title">📊 DATA OBSERVASI SIKLON</h2>
-      <p class="section-subtitle">Eksplorasi riwayat observasi siklon tropis Samudra Hindia dari basis data IBTrACS (1980–2025).</p>
+      <h2 class="section-title">📊 DATA OBSERVASI BADAI</h2>
+      <p class="section-subtitle">Telusuri rekaman posisi dan kondisi badai tropis di Samudra Hindia dari dataset IBTrACS (1980–2025).</p>
     </div>
 
     <!-- Search + Dropdown -->
     <div class="page-panel" style="margin-bottom:14px;">
       <div class="form-group" style="position:relative;">
         <label class="form-label" for="sid-search">🔍 Cari ID Siklon</label>
-        <input type="text" id="sid-search" class="form-input" placeholder="Ketik ID Siklon (misal: 1980002...)" autocomplete="off" />
+        <input type="text" id="sid-search" class="form-input" placeholder="Ketik ID siklon, misalnya 1980002..." autocomplete="off" />
         <div id="search-suggestions" style="display:none; position:absolute; left:0; right:0; top:100%; z-index:1000; border:1.5px solid #CBD5E1; border-radius:8px; background:white; max-height:200px; overflow-y:auto; margin-top:4px; box-shadow:0 6px 18px rgba(0,0,0,0.12);"></div>
       </div>
       <div class="form-group" style="margin-bottom:0;">
@@ -35,23 +35,23 @@ import Layout from '../layouts/Layout.astro';
     <div class="page-panel">
       <div style="font-weight:800; font-size:0.88rem; color:#1E3A8A; margin-bottom:10px;">📋 Tabel Data Observasi Lengkap</div>
       <div class="custom-table-wrapper" id="table-wrapper">
-        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih ID Siklon untuk melihat data observasi.</div>
+        <div style="text-align:center; padding:24px; color:#9CA3AF;">Pilih ID siklon untuk menampilkan datanya.</div>
       </div>
     </div>
 
     <!-- Source Note -->
     <div class="info-card" style="margin-top:14px;">
-      <h4 style="color:#1E3A8A; margin:0 0 6px; font-size:0.88rem;">📋 Sumber Data & Keterangan Kolom</h4>
+      <h4 style="color:#1E3A8A; margin:0 0 6px; font-size:0.88rem;">📋 Sumber Data & Arti Kolom</h4>
       <p style="margin:0 0 8px; font-size:0.82rem; line-height:1.5; color:#374151;">
-        Data observasi siklon dari dataset internasional <strong>IBTrACS</strong>. Setiap baris merepresentasikan posisi dan kondisi atmosfer siklon pada interval 3 jam.
+        Data berasal dari dataset internasional <strong>IBTrACS</strong>. Setiap baris berisi posisi dan kondisi atmosfer badai pada selang waktu 3 jam.
       </p>
       <ul style="margin:0; font-size:0.8rem; line-height:1.8; color:#374151; padding-left:16px;">
-        <li><strong>Wind (knot)</strong> – Kecepatan angin maksimum (WMO).</li>
-        <li><strong>Pressure (hPa)</strong> – Tekanan udara minimum di pusat siklon (WMO).</li>
-        <li><strong>Metode Imputasi</strong> – Teknik pengisian data: <em>Original, Linear, Forward/Backward,</em> atau <em>Median</em>.</li>
-        <li><strong>Status</strong> –
-          <span class="badge badge-success">✅ Asli</span> = observasi asli;&nbsp;
-          <span class="badge badge-warning">⚠️ Perbaikan</span> = hasil imputasi data hilang.
+        <li><strong>Wind (knot)</strong> — kecepatan angin maksimum menurut WMO.</li>
+        <li><strong>Pressure (hPa)</strong> — tekanan udara minimum di pusat badai menurut WMO.</li>
+        <li><strong>Imputasi</strong> — cara mengisi data yang kosong: <em>Original, Linear, Forward/Backward,</em> atau <em>Median</em>.</li>
+        <li><strong>Status</strong> —
+          <span class="badge badge-success">✅ Asli</span> = nilai hasil pengukuran langsung;&nbsp;
+          <span class="badge badge-warning">⚠️ Perbaikan</span> = nilai hasil pengisian data yang hilang.
         </li>
       </ul>
     </div>

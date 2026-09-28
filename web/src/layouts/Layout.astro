@@ -14,16 +14,16 @@ const siteUrl = (
 const currentPath = Astro.url.pathname;
 const canonicalUrl = `${siteUrl}${currentPath === '/' ? '' : currentPath}`;
 const ogImageUrl = `${siteUrl}/og.png`;
-const pageTitle = `${title} — Sistem Prediksi Siklon Tropis`;
-const pageDescription = 'Sistem prediksi lintasan siklon tropis berbasis LSTM untuk mitigasi bencana Sumatera Barat';
+const pageTitle = `${title} — PREDIKSI JALUR BADAI (SIKLON)`;
+const pageDescription = 'Alat bantu untuk memperkirakan arah gerak badai (siklon) di Samudra Hindia dan melihat apakah badai itu bisa mendekati pantai Sumatera Barat';
 
 const navItems = [
-  { href: '/', label: 'Beranda', icon: '🏠' },
-  { href: '/dashboard', label: 'Dashboard Prediksi', icon: '🗺️' },
-  { href: '/prediksi', label: 'Prediksi Siklon', icon: '🔮' },
-  { href: '/data-siklon', label: 'Data Observasi', icon: '📊' },
-  { href: '/evaluasi', label: 'Evaluasi Akurasi', icon: '📈' },
-  { href: '/tentang', label: 'Tentang Model', icon: 'ℹ️' },
+  { href: '/', label: 'Halaman Awal', icon: '🏠' },
+  { href: '/dashboard', label: 'Peta Hasil Prediksi', icon: '🗺️' },
+  { href: '/prediksi', label: 'Coba Prediksi', icon: '🔮' },
+  { href: '/data-siklon', label: 'Data Badai Lama', icon: '📊' },
+  { href: '/evaluasi', label: 'Seberapa Tepat?', icon: '📈' },
+  { href: '/tentang', label: 'Tentang Aplikasi', icon: 'ℹ️' },
 ];
 ---
 
@@ -39,7 +39,7 @@ const navItems = [
   <!-- ===== OpenGraph (WhatsApp, Facebook, LinkedIn) ===== -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalUrl} />
-  <meta property="og:site_name" content="Sistem Prediksi Siklon Tropis" />
+  <meta property="og:site_name" content="Prediksi Jalur Badai (Siklon)" />
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   <meta property="og:image" content={ogImageUrl} />
@@ -47,7 +47,7 @@ const navItems = [
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Sistem Prediksi Siklon Tropis - Ikhwan Ramadhan" />
+  <meta property="og:image:alt" content="Prediksi Jalur Badai (Siklon) - Ikhwan Ramadhan" />
   <meta property="og:locale" content="id_ID" />
 
   <!-- Legacy & Fallback image link (WhatsApp & Telegram preview support) -->
@@ -59,7 +59,7 @@ const navItems = [
   <meta name="twitter:title" content={pageTitle} />
   <meta name="twitter:description" content={pageDescription} />
   <meta name="twitter:image" content={ogImageUrl} />
-  <meta name="twitter:image:alt" content="Sistem Prediksi Siklon Tropis - Ikhwan Ramadhan" />
+  <meta name="twitter:image:alt" content="Prediksi Jalur Badai (Siklon) - Ikhwan Ramadhan" />
 
   <title>{pageTitle}</title>
   <link rel="icon" type="image/x-icon" href="/logo.ico" />
@@ -78,7 +78,7 @@ const navItems = [
     <!-- Brand + Collapse button -->
     <div class="sidebar-brand">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <p class="sidebar-brand-text">🧭 Menu Navigasi</p>
+        <p class="sidebar-brand-text">🧭 Menu</p>
         <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Sembunyikan Menu" aria-label="Sembunyikan Menu">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M15 19l-7-7 7-7"/>
@@ -103,12 +103,12 @@ const navItems = [
     <div style="flex-grow:1; min-height:24px;"></div>
     <div class="sidebar-divider"></div>
 
-    <!-- Model badge -->
+    <!-- Badge aplikasi -->
     <div class="model-badge">
       <img src="/logo.jpg" alt="Logo" class="model-badge-logo" width="38" height="38" loading="lazy" />
       <div>
-        <p class="model-badge-title">MODEL LSTM</p>
-        <p class="model-badge-sub">Sliding Window Gabung 8</p>
+        <p class="model-badge-title">PREDIKSI BADAI</p>
+        <p class="model-badge-sub">Sumatera Barat</p>
       </div>
     </div>
   </div>
@@ -118,7 +118,7 @@ const navItems = [
 <div class="layout-wrapper" id="layout-wrapper">
   <!-- Global header banner (High z-index to stay above maps when scrolled) -->
   <header id="global-header">
-    <button id="menu-toggle" class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation" title="Sembunyikan / Tampilkan Menu Navigasi">
+    <button id="menu-toggle" class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation" title="Sembunyikan / Tampilkan Menu">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
         <path d="M3 12h18M3 6h18M3 18h18"/>
       </svg>
@@ -126,8 +126,8 @@ const navItems = [
     </button>
     <img src="/logo.jpg" alt="Logo" class="g-header-logo" width="32" height="32" />
     <div class="g-title-wrapper">
-      <h1 class="g-title">Sistem Prediksi Siklon Tropis</h1>
-      <span class="g-title-sub">Mitigasi Bencana Sumatera Barat</span>
+      <h1 class="g-title">Prediksi Jalur Badai (Siklon)</h1>
+      <span class="g-title-sub">Untuk Warga Pesisir Sumatera Barat</span>
     </div>
   </header>
 
@@ -155,12 +155,13 @@ const navItems = [
             />
             <div class="footer-brand-info">
               <h3 class="footer-brand-name">Ikhwan Ramadhan</h3>
-              <p class="footer-brand-title">Frontend &amp; Machine Learning Engineer</p>
+              <p class="footer-brand-title">Penulis Aplikasi</p>
             </div>
           </div>
 
           <p class="footer-brand-desc">
-            Sistem prediksi lintasan siklon tropis Samudera Hindia berbasis Deep Learning LSTM untuk mitigasi bencana pesisir Sumatera Barat. Dibuat sebagai tugas akhir &amp; portofolio teknik informatika.
+            Skripsi teknik informatika tentang prediksi lintasan siklon tropis di Samudera Hindia,
+            dengan penekanan pada pengolahan data sebelum masuk ke model LSTM.
           </p>
 
           <!-- Social Links -->
@@ -209,7 +210,7 @@ const navItems = [
 
         <!-- Navigation Pills -->
         <div class="footer-nav-col">
-          <h4 class="footer-heading">Menu Navigasi</h4>
+            <h4 class="footer-heading">Halaman</h4>
           <div class="footer-nav-pills">
             {navItems.map(item => {
               const isActive = currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href));
@@ -228,7 +229,7 @@ const navItems = [
 
         <!-- Contact & CV -->
         <div class="footer-contact-col">
-          <h4 class="footer-heading">Kontak Cepat</h4>
+          <h4 class="footer-heading">Hubungi Saya</h4>
           <div class="footer-contact-list">
             <!-- Email -->
             <div class="footer-contact-item">
@@ -265,7 +266,7 @@ const navItems = [
                 <line x1="16" y1="17" x2="8" y2="17"></line>
                 <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
-              <span>Curriculum Vitae &amp; Portofolio</span>
+              <span>Buka Portofolio</span>
             </a>
           </div>
         </div>
@@ -280,9 +281,9 @@ const navItems = [
           type="button"
           class="footer-scroll-top"
           onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-          title="Kembali ke atas halaman"
+          title="Kembali ke bagian atas halaman"
         >
-          <span>Kembali ke atas</span>
+          <span>Ke atas</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="19" x2="12" y2="5"></line>
             <polyline points="5 12 12 5 19 12"></polyline>
